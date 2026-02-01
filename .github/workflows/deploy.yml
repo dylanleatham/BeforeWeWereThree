@@ -43,6 +43,15 @@ jobs:
           app-name: ${{ vars.AZURE_WEBAPP_NAME || 'bwwt-app' }}
           package: ./server
 
+      - name: Purge Front Door cache
+        if: success()
+        run: |
+          az afd endpoint purge \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP || 'bwwt-rg' }} \
+            --profile-name ${{ vars.AZURE_FRONTDOOR_PROFILE || 'bwwt-fd' }} \
+            --endpoint-name ${{ vars.AZURE_FRONTDOOR_ENDPOINT || 'bwwt-endpoint' }} \
+            --content-paths "/*"
+
       - name: Azure Logout
         run: az logout
         if: always()

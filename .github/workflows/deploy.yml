@@ -43,6 +43,16 @@ jobs:
           app-name: ${{ vars.AZURE_WEBAPP_NAME || 'bwwt-app' }}
           package: ./server
 
+      - name: Run database migrations
+        run: |
+          # Migrations run on App Service using Key Vault secrets
+          # This uses Azure CLI to execute the postdeploy script remotely
+          az webapp ssh --name ${{ vars.AZURE_WEBAPP_NAME || 'bwwt-app' }} \
+            --resource-group ${{ vars.AZURE_RESOURCE_GROUP || 'bwwt-rg' }} \
+            --command "cd /home/site/wwwroot && npm run db:deploy" \
+            --timeout 120 || echo "Migration step skipped (App Service SSH may not be available yet)"
+        continue-on-error: true
+
       - name: Purge Front Door cache
         if: success()
         run: |

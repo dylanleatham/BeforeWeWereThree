@@ -1,0 +1,32 @@
+// Prisma schema for Before We Were Three
+// Database: PostgreSQL (Azure Flexible Server)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Application configuration key-value store
+// Used for PIN, feature flags, and other app settings
+model AppConfig {
+  key   String @id
+  value String
+
+  @@map("app_config")
+}
+
+// Participant tracking for device sessions
+// Supports two designated participants (A, B) plus readonly viewers
+model Participant {
+  id                String   @id @default(uuid())
+  deviceFingerprint String   @unique @map("device_fingerprint")
+  designation       String // 'A', 'B', or 'readonly'
+  role              String // 'guest' or 'admin'
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@map("participants")
+}

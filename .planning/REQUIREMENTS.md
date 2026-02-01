@@ -136,10 +136,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-02 | Phase 1 | Pending |
 | AUTH-03 | Phase 1 | Pending |
 | AUTH-04 | Phase 1 | Pending |
+| ADMIN-01 | Phase 1 | Pending |
 | UI-01 | Phase 2 | Pending |
 | UI-02 | Phase 2 | Pending |
 | UI-03 | Phase 2 | Pending |
 | UI-04 | Phase 2 | Pending |
+| ADMIN-05 | Phase 2 | Pending |
 | SYNC-01 | Phase 3 | Pending |
 | SYNC-02 | Phase 3 | Pending |
 | SYNC-03 | Phase 3 | Pending |
@@ -156,6 +158,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MEDIA-02 | Phase 4 | Pending |
 | MEDIA-03 | Phase 4 | Pending |
 | MEDIA-04 | Phase 4 | Pending |
+| ADMIN-02 | Phase 4 | Pending |
+| ADMIN-03 | Phase 4 | Pending |
 | NAME-01 | Phase 5 | Pending |
 | NAME-02 | Phase 5 | Pending |
 | NAME-03 | Phase 5 | Pending |
@@ -165,23 +169,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TRIVIA-01 | Phase 6 | Pending |
 | TRIVIA-02 | Phase 6 | Pending |
 | TRIVIA-03 | Phase 6 | Pending |
+| ADMIN-06 | Phase 6 | Pending |
 | REVEAL-01 | Phase 7 | Pending |
 | REVEAL-02 | Phase 7 | Pending |
 | REVEAL-03 | Phase 7 | Pending |
 | REVEAL-04 | Phase 7 | Pending |
 | REVEAL-05 | Phase 7 | Pending |
-| ADMIN-01 | Phase 1 | Pending |
-| ADMIN-02 | Phase 4 | Pending |
-| ADMIN-03 | Phase 4 | Pending |
 | ADMIN-04 | Phase 7 | Pending |
-| ADMIN-05 | Phase 2 | Pending |
-| ADMIN-06 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 42 total
 - Mapped to phases: 42
-- Unmapped: 0 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after initial definition*
+*Last updated: 2026-02-01 after roadmap creation*

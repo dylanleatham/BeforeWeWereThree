@@ -32,13 +32,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can enter Admin PIN and access configuration mode
   4. User session persists across browser refresh (no re-authentication)
   5. Two devices logged in with same Guest PIN are distinguished as Participant A vs B
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 01-01: Azure resource provisioning and GitHub Actions CI/CD
-- [ ] 01-02: Front Door, custom domain, and HTTPS configuration
-- [ ] 01-03: Key Vault and PostgreSQL with Prisma migrations
-- [ ] 01-04: PIN authentication and session management
+- [ ] 01-01-PLAN.md - Initialize monorepo, Express server, GitHub Actions CI/CD (Wave 1)
+- [ ] 01-02-PLAN.md - Front Door, custom domain, and HTTPS configuration (Wave 2)
+- [ ] 01-03-PLAN.md - Key Vault and PostgreSQL with Prisma migrations (Wave 2, parallel)
+- [ ] 01-04-PLAN.md - PIN authentication and session management (Wave 3)
 
 ### Phase 2: UI Foundation & Envelope Model
 **Goal**: Users see a cohesive visual design with interactive envelopes
@@ -153,7 +153,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure & Foundation | 0/4 | Not started | - |
+| 1. Infrastructure & Foundation | 0/4 | Planned | - |
 | 2. UI Foundation & Envelope | 0/3 | Not started | - |
 | 3. Real-Time Sync & WYR | 0/4 | Not started | - |
 | 4. Letters & Media | 0/5 | Not started | - |

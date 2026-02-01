@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 01-01-PLAN.md - Initialize monorepo, Express server, GitHub Actions CI/CD (Wave 1)
+- [x] 01-01-PLAN.md - Initialize monorepo, Express server, GitHub Actions CI/CD (Wave 1) -- Completed 2026-02-01
 - [ ] 01-02-PLAN.md - Front Door, custom domain, and HTTPS configuration (Wave 2)
 - [ ] 01-03-PLAN.md - Key Vault and PostgreSQL with Prisma migrations (Wave 2, parallel)
 - [ ] 01-04-PLAN.md - PIN authentication and session management (Wave 3)
@@ -153,7 +153,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure & Foundation | 0/4 | Planned | - |
+| 1. Infrastructure & Foundation | 1/4 | In progress | - |
 | 2. UI Foundation & Envelope | 0/3 | Not started | - |
 | 3. Real-Time Sync & WYR | 0/4 | Not started | - |
 | 4. Letters & Media | 0/5 | Not started | - |

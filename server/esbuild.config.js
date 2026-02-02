@@ -35,14 +35,9 @@ const prodPackageJson = {
   type: 'module',
   scripts: {
     start: 'node index.js',
-    'db:deploy': 'prisma migrate deploy',
   },
   dependencies: {
     '@prisma/client': '^6.19.2',
-    prisma: '^6.19.2', // Needed for migrations
-  },
-  prisma: {
-    schema: './prisma/schema.prisma',
   },
 };
 

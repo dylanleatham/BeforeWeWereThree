@@ -58,6 +58,27 @@ All Azure resources should be in the same region (e.g., `centralus`). The setup 
 
 ---
 
+## Express 5 Migration
+
+### SPA Catch-All Route
+
+**Issue:** `TypeError: Missing parameter name at index 1: *`
+
+**Cause:** Express 5 uses a new version of `path-to-regexp` that no longer supports bare `*` wildcards. The old syntax `app.get('*', ...)` is invalid.
+
+**Solution:** Use named wildcard parameters:
+```javascript
+// Old (Express 4):
+app.get('*', (req, res) => { ... });
+
+// New (Express 5):
+app.get('/{*splat}', (req, res) => { ... });
+```
+
+Reference: https://git.new/pathToRegexpError
+
+---
+
 ## Build Configuration
 
 ### npm Workspaces - Shared Package Resolution

@@ -50,7 +50,8 @@ const publicPath = join(__dirname, '..', 'public');
 app.use(express.static(publicPath));
 
 // SPA fallback - serve index.html for all non-API routes
-app.get('*', (req, res) => {
+// Express 5 requires named parameters for wildcards
+app.get('/{*splat}', (req, res) => {
   res.sendFile(join(publicPath, 'index.html'));
 });
 

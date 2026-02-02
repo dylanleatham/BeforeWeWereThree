@@ -48,11 +48,15 @@ jobs:
           package: ./server/deploy
 
       - name: Run database migrations
-        if: ${{ secrets.DATABASE_URL != '' }}
         working-directory: ./server
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npx prisma migrate deploy
+        run: |
+          if [ -n "$DATABASE_URL" ]; then
+            npx prisma migrate deploy
+          else
+            echo "DATABASE_URL not set, skipping migrations"
+          fi
         continue-on-error: true
 
       - name: Purge Front Door cache

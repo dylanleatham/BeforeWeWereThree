@@ -14,18 +14,20 @@ import { PinEntry } from './components/auth/PinEntry';
 function App() {
   const { isLoading, isAuthenticated, role, designation, login } = useSession();
 
-  // Loading state
+  // Not authenticated: show PIN entry
+  // Note: PinEntry handles its own loading state, so we don't show
+  // the global loading spinner here to avoid unmounting it during login
+  if (!isAuthenticated) {
+    return <PinEntry onSubmit={login} isLoading={isLoading} />;
+  }
+
+  // Loading state (only shown when checking existing session on mount)
   if (isLoading) {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.loadingSpinner} />
       </div>
     );
-  }
-
-  // Not authenticated: show PIN entry
-  if (!isAuthenticated) {
-    return <PinEntry onSubmit={login} />;
   }
 
   // Admin: show admin dashboard placeholder

@@ -12,7 +12,7 @@ This roadmap transforms "Before We Were Three" from concept to working babymoon 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Azure Infrastructure & Foundation** - Deploy pipeline, secrets, database, PIN auth
+- [x] **Phase 1: Azure Infrastructure & Foundation** - Deploy pipeline, secrets, database, PIN auth
 - [ ] **Phase 2: UI Foundation & Envelope Model** - Design system, envelope states, animations
 - [ ] **Phase 3: Real-Time Sync & Would You Rather** - SignalR, presence, synchronized voting
 - [ ] **Phase 4: Letters to Baby & Media** - Text input, photo uploads, media library
@@ -36,9 +36,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md - Initialize monorepo, Express server, GitHub Actions CI/CD (Wave 1) -- Completed 2026-02-01
-- [ ] 01-02-PLAN.md - Front Door, custom domain, and HTTPS configuration (Wave 2)
-- [ ] 01-03-PLAN.md - Key Vault and PostgreSQL with Prisma migrations (Wave 2, parallel)
-- [ ] 01-04-PLAN.md - PIN authentication and session management (Wave 3)
+- [x] 01-02-PLAN.md - Front Door, custom domain, and HTTPS configuration (Wave 2) -- Completed 2026-02-01
+- [x] 01-03-PLAN.md - Key Vault and PostgreSQL with Prisma migrations (Wave 2, parallel) -- Completed 2026-02-02
+- [x] 01-04-PLAN.md - PIN authentication and session management (Wave 3) -- Completed 2026-02-02
 
 ### Phase 2: UI Foundation & Envelope Model
 **Goal**: Users see a cohesive visual design with interactive envelopes
@@ -153,7 +153,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure & Foundation | 1/4 | In progress | - |
+| 1. Infrastructure & Foundation | 4/4 | Complete | 2026-02-02 |
 | 2. UI Foundation & Envelope | 0/3 | Not started | - |
 | 3. Real-Time Sync & WYR | 0/4 | Not started | - |
 | 4. Letters & Media | 0/5 | Not started | - |

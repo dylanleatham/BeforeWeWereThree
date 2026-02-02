@@ -9,17 +9,17 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Azure App Service deploys via GitHub Actions on push to main
-- [ ] **INFRA-02**: Azure Front Door serves custom domain with HTTPS
-- [ ] **INFRA-03**: Azure Key Vault stores secrets with Managed Identity access
-- [ ] **INFRA-04**: PostgreSQL Flexible Server with Prisma migrations
+- [x] **INFRA-01**: Azure App Service deploys via GitHub Actions on push to main
+- [x] **INFRA-02**: Azure Front Door serves custom domain with HTTPS
+- [x] **INFRA-03**: Azure Key Vault stores secrets with Managed Identity access
+- [x] **INFRA-04**: PostgreSQL Flexible Server with Prisma migrations
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can enter Guest PIN to access the app
-- [ ] **AUTH-02**: User can enter Admin PIN to access configuration mode
-- [ ] **AUTH-03**: Session persists across browser refresh (JWT/cookie)
-- [ ] **AUTH-04**: Two participants are distinguished (A vs B) by device
+- [x] **AUTH-01**: User can enter Guest PIN to access the app
+- [x] **AUTH-02**: User can enter Admin PIN to access configuration mode
+- [x] **AUTH-03**: Session persists across browser refresh (JWT/cookie)
+- [x] **AUTH-04**: Two participants are distinguished (A vs B) by device
 
 ### UI Foundation
 
@@ -81,7 +81,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Admin Mode
 
-- [ ] **ADMIN-01**: Admin can set Guest PIN and Admin PIN
+- [x] **ADMIN-01**: Admin can set Guest PIN and Admin PIN (via database; UI in later phase)
 - [ ] **ADMIN-02**: Admin can configure Spotify playlist URL
 - [ ] **ADMIN-03**: Admin can upload and delete photos in media library
 - [ ] **ADMIN-04**: Admin can configure Gender Reveal (value + keys)
@@ -128,15 +128,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
-| INFRA-03 | Phase 1 | Pending |
-| INFRA-04 | Phase 1 | Pending |
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| ADMIN-01 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
+| INFRA-03 | Phase 1 | Complete |
+| INFRA-04 | Phase 1 | Complete |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
+| AUTH-03 | Phase 1 | Complete |
+| AUTH-04 | Phase 1 | Complete |
+| ADMIN-01 | Phase 1 | Complete |
 | UI-01 | Phase 2 | Pending |
 | UI-02 | Phase 2 | Pending |
 | UI-03 | Phase 2 | Pending |
@@ -184,4 +184,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after roadmap creation*
+*Last updated: 2026-02-02 after Phase 1 completion*

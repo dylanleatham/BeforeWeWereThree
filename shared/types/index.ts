@@ -3,30 +3,26 @@
  * API contracts and shared interfaces
  */
 
-/**
- * Standard API success response shape
- * Per CLAUDE.md: All responses use consistent shape
- */
-export interface ApiSuccessResponse<T> {
-  success: true;
-  data: T;
-}
+// Re-export API types
+export type {
+  ApiError,
+  ApiSuccessResponse,
+  ApiErrorResponse,
+  ApiResponse,
+} from './api.js';
+export { successResponse, errorResponse } from './api.js';
 
-/**
- * Standard API error response shape
- */
-export interface ApiErrorResponse {
-  success: false;
-  error: {
-    code: string;
-    message: string;
-  };
-}
-
-/**
- * Union type for all API responses
- */
-export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+// Re-export auth types
+export type {
+  Role,
+  Designation,
+  ValidatePinRequest,
+  ValidatePinResponse,
+  SessionPayload,
+  SessionResponse,
+  Participant,
+} from './auth.js';
+export { pinSchema, validatePinRequestSchema } from './auth.js';
 
 /**
  * Health check response data

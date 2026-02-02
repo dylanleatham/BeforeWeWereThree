@@ -56,22 +56,15 @@ jobs:
       - name: Purge Front Door cache
         if: success()
         continue-on-error: true
-        timeout-minutes: 2
+        timeout-minutes: 1
         run: |
-          # Check if Front Door exists before attempting purge
-          if az afd profile show \
+          # Purge cache without waiting for completion (--no-wait)
+          az afd endpoint purge \
             --resource-group ${{ vars.AZURE_RESOURCE_GROUP || 'bwwt-rg' }} \
             --profile-name ${{ vars.AZURE_FRONTDOOR_PROFILE || 'bwwt-fd' }} \
-            --query "name" -o tsv 2>/dev/null; then
-            echo "Front Door found, purging cache..."
-            az afd endpoint purge \
-              --resource-group ${{ vars.AZURE_RESOURCE_GROUP || 'bwwt-rg' }} \
-              --profile-name ${{ vars.AZURE_FRONTDOOR_PROFILE || 'bwwt-fd' }} \
-              --endpoint-name ${{ vars.AZURE_FRONTDOOR_ENDPOINT || 'bwwt-endpoint' }} \
-              --content-paths "/*"
-          else
-            echo "Front Door not configured yet, skipping cache purge"
-          fi
+            --endpoint-name ${{ vars.AZURE_FRONTDOOR_ENDPOINT || 'bwwt-endpoint' }} \
+            --content-paths "/*" \
+            --no-wait || echo "Cache purge skipped (Front Door may not be configured)"
 
       - name: Azure Logout
         run: az logout

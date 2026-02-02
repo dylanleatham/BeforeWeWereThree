@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const deployDir = join(__dirname, 'deploy');
-const prismaDir = join(__dirname, '..', 'prisma');
+const prismaDir = join(__dirname, 'prisma');
 
 // Ensure deploy directory exists
 mkdirSync(deployDir, { recursive: true });

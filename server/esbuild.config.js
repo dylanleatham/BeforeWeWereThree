@@ -35,9 +35,14 @@ const prodPackageJson = {
   type: 'module',
   scripts: {
     start: 'node index.js',
+    postinstall: 'prisma generate',
   },
   dependencies: {
     '@prisma/client': '^6.19.2',
+    'prisma': '^6.19.2',
+  },
+  prisma: {
+    schema: './prisma/schema.prisma',
   },
 };
 

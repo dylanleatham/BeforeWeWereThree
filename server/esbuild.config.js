@@ -6,10 +6,12 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const deployDir = join(__dirname, 'deploy');
 const prismaDir = join(__dirname, 'prisma');
+const clientDistDir = join(__dirname, '..', 'client', 'dist');
 
 // Ensure deploy directory exists
 mkdirSync(deployDir, { recursive: true });
 mkdirSync(join(deployDir, 'prisma'), { recursive: true });
+mkdirSync(join(deployDir, 'public'), { recursive: true });
 
 // Bundle the server
 await esbuild.build({
@@ -56,6 +58,14 @@ const migrationsDir = join(prismaDir, 'migrations');
 if (existsSync(migrationsDir)) {
   cpSync(migrationsDir, join(deployDir, 'prisma', 'migrations'), { recursive: true });
   console.log('Copied migrations folder');
+}
+
+// Copy client build to public folder
+if (existsSync(clientDistDir)) {
+  cpSync(clientDistDir, join(deployDir, 'public'), { recursive: true });
+  console.log('Copied client build to public/');
+} else {
+  console.warn('Warning: client/dist not found. Run client build first.');
 }
 
 console.log('Build complete. Output in ./deploy/');

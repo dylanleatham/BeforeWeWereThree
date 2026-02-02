@@ -2,13 +2,31 @@ import express, { Express } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import healthRouter from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const app: Express = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware - configured for React SPA
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        connectSrc: ["'self'"],
+      },
+    },
+  })
+);
 
 // CORS configuration
 const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:5173';
@@ -23,9 +41,18 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// Mount routers
+// Mount API routers
 app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
+
+// Serve static files from client build
+const publicPath = join(__dirname, '..', 'public');
+app.use(express.static(publicPath));
+
+// SPA fallback - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(join(publicPath, 'index.html'));
+});
 
 // Start server (only when not imported for testing)
 const PORT = process.env.PORT ?? 3000;

@@ -38,8 +38,8 @@ const prodPackageJson = {
     'db:deploy': 'prisma migrate deploy',
   },
   dependencies: {
-    '@prisma/client': '^6.4.1',
-    prisma: '^6.4.1', // Needed for migrations
+    '@prisma/client': '^6.19.2',
+    prisma: '^6.19.2', // Needed for migrations
   },
   prisma: {
     schema: './prisma/schema.prisma',

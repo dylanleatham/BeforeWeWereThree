@@ -1,7 +1,9 @@
 import express, { Express } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import healthRouter from './routes/health.js';
+import { authRouter } from './routes/auth.js';
 
 const app: Express = express();
 
@@ -17,11 +19,13 @@ app.use(
   })
 );
 
-// Parse JSON bodies
+// Parse JSON bodies and cookies
 app.use(express.json());
+app.use(cookieParser());
 
-// Mount health router
+// Mount routers
 app.use('/api/health', healthRouter);
+app.use('/api/auth', authRouter);
 
 // Start server (only when not imported for testing)
 const PORT = process.env.PORT ?? 3000;

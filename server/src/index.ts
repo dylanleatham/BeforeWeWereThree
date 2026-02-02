@@ -46,7 +46,8 @@ app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
 
 // Serve static files from client build
-const publicPath = join(__dirname, '..', 'public');
+// In production bundle, public/ is in the same directory as index.js
+const publicPath = join(__dirname, 'public');
 app.use(express.static(publicPath));
 
 // SPA fallback - serve index.html for all non-API routes

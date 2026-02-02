@@ -574,23 +574,23 @@ npx prisma migrate deploy
 
 ## Verification Checklist
 
-- [ ] Resource group `bwwt-rg` exists
-- [ ] App Registration `bwwt-github-oidc` created with federated credential
-- [ ] App Service `bwwt-app` running Node 22
-- [ ] App Service has managed identity enabled
-- [ ] Key Vault `bwwt-kv` created with RBAC
-- [ ] App Service has Key Vault Secrets User role
-- [ ] PostgreSQL `bwwt-db` created with PgBouncer enabled
-- [ ] Secrets `database-url` and `jwt-secret` stored in Key Vault
-- [ ] App Service has Key Vault reference settings (green checkmarks)
-- [ ] Front Door `bwwt-fd` created (Standard tier)
-- [ ] DNS TXT record added for domain validation
-- [ ] DNS CNAME/ALIAS records point to Front Door
-- [ ] Custom domain validated and certificate provisioned
-- [ ] GitHub secrets configured
-- [ ] GitHub Actions deployment succeeds
-- [ ] Health endpoint responds at custom domain
-- [ ] Prisma migrations applied
+- [X] Resource group `bwwt-rg` exists
+- [X] App Registration `bwwt-github-oidc` created with federated credential
+- [X] App Service `bwwt-app` running Node 22
+- [X] App Service has managed identity enabled
+- [X] Key Vault `bwwt-kv` created with RBAC
+- [X] App Service has Key Vault Secrets User role
+- [X] PostgreSQL `bwwt-db` created with PgBouncer enabled
+- [X] Secrets `database-url` and `jwt-secret` stored in Key Vault
+- [X] App Service has Key Vault reference settings (green checkmarks)
+- [X] Front Door `bwwt-fd` created (Standard tier)
+- [X] DNS TXT record added for domain validation
+- [X] DNS CNAME/ALIAS records point to Front Door
+- [X] Custom domain validated and certificate provisioned
+- [X] GitHub secrets configured
+- [X] GitHub Actions deployment succeeds
+- [X] Health endpoint responds at custom domain
+- [X] Prisma migrations applied
 
 ---
 

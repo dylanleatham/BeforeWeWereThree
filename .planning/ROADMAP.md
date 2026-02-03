@@ -50,12 +50,13 @@ Plans:
   3. Opening an envelope triggers a satisfying animation
   4. Admin can create and edit envelopes
   5. Layout works well on mobile with large touch targets
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 02-01: Design system tokens and base components
-- [ ] 02-02: Envelope component with state machine and animations
-- [ ] 02-03: Admin envelope management interface
+- [ ] 02-01-PLAN.md - Design system tokens and base UI components (Wave 1)
+- [ ] 02-02-PLAN.md - Envelope data model, types, and API endpoints (Wave 1, parallel)
+- [ ] 02-03-PLAN.md - Envelope components with animation and haptics (Wave 2)
+- [ ] 02-04-PLAN.md - Pile navigation and admin envelope management (Wave 3)
 
 ### Phase 3: Real-Time Sync & Would You Rather
 **Goal**: Two devices stay synchronized; both partners can vote and reveal together
@@ -154,7 +155,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Foundation | 4/4 | Complete | 2026-02-02 |
-| 2. UI Foundation & Envelope | 0/3 | Not started | - |
+| 2. UI Foundation & Envelope | 0/4 | Not started | - |
 | 3. Real-Time Sync & WYR | 0/4 | Not started | - |
 | 4. Letters & Media | 0/5 | Not started | - |
 | 5. Baby Name Game & AI | 0/4 | Not started | - |
@@ -165,4 +166,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Roadmap created: 2026-02-01*
 *Depth: comprehensive*
 *Total phases: 7*
-*Total plans: 26*
+*Total plans: 27*

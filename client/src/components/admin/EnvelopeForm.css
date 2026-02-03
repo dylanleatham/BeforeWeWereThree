@@ -1,0 +1,79 @@
+.envelope-form {
+  background: var(--bg-card);
+  border-radius: 1rem;
+  padding: var(--space-6);
+  max-width: 400px;
+}
+
+.envelope-form__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-6) 0;
+}
+
+.envelope-form__error {
+  background: rgba(224, 122, 95, 0.1);
+  color: var(--color-dusk-rose);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0.5rem;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.envelope-form__field {
+  margin-bottom: var(--space-5);
+}
+
+.envelope-form__label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.envelope-form__input,
+.envelope-form__select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-light-linen);
+  border-radius: 0.75rem;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  transition: border-color var(--duration-fast) var(--ease-default);
+  min-height: 48px;
+}
+
+.envelope-form__input:focus,
+.envelope-form__select:focus {
+  outline: none;
+  border-color: var(--color-sunrise-gold);
+}
+
+.envelope-form__input::placeholder {
+  color: var(--text-muted);
+}
+
+.envelope-form__input--narrow {
+  width: 100px;
+}
+
+.envelope-form__hint {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: var(--space-1) 0 0 0;
+}
+
+.envelope-form__actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-light-linen);
+}

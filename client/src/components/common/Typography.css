@@ -1,0 +1,89 @@
+/**
+ * Typography Component Styles
+ *
+ * Heading: Fraunces display font
+ * Text: Source Sans 3 body font
+ */
+
+/* ===========================================
+ * HEADING BASE STYLES
+ * =========================================== */
+.heading {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  color: var(--text-primary);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+/* ===========================================
+ * HEADING LEVELS
+ * Size mapping: h1 -> 4xl, h2 -> 3xl, h3 -> 2xl, h4 -> xl
+ * =========================================== */
+.heading--1 {
+  font-size: var(--text-4xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+}
+
+.heading--2 {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+}
+
+.heading--3 {
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  letter-spacing: var(--tracking-normal);
+}
+
+.heading--4 {
+  font-size: var(--text-xl);
+  font-weight: 500;
+  letter-spacing: var(--tracking-normal);
+}
+
+/* ===========================================
+ * TEXT BASE STYLES
+ * =========================================== */
+.text {
+  font-family: var(--font-body);
+  margin: 0;
+}
+
+/* ===========================================
+ * TEXT SIZE VARIANTS
+ * =========================================== */
+.text--body {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  font-weight: 400;
+}
+
+.text--small {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  font-weight: 400;
+}
+
+.text--caption {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  font-weight: 400;
+}
+
+/* ===========================================
+ * TEXT COLORS
+ * =========================================== */
+.text--primary {
+  color: var(--text-primary);
+}
+
+.text--secondary {
+  color: var(--text-secondary);
+}
+
+.text--muted {
+  color: var(--text-muted);
+}

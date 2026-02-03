@@ -24,6 +24,18 @@ export type {
 } from './auth.js';
 export { pinSchema, validatePinRequestSchema } from './auth.js';
 
+// Re-export envelope types
+export type {
+  EnvelopeStatus,
+  EnvelopeType,
+  Envelope,
+  CreateEnvelopeRequest,
+  UpdateEnvelopeRequest,
+  EnvelopeListResponse,
+  EnvelopeResponse,
+} from './envelope.js';
+export { createEnvelopeSchema, updateEnvelopeSchema } from './envelope.js';
+
 /**
  * Health check response data
  */

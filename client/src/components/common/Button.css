@@ -1,0 +1,125 @@
+/**
+ * Button Component Styles
+ *
+ * Uses CSS variables from design system.
+ * All sizes maintain 48px minimum touch target for accessibility.
+ */
+
+/* ===========================================
+ * BASE BUTTON STYLES
+ * =========================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-base);
+  letter-spacing: var(--tracking-wide);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  min-height: 3rem; /* 48px touch target */
+  transition:
+    background-color var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+}
+
+.btn:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+/* ===========================================
+ * DISABLED STATE
+ * =========================================== */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ===========================================
+ * VARIANT: PRIMARY
+ * Sunrise gold background, warm charcoal text
+ * =========================================== */
+.btn--primary {
+  background-color: var(--color-sunrise-gold);
+  color: var(--color-warm-charcoal);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-deep-terracotta);
+  color: var(--color-cream);
+}
+
+.btn--primary:active:not(:disabled) {
+  background-color: var(--color-deep-terracotta);
+}
+
+/* ===========================================
+ * VARIANT: SECONDARY
+ * Transparent with border
+ * =========================================== */
+.btn--secondary {
+  background-color: transparent;
+  color: var(--color-warm-charcoal);
+  border: 2px solid var(--color-light-linen);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  border-color: var(--color-muted-stone);
+  background-color: var(--color-light-linen);
+}
+
+.btn--secondary:active:not(:disabled) {
+  background-color: var(--color-light-linen);
+}
+
+/* ===========================================
+ * VARIANT: GHOST
+ * Text only, no background or border
+ * =========================================== */
+.btn--ghost {
+  background-color: transparent;
+  color: var(--color-warm-charcoal);
+  border: none;
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background-color: rgba(61, 58, 56, 0.05);
+  color: var(--color-deep-terracotta);
+}
+
+.btn--ghost:active:not(:disabled) {
+  background-color: rgba(61, 58, 56, 0.08);
+}
+
+/* ===========================================
+ * SIZE: SMALL
+ * Maintains 48px touch target via padding
+ * =========================================== */
+.btn--sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  min-height: 3rem; /* 48px touch target */
+}
+
+/* ===========================================
+ * SIZE: MEDIUM (default)
+ * =========================================== */
+.btn--md {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-base);
+  min-height: 3rem; /* 48px touch target */
+}
+
+/* ===========================================
+ * SIZE: LARGE
+ * =========================================== */
+.btn--lg {
+  padding: var(--space-5) var(--space-10);
+  font-size: var(--text-lg);
+  min-height: 3.5rem; /* 56px - larger touch target */
+}

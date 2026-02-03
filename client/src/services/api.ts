@@ -1,4 +1,13 @@
-import type { ApiResponse, ValidatePinResponse, SessionResponse } from 'shared';
+import type {
+  ApiResponse,
+  ValidatePinResponse,
+  SessionResponse,
+  Envelope,
+  EnvelopeListResponse,
+  EnvelopeResponse,
+  CreateEnvelopeRequest,
+  UpdateEnvelopeRequest,
+} from 'shared';
 
 /**
  * API client for Before We Were Three
@@ -72,4 +81,84 @@ export async function logout(): Promise<ApiResponse<{ message: string }>> {
   return apiFetch<{ message: string }>('/auth/logout', {
     method: 'POST',
   });
+}
+
+// ============================================================================
+// Envelope API
+// ============================================================================
+
+/**
+ * Fetch all envelopes
+ */
+export async function getEnvelopes(): Promise<Envelope[]> {
+  const response = await apiFetch<EnvelopeListResponse>('/envelopes');
+
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch envelopes');
+  }
+
+  return response.data.envelopes;
+}
+
+/**
+ * Fetch single envelope by ID
+ */
+export async function getEnvelope(id: string): Promise<Envelope> {
+  const response = await apiFetch<EnvelopeResponse>(`/envelopes/${id}`);
+
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch envelope');
+  }
+
+  return response.data.envelope;
+}
+
+/**
+ * Create new envelope (admin only)
+ */
+export async function createEnvelope(
+  envelope: CreateEnvelopeRequest
+): Promise<Envelope> {
+  const response = await apiFetch<EnvelopeResponse>('/envelopes', {
+    method: 'POST',
+    body: JSON.stringify(envelope),
+  });
+
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to create envelope');
+  }
+
+  return response.data.envelope;
+}
+
+/**
+ * Update envelope (admin only)
+ */
+export async function updateEnvelope(
+  id: string,
+  updates: UpdateEnvelopeRequest
+): Promise<Envelope> {
+  const response = await apiFetch<EnvelopeResponse>(`/envelopes/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to update envelope');
+  }
+
+  return response.data.envelope;
+}
+
+/**
+ * Delete envelope (admin only)
+ */
+export async function deleteEnvelope(id: string): Promise<void> {
+  const response = await apiFetch<Record<string, never>>(`/envelopes/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to delete envelope');
+  }
 }

@@ -30,3 +30,17 @@ model Participant {
 
   @@map("participants")
 }
+
+// Envelope activity container
+// Each envelope holds one activity (Would You Rather, Letter, Trivia, etc.)
+model Envelope {
+  id        String   @id @default(uuid())
+  title     String   // Display title (e.g., "Would You Rather #1")
+  type      String   // Activity type: 'would-you-rather' | 'letter' | 'trivia' | 'name-game' | 'gender-reveal'
+  status    String   @default("sealed") // 'sealed' | 'opened' | 'completed'
+  order     Int      // Display order in pile
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("envelopes")
+}

@@ -1,0 +1,114 @@
+.envelope-pile {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.envelope-pile--expanded {
+  max-width: 100%;
+  padding: var(--space-4);
+}
+
+.envelope-pile__stack {
+  position: relative;
+  height: 280px;
+  cursor: grab;
+}
+
+.envelope-pile__stack:active {
+  cursor: grabbing;
+}
+
+.envelope-pile__card {
+  top: 0;
+  left: 0;
+}
+
+/* Navigation */
+.envelope-pile__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+}
+
+.envelope-pile__dots {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.envelope-pile__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-light-linen);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+.envelope-pile__dot:hover {
+  background: var(--color-muted-stone);
+}
+
+.envelope-pile__dot--active {
+  background: var(--color-sunrise-gold);
+  transform: scale(1.2);
+}
+
+.envelope-pile__dot:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
+.envelope-pile__count {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Swipe hint */
+.envelope-pile__hint {
+  position: absolute;
+  bottom: var(--space-2);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  animation: fadeInOut 3s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Empty state */
+.envelope-pile__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 280px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.envelope-pile__empty-icon {
+  margin-bottom: var(--space-4);
+  opacity: 0.5;
+}
+
+.envelope-pile__empty-text {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+}

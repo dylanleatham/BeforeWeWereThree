@@ -5,34 +5,35 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Two people, one screen each, sharing moments that matter.
-**Current focus:** Phase 1 Complete - Ready for Phase 2
+**Current focus:** Phase 2 - UI Foundation & Envelope Model
 
 ## Current Position
 
-Phase: 1 of 7 (Azure Infrastructure & Foundation) - COMPLETE
-Plan: 4 of 4 in current phase
-Status: Complete
-Last activity: 2026-02-02 - Completed 01-04-PLAN.md
+Phase: 2 of 7 (UI Foundation & Envelope Model)
+Plan: 1 of 4 in current phase
+Status: In Progress
+Last activity: 2026-02-02 - Completed 02-01-PLAN.md
 
-Progress: [████████████████████████] 100% (Phase 1)
-Overall:  [####......................] 14% (1/7 phases)
+Progress: [██████........................] 25% (Phase 2)
+Overall:  [######....................] 21% (5/24 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: ~30 min (including manual debugging)
-- Total execution time: ~2 hours
+- Total plans completed: 5
+- Average duration: ~25 min (including manual debugging)
+- Total execution time: ~2 hours 6 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 4/4 | ~2 hrs | ~30 min |
+| 02 | 1/4 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (3 min), 01-02 (checkpoint), 01-03 (7 min), 01-04 (manual debug ~2 hrs)
-- Trend: Infrastructure foundation complete with deployment debugging
+- Last 5 plans: 01-02 (checkpoint), 01-03 (7 min), 01-04 (manual debug ~2 hrs), 02-01 (6 min)
+- Trend: Fast execution on well-defined UI tasks
 
 *Updated after each plan completion*
 
@@ -57,6 +58,9 @@ Recent decisions affecting current work:
 | 01-04 | Express 5 catch-all: /{*splat} | New path-to-regexp requires named wildcards |
 | 01-04 | jose for JWT | ESM-native, Edge-compatible |
 | 01-04 | FingerprintJS for device ID | Reliable cross-browser fingerprinting |
+| 02-01 | motion package (v12+) | Import from 'motion/react', not deprecated 'framer-motion' |
+| 02-01 | CSS variables for all styling | Design tokens in variables.css, no hardcoded hex in components |
+| 02-01 | Explicit ButtonProps interface | Avoids TypeScript conflict with motion.button props |
 
 ### Pending Todos
 
@@ -69,5 +73,11 @@ None. Phase 1 infrastructure fully operational.
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Phase 1 complete, ready for Phase 2 planning
+Stopped at: Completed 02-01-PLAN.md (Design System Tokens)
 Resume file: None
+
+**Phase 2 Progress:**
+- [x] 02-01: Design System Tokens (complete)
+- [ ] 02-02: Envelope Component
+- [ ] 02-03: Activity Shell Components
+- [ ] 02-04: Layout and Navigation

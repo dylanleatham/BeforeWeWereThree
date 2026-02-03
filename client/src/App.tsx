@@ -1,172 +1,109 @@
+import { MotionConfig } from 'motion/react';
 import { useSession } from './hooks/useSession';
+import { useEnvelopes } from './hooks/useEnvelopes';
 import { PinEntry } from './components/auth/PinEntry';
+import { EnvelopePile } from './components/envelope';
+import { EnvelopeManager } from './components/admin';
+import { Heading, Text } from './components/common';
+import './styles/globals.css';
 
 /**
  * Main App Component
- * Handles authentication gate and routes to appropriate experience
- *
- * Per CONTEXT.md:
- * - Guest: main participant experience (placeholder for now)
- * - Admin: configuration dashboard (placeholder for now)
- * - Subtle admin indicator
+ * Routes based on authentication and role:
+ * - Not authenticated: PIN entry
+ * - Guest: Envelope pile
+ * - Admin: Envelope management
  */
-
 function App() {
-  const { isLoading, isAuthenticated, role, designation, login } = useSession();
+  const { isLoading: sessionLoading, isAuthenticated, role, designation, login } = useSession();
+  const {
+    envelopes,
+    isLoading: envelopesLoading,
+    error: envelopesError,
+    refetch,
+    updateStatus,
+  } = useEnvelopes();
 
   // Not authenticated: show PIN entry
-  // Note: PinEntry handles its own loading state, so we don't show
-  // the global loading spinner here to avoid unmounting it during login
   if (!isAuthenticated) {
-    return <PinEntry onSubmit={login} isLoading={isLoading} />;
+    return <PinEntry onSubmit={login} isLoading={sessionLoading} />;
   }
 
-  // Loading state (only shown when checking existing session on mount)
-  if (isLoading) {
+  // Loading state (checking session)
+  if (sessionLoading) {
     return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingSpinner} />
+      <div className="app-loading">
+        <div className="app-loading__spinner" />
       </div>
     );
   }
 
-  // Admin: show admin dashboard placeholder
+  // Admin view
   if (role === 'admin') {
     return (
-      <div style={styles.container}>
-        <div style={styles.adminIndicator}>Admin Mode</div>
-        <div style={styles.content}>
-          <h1 style={styles.title}>Admin Dashboard</h1>
-          <p style={styles.subtitle}>Configuration and envelope management</p>
-          <div style={styles.placeholder}>
-            <p>Coming in Phase 2:</p>
-            <ul style={styles.list}>
-              <li>Envelope management</li>
-              <li>Activity configuration</li>
-              <li>Participant settings</li>
-            </ul>
-          </div>
+      <MotionConfig reducedMotion="user">
+        <div className="app app--admin">
+          <header className="app__header">
+            <span className="app__admin-badge">Admin Mode</span>
+          </header>
+          <main className="app__main">
+            <EnvelopeManager
+              envelopes={envelopes}
+              onRefresh={refetch}
+              isLoading={envelopesLoading}
+            />
+          </main>
         </div>
-      </div>
+      </MotionConfig>
     );
   }
 
-  // Guest: show participant welcome
+  // Guest view - envelope pile
   return (
-    <div style={styles.container}>
-      <div style={styles.content}>
-        <h1 style={styles.title}>Welcome, Participant!</h1>
-        <p style={styles.subtitle}>Your babymoon adventure awaits</p>
-        {designation === 'readonly' && (
-          <p style={styles.readonlyNotice}>
-            You're in viewing mode. The main experience is designed for two.
-          </p>
-        )}
-        <div style={styles.placeholder}>
-          <p>Coming in Phase 2:</p>
-          <ul style={styles.list}>
-            <li>Envelope selection</li>
-            <li>Activities and games</li>
-            <li>Letters and memories</li>
-          </ul>
-        </div>
+    <MotionConfig reducedMotion="user">
+      <div className="app">
+        <header className="app__header">
+          <Heading level={1} className="app__title">
+            Before We Were Three
+          </Heading>
+          {designation === 'readonly' && (
+            <Text variant="small" color="muted" className="app__readonly">
+              Viewing mode
+            </Text>
+          )}
+        </header>
+
+        <main className="app__main">
+          {envelopesLoading && envelopes.length === 0 ? (
+            <div className="app__loading-envelopes">
+              <Text color="muted">Loading your envelopes...</Text>
+            </div>
+          ) : envelopesError ? (
+            <div className="app__error">
+              <Text color="muted">
+                {envelopesError.message || 'Failed to load envelopes'}
+              </Text>
+              <button onClick={refetch} className="app__retry">
+                Try again
+              </button>
+            </div>
+          ) : envelopes.length === 0 ? (
+            <div className="app__empty">
+              <Heading level={2}>No envelopes yet</Heading>
+              <Text color="muted">
+                Ask your admin to add some activities!
+              </Text>
+            </div>
+          ) : (
+            <EnvelopePile
+              envelopes={envelopes}
+              onStatusChange={(id, status) => updateStatus(id, status)}
+            />
+          )}
+        </main>
       </div>
-    </div>
+    </MotionConfig>
   );
-}
-
-/**
- * Styles
- * Warm, intimate design per CONTEXT.md
- */
-const styles: { [key: string]: React.CSSProperties } = {
-  loadingContainer: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'linear-gradient(135deg, #FAF3E8 0%, #FFF8F0 100%)',
-  },
-  loadingSpinner: {
-    width: '40px',
-    height: '40px',
-    border: '3px solid #E0D8D0',
-    borderTopColor: '#F4A261',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  },
-  container: {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #FAF3E8 0%, #FFF8F0 100%)',
-    padding: '2rem',
-    position: 'relative' as const,
-  },
-  adminIndicator: {
-    position: 'absolute' as const,
-    top: '1rem',
-    right: '1rem',
-    padding: '0.5rem 1rem',
-    backgroundColor: 'rgba(188, 108, 74, 0.1)',
-    color: '#BC6C4A',
-    borderRadius: '8px',
-    fontSize: '0.85rem',
-    fontFamily: 'system-ui, sans-serif',
-    fontWeight: '500',
-  },
-  content: {
-    maxWidth: '600px',
-    margin: '0 auto',
-    textAlign: 'center' as const,
-    paddingTop: '4rem',
-  },
-  title: {
-    fontFamily: 'Georgia, serif',
-    fontSize: '2.5rem',
-    fontWeight: '500',
-    color: '#3D3D3D',
-    margin: '0 0 0.5rem 0',
-  },
-  subtitle: {
-    fontFamily: 'system-ui, sans-serif',
-    fontSize: '1.1rem',
-    color: '#6B6B6B',
-    margin: '0 0 2rem 0',
-  },
-  readonlyNotice: {
-    fontFamily: 'system-ui, sans-serif',
-    fontSize: '0.95rem',
-    color: '#9DB5A0',
-    margin: '0 0 2rem 0',
-    fontStyle: 'italic',
-  },
-  placeholder: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: '16px',
-    padding: '2rem',
-    textAlign: 'left' as const,
-    fontFamily: 'system-ui, sans-serif',
-  },
-  list: {
-    margin: '1rem 0 0 0',
-    paddingLeft: '1.5rem',
-    color: '#6B6B6B',
-    lineHeight: 1.8,
-  },
-};
-
-// Add spin animation for loading spinner
-if (typeof document !== 'undefined') {
-  const styleId = 'app-styles';
-  if (!document.getElementById(styleId)) {
-    const styleSheet = document.createElement('style');
-    styleSheet.id = styleId;
-    styleSheet.textContent = `
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(styleSheet);
-  }
 }
 
 export default App;

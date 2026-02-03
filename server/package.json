@@ -9,7 +9,7 @@
   "scripts": {
     "build": "prisma generate && node esbuild.config.js",
     "build:tsc": "prisma generate && tsc",
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file=.env src/index.ts",
     "start": "node dist/index.js",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",

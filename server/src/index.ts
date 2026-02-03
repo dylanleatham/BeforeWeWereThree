@@ -12,6 +12,9 @@ const __dirname = dirname(__filename);
 
 const app: Express = express();
 
+// Trust first proxy (Azure App Service/Front Door) for correct client IP in rate limiting
+app.set('trust proxy', 1);
+
 // Security middleware - configured for React SPA
 app.use(
   helmet({
@@ -54,6 +57,15 @@ app.use(express.static(publicPath));
 // Express 5 requires named parameters for wildcards
 app.get('/{*splat}', (req, res) => {
   res.sendFile(join(publicPath, 'index.html'));
+});
+
+// Global error handler - ensures consistent API response shape for unhandled errors
+import type { Request, Response, NextFunction } from 'express';
+import { errorResponse } from 'shared';
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json(errorResponse('INTERNAL_ERROR', 'An unexpected error occurred'));
 });
 
 // Start server (only when not imported for testing)

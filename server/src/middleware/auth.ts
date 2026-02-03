@@ -40,6 +40,7 @@ export async function authMiddleware(
     next();
   } catch (error) {
     res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
+    return;
   }
 }
 

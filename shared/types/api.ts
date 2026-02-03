@@ -9,6 +9,7 @@
 export interface ApiError {
   code: string;
   message: string;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -42,6 +43,10 @@ export function successResponse<T>(data: T): ApiSuccessResponse<T> {
 /**
  * Helper to create error response
  */
-export function errorResponse(code: string, message: string): ApiErrorResponse {
-  return { success: false, error: { code, message } };
+export function errorResponse(
+  code: string,
+  message: string,
+  details?: Record<string, unknown>
+): ApiErrorResponse {
+  return { success: false, error: { code, message, details } };
 }

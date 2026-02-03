@@ -22,13 +22,6 @@ export function PinEntry({ onSubmit, isLoading = false }: PinEntryProps) {
     inputRef.current?.focus();
   }, []);
 
-  // Auto-submit when 8 digits entered
-  useEffect(() => {
-    if (pin.length === 8 && !isLoading) {
-      handleSubmit();
-    }
-  }, [pin]);
-
   const handleSubmit = useCallback(async () => {
     if (pin.length !== 8 || isLoading) return;
 
@@ -48,6 +41,13 @@ export function PinEntry({ onSubmit, isLoading = false }: PinEntryProps) {
       }, 500);
     }
   }, [pin, isLoading, onSubmit]);
+
+  // Auto-submit when 8 digits entered
+  useEffect(() => {
+    if (pin.length === 8 && !isLoading) {
+      handleSubmit();
+    }
+  }, [pin, isLoading, handleSubmit]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, ''); // Only digits

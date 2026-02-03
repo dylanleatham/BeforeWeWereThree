@@ -32,8 +32,9 @@ export async function getDeviceFingerprint(): Promise<string> {
   try {
     const agent = await getAgent();
     const result = await agent.get();
-    cachedFingerprint = result.visitorId;
-    return cachedFingerprint!;
+    const fingerprint = result.visitorId;
+    cachedFingerprint = fingerprint;
+    return fingerprint;
   } catch (error) {
     // Fallback: generate a random ID if fingerprinting fails
     console.error('Fingerprinting failed, using fallback:', error);

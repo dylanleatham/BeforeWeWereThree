@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { timingSafeEqual } from 'crypto';
 import { validatePinRequestSchema, successResponse, errorResponse } from 'shared';
 import type { ValidatePinResponse, SessionResponse } from 'shared';
 import { getGuestPin, getAdminPin } from '../db/queries/config.js';
@@ -6,6 +7,14 @@ import { getOrCreateParticipant } from '../services/participant.js';
 import { createSession, verifySession, SESSION_COOKIE_OPTIONS, getSessionExpiration } from '../services/session.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { pinRateLimiter } from '../middleware/rateLimit.js';
+
+/**
+ * Constant-time string comparison to prevent timing attacks
+ */
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 /**
  * Authentication routes for Before We Were Three
@@ -40,12 +49,12 @@ router.post('/validate-pin', pinRateLimiter, async (req: Request, res: Response)
     // Get stored PINs from database
     const [guestPin, adminPin] = await Promise.all([getGuestPin(), getAdminPin()]);
 
-    // Determine role based on PIN match
+    // Determine role based on PIN match (timing-safe comparison)
     let role: 'guest' | 'admin';
 
-    if (pin === adminPin) {
+    if (adminPin && safeCompare(pin, adminPin)) {
       role = 'admin';
-    } else if (pin === guestPin) {
+    } else if (guestPin && safeCompare(pin, guestPin)) {
       role = 'guest';
     } else {
       // Per CONTEXT.md: friendly message on wrong PIN

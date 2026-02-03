@@ -77,11 +77,12 @@ export interface SessionResponse {
 
 /**
  * Participant type matching Prisma model
+ * Note: designation is nullable for admin participants
  */
 export interface Participant {
   id: string;
   deviceFingerprint: string;
-  designation: Designation;
+  designation: Designation | null;
   role: Role;
   createdAt: Date;
 }

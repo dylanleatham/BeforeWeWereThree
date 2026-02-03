@@ -67,33 +67,36 @@ export async function getOrCreateParticipant(
     };
   }
 
-  // Count existing guest participants to determine designation
-  const guestCount = await db.participant.count({
-    where: { role: 'guest' },
-  });
+  // Use transaction to prevent race condition when two devices login simultaneously
+  const newParticipant = await db.$transaction(async (tx) => {
+    // Count existing guest participants to determine designation
+    const guestCount = await tx.participant.count({
+      where: { role: 'guest' },
+    });
 
-  // Determine designation based on order
-  let designation: Designation;
-  if (guestCount === 0) {
-    designation = 'A';
-  } else if (guestCount === 1) {
-    designation = 'B';
-  } else {
-    designation = 'readonly';
-  }
+    // Determine designation based on order
+    let designation: Designation;
+    if (guestCount === 0) {
+      designation = 'A';
+    } else if (guestCount === 1) {
+      designation = 'B';
+    } else {
+      designation = 'readonly';
+    }
 
-  // Create new guest participant
-  const newParticipant = await db.participant.create({
-    data: {
-      deviceFingerprint: fingerprint,
-      designation,
-      role: 'guest',
-    },
+    // Create new guest participant
+    return tx.participant.create({
+      data: {
+        deviceFingerprint: fingerprint,
+        designation,
+        role: 'guest',
+      },
+    });
   });
 
   return {
     participantId: newParticipant.id,
-    designation,
+    designation: newParticipant.designation as Designation,
   };
 }
 

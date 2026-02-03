@@ -4,7 +4,7 @@ import { validatePinRequestSchema, successResponse, errorResponse } from 'shared
 import type { ValidatePinResponse, SessionResponse } from 'shared';
 import { getGuestPin, getAdminPin } from '../db/queries/config.js';
 import { getOrCreateParticipant } from '../services/participant.js';
-import { createSession, verifySession, SESSION_COOKIE_OPTIONS, getSessionExpiration } from '../services/session.js';
+import { createSession, SESSION_COOKIE_OPTIONS, getSessionExpiration } from '../services/session.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { pinRateLimiter } from '../middleware/rateLimit.js';
 

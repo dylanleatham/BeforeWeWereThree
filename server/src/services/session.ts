@@ -80,7 +80,7 @@ export async function verifySession(token: string): Promise<SessionPayload> {
       deviceFingerprint: tokenPayload.deviceFingerprint,
       designation: tokenPayload.designation as Designation | null,
     };
-  } catch (error) {
+  } catch {
     throw new Error('Invalid or expired session');
   }
 }

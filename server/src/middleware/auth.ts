@@ -10,6 +10,7 @@ import type { SessionPayload } from 'shared';
 
 // Extend Express Request to include session
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       session?: SessionPayload;
@@ -38,7 +39,7 @@ export async function authMiddleware(
     const session = await verifySession(sessionCookie);
     req.session = session;
     next();
-  } catch (error) {
+  } catch {
     res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
     return;
   }

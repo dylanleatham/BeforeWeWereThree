@@ -4,7 +4,6 @@
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyMock = jest.Mock<any>;
 
 // Create mock functions

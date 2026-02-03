@@ -42,9 +42,10 @@ export function PinEntry({ onSubmit, isLoading = false }: PinEntryProps) {
     }
   }, [pin, isLoading, onSubmit]);
 
-  // Auto-submit when 8 digits entered
+  // Auto-submit when 8 digits entered (intentional UX pattern)
   useEffect(() => {
     if (pin.length === 8 && !isLoading) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleSubmit();
     }
   }, [pin, isLoading, handleSubmit]);

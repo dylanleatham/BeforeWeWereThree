@@ -64,7 +64,7 @@ export function useSession(): UseSessionReturn {
             error: null,
           });
         }
-      } catch (error) {
+      } catch {
         setState({
           isLoading: false,
           isAuthenticated: false,
@@ -109,7 +109,7 @@ export function useSession(): UseSessionReturn {
         }));
         return { success: false, error: response.error.message };
       }
-    } catch (error) {
+    } catch {
       const errorMessage = 'Unable to connect to server';
       setState((prev) => ({
         ...prev,

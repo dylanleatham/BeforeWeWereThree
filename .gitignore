@@ -36,3 +36,7 @@ coverage/
 
 # Misc
 nul
+
+# Local environment files
+.env
+server/.env

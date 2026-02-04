@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
-import { Plus, Edit2, Trash2, Mail } from 'lucide-react';
+import { Plus, Edit2, Trash2, Mail, Users } from 'lucide-react';
 import type { Envelope, CreateEnvelopeRequest, UpdateEnvelopeRequest } from 'shared';
 import { Button, Card, Heading, Text } from '../common';
 import { EnvelopeForm } from './EnvelopeForm';
-import { createEnvelope, updateEnvelope, deleteEnvelope } from '../../services/api';
+import { createEnvelope, updateEnvelope, deleteEnvelope, resetParticipants } from '../../services/api';
 import './EnvelopeManager.css';
 
 interface EnvelopeManagerProps {
@@ -26,6 +26,22 @@ export function EnvelopeManager({
   const [formMode, setFormMode] = useState<FormMode>({ type: 'closed' });
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [resetConfirm, setResetConfirm] = useState(false);
+
+  const handleResetParticipants = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const result = await resetParticipants();
+      if (result.success) {
+        setResetConfirm(false);
+        alert('Guest participants have been reset. New devices will get A/B designations.');
+      } else {
+        alert('Failed to reset participants: ' + result.error?.message);
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }, []);
 
   const handleCreate = useCallback(async (data: CreateEnvelopeRequest) => {
     setIsSaving(true);
@@ -170,6 +186,48 @@ export function EnvelopeManager({
           ))}
         </ul>
       )}
+
+      {/* Debug/Test Tools */}
+      <section className="envelope-manager__tools">
+        <Heading level={3}>Test Tools</Heading>
+        <Card className="envelope-manager__tool-card">
+          <div className="envelope-manager__tool-info">
+            <Users size={20} />
+            <div>
+              <Text>Reset Participants</Text>
+              <Text variant="small" color="muted">
+                Clear all guest A/B designations. New logins will be reassigned.
+              </Text>
+            </div>
+          </div>
+          {resetConfirm ? (
+            <div className="envelope-manager__actions">
+              <button
+                className="envelope-manager__btn envelope-manager__btn--danger"
+                onClick={handleResetParticipants}
+                disabled={isSaving}
+              >
+                Confirm Reset
+              </button>
+              <button
+                className="envelope-manager__btn"
+                onClick={() => setResetConfirm(false)}
+                disabled={isSaving}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <Button
+              variant="secondary"
+              onClick={() => setResetConfirm(true)}
+              disabled={isSaving}
+            >
+              Reset
+            </Button>
+          )}
+        </Card>
+      </section>
     </div>
   );
 }

@@ -3,9 +3,9 @@ import { timingSafeEqual } from 'crypto';
 import { validatePinRequestSchema, successResponse, errorResponse } from 'shared';
 import type { ValidatePinResponse, SessionResponse } from 'shared';
 import { getGuestPin, getAdminPin } from '../db/queries/config.js';
-import { getOrCreateParticipant } from '../services/participant.js';
+import { getOrCreateParticipant, resetParticipants } from '../services/participant.js';
 import { createSession, SESSION_COOKIE_OPTIONS, getSessionExpiration } from '../services/session.js';
-import { authMiddleware } from '../middleware/auth.js';
+import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 import { pinRateLimiter } from '../middleware/rateLimit.js';
 
 /**
@@ -115,6 +115,21 @@ router.get('/session', authMiddleware, async (req: Request, res: Response) => {
 router.post('/logout', async (_req: Request, res: Response) => {
   res.clearCookie('session', { path: '/' });
   res.json(successResponse({ message: 'Logged out successfully' }));
+});
+
+/**
+ * DELETE /participants
+ * Resets all guest participants (admin only)
+ * Useful for testing A/B designation reassignment
+ */
+router.delete('/participants', adminMiddleware, async (_req: Request, res: Response) => {
+  try {
+    await resetParticipants();
+    res.json(successResponse({ message: 'All guest participants have been reset' }));
+  } catch (error) {
+    console.error('Reset participants error:', error);
+    res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to reset participants'));
+  }
 });
 
 export { router as authRouter };

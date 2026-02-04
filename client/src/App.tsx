@@ -16,6 +16,35 @@ import './styles/globals.css';
  */
 function App() {
   const { isLoading: sessionLoading, isAuthenticated, role, designation, login } = useSession();
+
+  // Not authenticated: show PIN entry
+  if (!isAuthenticated) {
+    return <PinEntry onSubmit={login} isLoading={sessionLoading} />;
+  }
+
+  // Authenticated: show main app
+  return (
+    <AuthenticatedApp
+      role={role}
+      designation={designation}
+      sessionLoading={sessionLoading}
+    />
+  );
+}
+
+/**
+ * Authenticated App View
+ * Separated to ensure useEnvelopes only runs when authenticated
+ */
+function AuthenticatedApp({
+  role,
+  designation,
+  sessionLoading,
+}: {
+  role: string | null;
+  designation: string | null;
+  sessionLoading: boolean;
+}) {
   const {
     envelopes,
     isLoading: envelopesLoading,
@@ -23,11 +52,6 @@ function App() {
     refetch,
     updateStatus,
   } = useEnvelopes();
-
-  // Not authenticated: show PIN entry
-  if (!isAuthenticated) {
-    return <PinEntry onSubmit={login} isLoading={sessionLoading} />;
-  }
 
   // Loading state (checking session)
   if (sessionLoading) {

@@ -83,6 +83,16 @@ export async function logout(): Promise<ApiResponse<{ message: string }>> {
   });
 }
 
+/**
+ * Reset all guest participants (admin only)
+ * Useful for testing A/B designation reassignment
+ */
+export async function resetParticipants(): Promise<ApiResponse<{ message: string }>> {
+  return apiFetch<{ message: string }>('/auth/participants', {
+    method: 'DELETE',
+  });
+}
+
 // ============================================================================
 // Envelope API
 // ============================================================================

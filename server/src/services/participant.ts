@@ -55,16 +55,24 @@ export async function getOrCreateParticipant(
     return { participantId: newAdmin.id, designation: null };
   }
 
-  // Guest role - check for existing participant
+  // Guest role - check for existing GUEST participant with this fingerprint
   const existing = await db.participant.findUnique({
     where: { deviceFingerprint: fingerprint },
   });
 
-  if (existing) {
+  // If existing participant is a guest, return it
+  if (existing && existing.role === 'guest') {
     return {
       participantId: existing.id,
       designation: existing.designation as Designation,
     };
+  }
+
+  // If existing is admin, delete it so guest can get proper designation
+  if (existing && existing.role === 'admin') {
+    await db.participant.delete({
+      where: { id: existing.id },
+    });
   }
 
   // Use transaction to prevent race condition when two devices login simultaneously

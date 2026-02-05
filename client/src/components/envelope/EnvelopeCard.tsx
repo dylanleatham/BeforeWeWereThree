@@ -14,7 +14,7 @@ interface EnvelopeCardProps {
 /**
  * Envelope card for pile display
  * Shows title, activity type label, status indicator
- * Per CONTEXT.md: ribbon for sealed, open flap for opened, heart badge for completed
+ * Per CONTEXT.md: wax seal for sealed, open flap for opened, heart badge for completed
  */
 export function EnvelopeCard({
   envelope,
@@ -58,8 +58,8 @@ export function EnvelopeCard({
         </span>
       )}
 
-      {/* Ribbon (sealed only) */}
-      {isSealed && <div className="envelope-card__ribbon" aria-hidden="true" />}
+      {/* Wax seal (sealed only) */}
+      {isSealed && <div className="envelope-card__seal" aria-hidden="true" />}
 
       {/* Completion badge (completed only) */}
       {isCompleted && (

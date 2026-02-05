@@ -13,7 +13,7 @@ This roadmap transforms "Before We Were Three" from concept to working babymoon 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Azure Infrastructure & Foundation** - Deploy pipeline, secrets, database, PIN auth
-- [ ] **Phase 2: UI Foundation & Envelope Model** - Design system, envelope states, animations
+- [x] **Phase 2: UI Foundation & Envelope Model** - Design system, envelope states, animations
 - [ ] **Phase 3: Real-Time Sync & Would You Rather** - SignalR, presence, synchronized voting
 - [ ] **Phase 4: Letters to Baby & Media** - Text input, photo uploads, media library
 - [ ] **Phase 5: Baby Name Game & AI** - Anthropic API, voting, match detection
@@ -53,10 +53,10 @@ Plans:
 **Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 02-01-PLAN.md - Design system tokens and base UI components (Wave 1)
-- [ ] 02-02-PLAN.md - Envelope data model, types, and API endpoints (Wave 1, parallel)
-- [ ] 02-03-PLAN.md - Envelope components with animation and haptics (Wave 2)
-- [ ] 02-04-PLAN.md - Pile navigation and admin envelope management (Wave 3)
+- [x] 02-01-PLAN.md - Design system tokens and base UI components (Wave 1) -- Completed 2026-02-02
+- [x] 02-02-PLAN.md - Envelope data model, types, and API endpoints (Wave 1, parallel) -- Completed 2026-02-02
+- [x] 02-03-PLAN.md - Envelope components with animation and haptics (Wave 2) -- Completed 2026-02-02
+- [x] 02-04-PLAN.md - Pile navigation and admin envelope management (Wave 3) -- Completed 2026-02-04
 
 ### Phase 3: Real-Time Sync & Would You Rather
 **Goal**: Two devices stay synchronized; both partners can vote and reveal together

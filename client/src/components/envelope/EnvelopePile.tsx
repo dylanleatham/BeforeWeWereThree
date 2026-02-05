@@ -22,7 +22,7 @@ interface EnvelopePileProps {
 export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
   const [selectedEnvelope, setSelectedEnvelope] = useState<Envelope | null>(null);
 
-  const { currentIndex, dragX, isDragging, bind, goTo } = useSwipeNavigation({
+  const { currentIndex, dragX, isDragging, direction, bind, goTo } = useSwipeNavigation({
     itemCount: envelopes.length,
   });
 
@@ -48,9 +48,12 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
     [selectedEnvelope, onStatusChange]
   );
 
-  // Visible envelopes: current + 2 behind
-  const visibleCount = 3;
-  const visibleEnvelopes = envelopes.slice(currentIndex, currentIndex + visibleCount);
+  // Visible envelopes: current + 2 behind (wraps for looping)
+  const visibleCount = Math.min(3, envelopes.length);
+  const visibleEnvelopes: Envelope[] = [];
+  for (let i = 0; i < visibleCount; i++) {
+    visibleEnvelopes.push(envelopes[(currentIndex + i) % envelopes.length] as Envelope);
+  }
 
   // If an envelope is open, show it fullscreen
   if (selectedEnvelope) {
@@ -78,9 +81,9 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
               <motion.div
                 key={envelope.id}
                 className="envelope-pile__card"
-                custom={i}
+                custom={{ i, direction }}
                 variants={pileCardVariants}
-                initial="behind"
+                initial="enter"
                 animate={i === 0 ? 'front' : 'behind'}
                 exit="exit"
                 transition={springTransition}

@@ -5,7 +5,7 @@ import type { Variants, Transition } from 'motion/react';
  * Per CONTEXT.md: 400-500ms flourish animation
  */
 
-// Envelope flap animation (ribbon untying effect)
+// Envelope flap animation
 export const envelopeFlapVariants: Variants = {
   sealed: {
     rotateX: 0,
@@ -54,29 +54,6 @@ export const contentRevealVariants: Variants = {
   },
 };
 
-// Ribbon untying animation
-export const ribbonVariants: Variants = {
-  tied: {
-    scale: 1,
-    rotate: 0,
-    opacity: 1,
-  },
-  untying: {
-    scale: [1, 1.15, 0.85],
-    rotate: [0, 15, -8, 0],
-    opacity: [1, 1, 0.5],
-    transition: {
-      duration: 0.4,
-      ease: 'easeOut',
-    },
-  },
-  untied: {
-    scale: 0.85,
-    rotate: -5,
-    opacity: 0.4,
-  },
-};
-
 // Completion badge pop-in
 export const badgeVariants: Variants = {
   hidden: {
@@ -96,8 +73,16 @@ export const badgeVariants: Variants = {
 };
 
 // Pile card stacking (for pile navigation)
+// Custom param: { i: number, direction: number } where direction is 1 (forward) or -1 (backward)
 export const pileCardVariants: Variants = {
-  behind: (i: number) => ({
+  enter: ({ direction }: { i: number; direction: number }) => ({
+    x: direction > 0 ? 0 : -300,
+    opacity: direction > 0 ? 1 : 0,
+    rotate: direction > 0 ? 0 : 10,
+    scale: 1,
+  }),
+  behind: ({ i }: { i: number; direction: number }) => ({
+    x: 0,
     scale: 1 - i * 0.04,
     y: i * 6,
     rotate: (i % 2 === 0 ? 1 : -1) * i * 1.5,
@@ -105,18 +90,19 @@ export const pileCardVariants: Variants = {
     opacity: 1 - i * 0.12,
   }),
   front: {
+    x: 0,
     scale: 1,
     y: 0,
     rotate: 0,
     zIndex: 10,
     opacity: 1,
   },
-  exit: {
-    x: -300,
+  exit: ({ direction }: { i: number; direction: number }) => ({
+    x: direction > 0 ? -300 : 300,
     opacity: 0,
-    rotate: -10,
+    rotate: direction > 0 ? -10 : 10,
     transition: { duration: 0.3 },
-  },
+  }),
 };
 
 // Default spring for satisfying physical feel

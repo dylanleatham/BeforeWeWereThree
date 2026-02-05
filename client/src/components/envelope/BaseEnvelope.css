@@ -58,24 +58,6 @@
   z-index: 5;
 }
 
-/* Ribbon */
-.base-envelope__ribbon {
-  position: absolute;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 70%;
-  height: 14px;
-  background: linear-gradient(
-    135deg,
-    var(--color-dusk-rose) 0%,
-    var(--color-sunrise-gold) 50%,
-    var(--color-dusk-rose) 100%
-  );
-  border-radius: 3px;
-  z-index: 6;
-}
-
 /* Content area */
 .base-envelope__content {
   padding: var(--space-8);
@@ -146,17 +128,4 @@
 
 .base-envelope--completed .base-envelope__title {
   color: var(--text-secondary);
-}
-
-/* Pulse animation */
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(0.9);
-  }
 }

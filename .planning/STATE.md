@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Two people, one screen each, sharing moments that matter.
-**Current focus:** Phase 2 - UI Foundation & Envelope Model
+**Current focus:** Phase 3 - Real-Time Sync & Would You Rather
 
 ## Current Position
 
-Phase: 2 of 7 (UI Foundation & Envelope Model)
-Plan: 3 of 4 in current phase
-Status: In Progress
-Last activity: 2026-02-02 - Completed 02-03-PLAN.md
+Phase: 3 of 7 (Real-Time Sync & Would You Rather)
+Plan: 0 of 4 in current phase
+Status: Ready to plan
+Last activity: 2026-02-04 - Phase 2 verified and complete
 
-Progress: [██████████████████............] 75% (Phase 2)
-Overall:  [█████████.................] 29% (7/24 plans)
+Progress: [..............................] 0% (Phase 3)
+Overall:  [████████████...............] 33% (8/24 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: ~19 min (including manual debugging)
+- Total plans completed: 8
+- Average duration: ~17 min (including manual debugging)
 - Total execution time: ~2 hours 18 min
 
 **By Phase:**
@@ -29,10 +29,10 @@ Overall:  [█████████.................] 29% (7/24 plans)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 4/4 | ~2 hrs | ~30 min |
-| 02 | 3/4 | 18 min | 6 min |
+| 02 | 4/4 | ~18 min | ~5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (manual debug ~2 hrs), 02-01 (6 min), 02-02 (8 min), 02-03 (4 min)
+- Last 5 plans: 02-01 (6 min), 02-02 (8 min), 02-03 (4 min), 02-04 (~10 min)
 - Trend: Fast execution on well-defined tasks
 
 *Updated after each plan completion*
@@ -63,6 +63,9 @@ Recent decisions affecting current work:
 | 02-01 | Explicit ButtonProps interface | Avoids TypeScript conflict with motion.button props |
 | 02-02 | String enums for envelope type/status | Prisma stores as String, TypeScript provides type safety |
 | 02-02 | Express 5 typed params | Request<{ id: string }> for route parameters |
+| 02-04 | Wax seal instead of ribbon | Ribbon looked goofy; wax seal is elegant and fits aesthetic |
+| 02-04 | DELETE returns JSON (not 204) | Consistent API response shape, avoids client JSON parse error |
+| 02-04 | Swipe looping enabled | Pile wraps around for continuous navigation |
 
 ### Pending Todos
 
@@ -70,16 +73,22 @@ None currently
 
 ### Blockers/Concerns
 
-None. Infrastructure and data layer operational.
+None. Infrastructure, data layer, and UI foundation operational.
 
 ## Session Continuity
 
-Last session: 2026-02-02
-Stopped at: Completed 02-03-PLAN.md (Envelope UI Components)
+Last session: 2026-02-04
+Stopped at: Phase 2 verified complete, ready for Phase 3
 Resume file: None
 
 **Phase 2 Progress:**
 - [x] 02-01: Design System Tokens (complete)
 - [x] 02-02: Envelope Data Model (complete)
 - [x] 02-03: Envelope UI Components (complete)
-- [ ] 02-04: Layout and Navigation
+- [x] 02-04: Layout and Navigation (complete, verified 2026-02-04)
+
+**Bugs fixed during verification:**
+- DELETE endpoint returning 204 (empty body) causing client JSON parse error
+- Ribbon animation appearing during envelope open (replaced with wax seal)
+- Swipe animation only working in one direction (added direction-aware variants)
+- Swipe not looping around pile (added wrapping)

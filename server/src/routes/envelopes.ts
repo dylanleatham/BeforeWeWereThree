@@ -126,7 +126,7 @@ router.delete('/:id', adminMiddleware, async (req: Request<{ id: string }>, res:
       return;
     }
 
-    res.status(204).send();
+    res.json(successResponse({ deleted: true }));
   } catch (error) {
     console.error('Failed to delete envelope:', error);
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete envelope'));

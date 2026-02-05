@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { motion, AnimatePresence, MotionConfig } from 'motion/react';
+import { motion, MotionConfig } from 'motion/react';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import type { Envelope, EnvelopeStatus } from 'shared';
@@ -7,7 +7,6 @@ import { useHaptics } from '../../hooks/useHaptics';
 import {
   envelopeFlapVariants,
   contentRevealVariants,
-  ribbonVariants,
 } from '../../utils/motion';
 import { EnvelopeCard } from './EnvelopeCard';
 import './BaseEnvelope.css';
@@ -94,23 +93,9 @@ export function BaseEnvelope({
           className="base-envelope__flap"
           variants={envelopeFlapVariants}
           initial="sealed"
-          animate={isOpen ? 'opened' : 'sealed'}
+          animate={isAnimating ? 'opening' : isOpen ? 'opened' : 'sealed'}
           aria-hidden="true"
         />
-
-        {/* Ribbon (fades out on open) */}
-        <AnimatePresence>
-          {isAnimating && (
-            <motion.div
-              className="base-envelope__ribbon"
-              variants={ribbonVariants}
-              initial="tied"
-              animate="untying"
-              exit={{ opacity: 0 }}
-              aria-hidden="true"
-            />
-          )}
-        </AnimatePresence>
 
         {/* Content area */}
         <motion.div

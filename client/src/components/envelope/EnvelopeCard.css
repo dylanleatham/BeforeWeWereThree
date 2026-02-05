@@ -36,43 +36,35 @@
   box-shadow: 0 1px 4px rgba(61, 58, 56, 0.04);
 }
 
-/* Ribbon decoration - gift-like aesthetic */
-.envelope-card__ribbon {
+/* Wax seal decoration - elegant sealed indicator */
+.envelope-card__seal {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-5deg);
-  width: 85%;
-  height: 12px;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  width: 36px;
+  height: 36px;
   background: linear-gradient(
-    135deg,
+    145deg,
     var(--color-dusk-rose) 0%,
-    var(--color-sunrise-gold) 50%,
-    var(--color-dusk-rose) 100%
+    var(--color-deep-terracotta) 100%
   );
-  border-radius: 2px;
-  opacity: 0.9;
+  border-radius: 50%;
+  box-shadow:
+    0 2px 4px rgba(61, 58, 56, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
   pointer-events: none;
 }
 
-.envelope-card__ribbon::before,
-.envelope-card__ribbon::after {
-  content: '';
+/* Heart emboss on seal */
+.envelope-card__seal::after {
+  content: '♡';
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background: var(--color-sunrise-gold);
-  border-radius: 50%;
   top: 50%;
-  transform: translateY(-50%);
-}
-
-.envelope-card__ribbon::before {
-  left: calc(50% - 16px);
-}
-
-.envelope-card__ribbon::after {
-  left: calc(50% + 4px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1;
 }
 
 /* Partner indicator */
@@ -138,17 +130,4 @@
   color: var(--text-muted);
   text-transform: capitalize;
   margin-top: auto;
-}
-
-/* Pulse animation for partner indicator */
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(0.9);
-  }
 }

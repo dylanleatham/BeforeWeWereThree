@@ -27,8 +27,8 @@ Build the visual design system and interactive envelope components. Users see a 
 - **Note:** This overrides the grid layout shown in `babymoon_design_foundation.md` and `babymoon_style_guide.jsx` — update those docs during implementation
 
 ### State communication
-- **Sealed:** Ribbon tied around envelope — gift-like, romantic feel
-- **Opened:** Flap open, ribbon untied/hanging loose — clearly in progress
+- **Sealed:** Wax seal in corner — elegant, anticipation-building
+- **Opened:** Flap open, seal removed — clearly in progress
 - **Completed:** Heart stamp or checkmark badge in corner — done indicator
 - Partner presence indicator on individual envelopes (small indicator if partner has this envelope open)
 
@@ -41,7 +41,7 @@ Build the visual design system and interactive envelope components. Users see a 
 - Exact pile stacking/offset angles
 - Loading skeleton design
 - Error state handling patterns
-- Precise ribbon/bow illustrations vs abstract representation
+- Wax seal visual treatment details
 - Close button placement and style
 
 </decisions>
@@ -49,7 +49,7 @@ Build the visual design system and interactive envelope components. Users see a 
 <specifics>
 ## Specific Ideas
 
-- Ribbon-tied sealed envelopes (not wax seal) — gift-like aesthetic
+- Wax seal on sealed envelopes — elegant, anticipation-building aesthetic
 - Stacked pile feels like physical mail you'd flip through
 - Labels visible so users know what each envelope contains before opening
 

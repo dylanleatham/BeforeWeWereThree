@@ -11,9 +11,9 @@ requires:
   - phase: 02-02
     provides: Envelope types, API routes at /api/envelopes
 provides:
-  - EnvelopeCard component for pile display with ribbon/badge states
+  - EnvelopeCard component for pile display with wax seal/badge states
   - BaseEnvelope component with 450ms flap animation
-  - Motion animation variants (flap, ribbon, badge, pile)
+  - Motion animation variants (flap, seal, badge, pile)
   - useHaptics hook for mobile vibration feedback
   - useEnvelopes hook for data fetching with optimistic updates
   - Envelope API client functions
@@ -59,7 +59,7 @@ completed: 2026-02-02
 
 # Phase 02 Plan 03: Envelope UI Components Summary
 
-**EnvelopeCard and BaseEnvelope components with 450ms flap animation, ribbon/badge states, haptic feedback, and optimistic data fetching**
+**EnvelopeCard and BaseEnvelope components with 450ms flap animation, wax seal/badge states, haptic feedback, and optimistic data fetching**
 
 ## Performance
 
@@ -72,8 +72,8 @@ completed: 2026-02-02
 
 ## Accomplishments
 
-- EnvelopeCard component displaying sealed (ribbon), opened, and completed (heart badge) states
-- BaseEnvelope with 450ms flap animation, content reveal, and ribbon untying effects
+- EnvelopeCard component displaying sealed (wax seal), opened, and completed (heart badge) states
+- BaseEnvelope with 450ms flap animation and content reveal effects
 - Haptic feedback on envelope open (Android via Web Vibration API)
 - useEnvelopes hook with loading states and optimistic status updates
 - All touch targets >= 48px (close button), focus-visible accessibility
@@ -89,11 +89,11 @@ Each task was committed atomically:
 ## Files Created/Modified
 
 **Created:**
-- `client/src/utils/motion.ts` - Animation variants (flap, ribbon, badge, pile, content)
+- `client/src/utils/motion.ts` - Animation variants (flap, seal, badge, pile, content)
 - `client/src/hooks/useHaptics.ts` - Web Vibration API hook with graceful fallback
 - `client/src/hooks/useEnvelopes.ts` - Data fetching with optimistic updates
 - `client/src/components/envelope/EnvelopeCard.tsx` - Pile display card with status indicators
-- `client/src/components/envelope/EnvelopeCard.css` - Card styles, ribbon decoration
+- `client/src/components/envelope/EnvelopeCard.css` - Card styles, wax seal decoration
 - `client/src/components/envelope/BaseEnvelope.tsx` - Full envelope with animation
 - `client/src/components/envelope/BaseEnvelope.css` - Envelope styles, flap, content
 - `client/src/components/envelope/index.ts` - Barrel export

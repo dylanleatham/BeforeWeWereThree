@@ -17,6 +17,8 @@ interface UseSwipeNavigationResult {
   dragX: number;
   /** Is currently dragging */
   isDragging: boolean;
+  /** Direction of last navigation: 1 = forward, -1 = backward */
+  direction: number;
   /** Bind to draggable element */
   bind: ReturnType<typeof useDrag>;
   /** Go to specific index */
@@ -39,26 +41,32 @@ export function useSwipeNavigation({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
 
   const goTo = useCallback(
-    (index: number) => {
-      const clampedIndex = Math.max(0, Math.min(itemCount - 1, index));
-      setCurrentIndex(clampedIndex);
-      onIndexChange?.(clampedIndex);
+    (index: number, dir?: number) => {
+      // Wrap index for looping
+      const wrappedIndex = ((index % itemCount) + itemCount) % itemCount;
+      if (dir !== undefined) {
+        setDirection(dir);
+      } else {
+        // Shortest-path heuristic for dot navigation
+        const fwd = (wrappedIndex - currentIndex + itemCount) % itemCount;
+        const bwd = (currentIndex - wrappedIndex + itemCount) % itemCount;
+        setDirection(fwd <= bwd ? 1 : -1);
+      }
+      setCurrentIndex(wrappedIndex);
+      onIndexChange?.(wrappedIndex);
     },
-    [itemCount, onIndexChange]
+    [itemCount, onIndexChange, currentIndex]
   );
 
   const next = useCallback(() => {
-    if (currentIndex < itemCount - 1) {
-      goTo(currentIndex + 1);
-    }
-  }, [currentIndex, itemCount, goTo]);
+    goTo(currentIndex + 1, 1);
+  }, [currentIndex, goTo]);
 
   const prev = useCallback(() => {
-    if (currentIndex > 0) {
-      goTo(currentIndex - 1);
-    }
+    goTo(currentIndex - 1, -1);
   }, [currentIndex, goTo]);
 
   const bind = useDrag(
@@ -66,20 +74,19 @@ export function useSwipeNavigation({
       setIsDragging(active);
 
       if (active) {
-        // Apply rubber-band effect at edges
-        const atStart = currentIndex === 0 && mx > 0;
-        const atEnd = currentIndex === itemCount - 1 && mx < 0;
-        const dampedX = atStart || atEnd ? mx * 0.3 : mx;
-        setDragX(dampedX);
+        // Direct drag feedback (no edge damping since we loop)
+        setDragX(mx);
       } else {
         // Check if swipe threshold exceeded or velocity is high
         const passedThreshold = Math.abs(mx) > threshold;
         const fastSwipe = Math.abs(vx) > 0.5;
 
         if (passedThreshold || fastSwipe) {
-          if (dx < 0 && currentIndex < itemCount - 1) {
+          // Swipe left (dx < 0) = next, swipe right (dx > 0) = prev
+          // Standard carousel: swipe in direction you want content to move
+          if (dx < 0) {
             next();
-          } else if (dx > 0 && currentIndex > 0) {
+          } else if (dx > 0) {
             prev();
           }
         }
@@ -90,7 +97,6 @@ export function useSwipeNavigation({
     {
       axis: 'x',
       filterTaps: true,
-      rubberband: 0.15,
       from: () => [dragX, 0],
     }
   );
@@ -99,6 +105,7 @@ export function useSwipeNavigation({
     currentIndex,
     dragX,
     isDragging,
+    direction,
     bind,
     goTo,
     next,

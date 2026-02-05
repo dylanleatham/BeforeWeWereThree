@@ -21,6 +21,7 @@ const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
 // Cleanup interval (every 5 minutes, remove expired entries)
+// .unref() allows the process to exit naturally when this is the only timer remaining
 setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of rateLimitStore.entries()) {
@@ -28,7 +29,7 @@ setInterval(() => {
       rateLimitStore.delete(key);
     }
   }
-}, 5 * 60 * 1000);
+}, 5 * 60 * 1000).unref();
 
 /**
  * Generate rate limit key from IP and fingerprint

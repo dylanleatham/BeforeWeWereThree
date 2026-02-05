@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "prisma": {
-    "schema": "./prisma/schema.prisma"
-  },
   "scripts": {
     "build": "prisma generate && node esbuild.config.js",
     "build:tsc": "prisma generate && tsc",

@@ -56,6 +56,6 @@ jobs:
       - name: Verify build artifacts
         run: |
           test -d client/dist || (echo "Client build missing" && exit 1)
-          test -d server/dist || (echo "Server build missing" && exit 1)
+          test -d server/deploy || (echo "Server build missing" && exit 1)
           test -d shared/dist || (echo "Shared build missing" && exit 1)
           echo "All build artifacts present ✓"

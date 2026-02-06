@@ -8,6 +8,7 @@ import type {
   CreateEnvelopeRequest,
   UpdateEnvelopeRequest,
 } from 'shared';
+import { STRINGS } from '../constants/strings';
 
 /**
  * API client for Before We Were Three
@@ -44,7 +45,7 @@ async function apiFetch<T>(
       success: false,
       error: {
         code: 'NETWORK_ERROR',
-        message: 'Unable to connect to server',
+        message: STRINGS.API_ERROR_NETWORK,
       },
     };
   }
@@ -104,7 +105,7 @@ export async function getEnvelopes(): Promise<Envelope[]> {
   const response = await apiFetch<EnvelopeListResponse>('/envelopes');
 
   if (!response.success) {
-    throw new Error(response.error?.message || 'Failed to fetch envelopes');
+    throw new Error(response.error?.message || STRINGS.API_ERROR_FETCH_ENVELOPES);
   }
 
   return response.data.envelopes;
@@ -117,7 +118,7 @@ export async function getEnvelope(id: string): Promise<Envelope> {
   const response = await apiFetch<EnvelopeResponse>(`/envelopes/${id}`);
 
   if (!response.success) {
-    throw new Error(response.error?.message || 'Failed to fetch envelope');
+    throw new Error(response.error?.message || STRINGS.API_ERROR_FETCH_ENVELOPE);
   }
 
   return response.data.envelope;
@@ -135,7 +136,7 @@ export async function createEnvelope(
   });
 
   if (!response.success) {
-    throw new Error(response.error?.message || 'Failed to create envelope');
+    throw new Error(response.error?.message || STRINGS.API_ERROR_CREATE_ENVELOPE);
   }
 
   return response.data.envelope;
@@ -154,7 +155,7 @@ export async function updateEnvelope(
   });
 
   if (!response.success) {
-    throw new Error(response.error?.message || 'Failed to update envelope');
+    throw new Error(response.error?.message || STRINGS.API_ERROR_UPDATE_ENVELOPE);
   }
 
   return response.data.envelope;
@@ -169,6 +170,6 @@ export async function deleteEnvelope(id: string): Promise<void> {
   });
 
   if (!response.success) {
-    throw new Error(response.error?.message || 'Failed to delete envelope');
+    throw new Error(response.error?.message || STRINGS.API_ERROR_DELETE_ENVELOPE);
   }
 }

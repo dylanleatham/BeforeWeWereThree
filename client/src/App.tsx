@@ -5,6 +5,7 @@ import { PinEntry } from './components/auth/PinEntry';
 import { EnvelopePile } from './components/envelope';
 import { EnvelopeManager } from './components/admin';
 import { Heading, Text } from './components/common';
+import { STRINGS } from './constants/strings';
 import './styles/globals.css';
 
 /**
@@ -68,7 +69,7 @@ function AuthenticatedApp({
       <MotionConfig reducedMotion="user">
         <div className="app app--admin">
           <header className="app__header">
-            <span className="app__admin-badge">Admin Mode</span>
+            <span className="app__admin-badge">{STRINGS.APP_ADMIN_BADGE}</span>
           </header>
           <main className="app__main">
             <EnvelopeManager
@@ -88,11 +89,11 @@ function AuthenticatedApp({
       <div className="app">
         <header className="app__header">
           <Heading level={1} className="app__title">
-            Before We Were Three
+            {STRINGS.APP_TITLE}
           </Heading>
           {designation === 'readonly' && (
             <Text variant="small" color="muted" className="app__readonly">
-              Viewing mode
+              {STRINGS.APP_READONLY}
             </Text>
           )}
         </header>
@@ -100,22 +101,22 @@ function AuthenticatedApp({
         <main className="app__main">
           {envelopesLoading && envelopes.length === 0 ? (
             <div className="app__loading-envelopes">
-              <Text color="muted">Loading your envelopes...</Text>
+              <Text color="muted">{STRINGS.APP_LOADING_ENVELOPES}</Text>
             </div>
           ) : envelopesError ? (
             <div className="app__error">
               <Text color="muted">
-                {envelopesError.message || 'Failed to load envelopes'}
+                {envelopesError.message || STRINGS.APP_ERROR_FALLBACK}
               </Text>
               <button onClick={refetch} className="app__retry">
-                Try again
+                {STRINGS.APP_RETRY}
               </button>
             </div>
           ) : envelopes.length === 0 ? (
             <div className="app__empty">
-              <Heading level={2}>No envelopes yet</Heading>
+              <Heading level={2}>{STRINGS.APP_EMPTY_TITLE}</Heading>
               <Text color="muted">
-                Ask your admin to add some activities!
+                {STRINGS.APP_EMPTY_MESSAGE}
               </Text>
             </div>
           ) : (

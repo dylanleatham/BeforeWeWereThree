@@ -31,6 +31,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 │       │   ├── common/        # Shared UI (Button, Card, Modal)
 │       │   ├── envelope/      # Envelope system components
 │       │   └── activities/    # Activity-specific components
+│       ├── constants/         # Centralized constants (strings, config, animation)
 │       ├── hooks/             # Custom React hooks
 │       ├── services/          # API client functions
 │       └── context/           # React context providers
@@ -92,6 +93,7 @@ Request validation uses Zod. Standard error codes: `ENVELOPE_NOT_FOUND`, `VALIDA
 6. **Typed database queries** — query functions, not raw SQL in handlers
 7. **Custom hooks for state** — components stay pure
 8. **Style guide adherence** — all UI references the design system
+9. **Centralized constants** — no magic numbers or inline strings (see Constants section below)
 
 ## Design System
 
@@ -115,6 +117,43 @@ Load these for full context:
 - `docs/babymoon_portal_feature_blueprint.md` — Feature specifications
 - `docs/babymoon_build_order.md` — Phased build plan with checkpoints
 
+## Constants
+
+All client-side constants live in `client/src/constants/`. Never use magic numbers or hardcoded user-facing strings.
+
+### `strings.ts` — User-facing text
+- All UI text, labels, error messages, aria-labels
+- Organized by component prefix: `APP_*`, `PIN_*`, `FORM_*`, `MANAGER_*`, etc.
+- Dynamic strings use arrow functions: `PILE_COUNT: (current, total) => \`${current} of ${total}\``
+- Also exports `ENVELOPE_TYPES` for form select options
+
+### `config.ts` — Business rules and configuration
+- `PIN_LENGTH` (8), `PIN_DISPLAY_MAX_LENGTH` (10)
+- `ENVELOPE_TITLE_MAX_LENGTH` (100)
+- `ENVELOPE_PILE_VISIBLE_COUNT` (3)
+- `SWIPE_THRESHOLD_PX` (80), `FAST_SWIPE_VELOCITY` (0.5)
+
+### `animation.ts` — Animation timing and physics
+- Durations: `ANIMATION_DURATION_MS`, `ENVELOPE_FLAP_DURATION`, `CONTENT_REVEAL_*`
+- Pile card visuals: `PILE_CARD_SCALE_REDUCTION`, `PILE_CARD_Y_OFFSET_PX`, etc.
+- Spring physics: `SPRING_STIFFNESS`, `SPRING_DAMPING`, `TAP_SCALE`
+- Haptics: `HAPTIC_TAP_DURATION_MS`, `HAPTIC_SUCCESS_PATTERN_MS`
+
+**When to add a constant:**
+- Value appears in multiple places
+- Value represents a business rule or constraint
+- Value might need tuning (animation timing, thresholds)
+- User-facing text (always)
+
+**When inline is OK:**
+- Truly one-off values that are self-explanatory in context
+- Standard/obvious values like `min="0"`
+
 ## Build Philosophy
 
 Each phase results in a working, deployed checkpoint in production. New complexity is added only after the previous layer is confirmed working. When bugs occur, they are isolated to the most recently added layer.
+
+## Lessons Learned
+
+- **Prisma config:** The `package.json#prisma` key is deprecated (removed in Prisma 7). Use `server/prisma.config.ts` instead.
+- **Module-level timers need `.unref()`:** Any `setInterval`/`setTimeout` at module scope in server code must call `.unref()` so Jest worker processes can exit cleanly. Without it, tests pass but Jest force-kills the worker and prints a warning about leaked handles.

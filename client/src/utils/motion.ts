@@ -1,4 +1,24 @@
 import type { Variants, Transition } from 'motion/react';
+import {
+  ENVELOPE_FLAP_DURATION,
+  CONTENT_REVEAL_DELAY,
+  CONTENT_REVEAL_DURATION,
+  EXIT_ANIMATION_DURATION,
+  PILE_CARD_OFFSET_PX,
+  PILE_CARD_SCALE_REDUCTION,
+  PILE_CARD_Y_OFFSET_PX,
+  PILE_CARD_ROTATION_DEG,
+  PILE_CARD_OPACITY_REDUCTION,
+  PILE_CARD_EXIT_DURATION,
+  BADGE_SPRING_STIFFNESS,
+  BADGE_SPRING_DAMPING,
+  BADGE_ANIMATION_DELAY,
+  SPRING_STIFFNESS,
+  SPRING_DAMPING,
+  TAP_SCALE,
+  TAP_SPRING_STIFFNESS,
+  TAP_SPRING_DAMPING,
+} from '../constants/animation';
 
 /**
  * Motion variants for envelope animations
@@ -16,7 +36,7 @@ export const envelopeFlapVariants: Variants = {
     rotateX: -180,
     y: -8,
     transition: {
-      duration: 0.45, // 450ms per CONTEXT.md
+      duration: ENVELOPE_FLAP_DURATION,
       ease: [0.34, 1.56, 0.64, 1], // bounce easing
     },
   },
@@ -39,8 +59,8 @@ export const contentRevealVariants: Variants = {
     y: 0,
     scale: 1,
     transition: {
-      delay: 0.35, // Wait for flap animation
-      duration: 0.25,
+      delay: CONTENT_REVEAL_DELAY,
+      duration: CONTENT_REVEAL_DURATION,
       ease: 'easeOut',
     },
   },
@@ -49,7 +69,7 @@ export const contentRevealVariants: Variants = {
     y: -10,
     scale: 0.98,
     transition: {
-      duration: 0.2,
+      duration: EXIT_ANIMATION_DURATION,
     },
   },
 };
@@ -65,9 +85,9 @@ export const badgeVariants: Variants = {
     opacity: 1,
     transition: {
       type: 'spring',
-      stiffness: 400,
-      damping: 15,
-      delay: 0.1,
+      stiffness: BADGE_SPRING_STIFFNESS,
+      damping: BADGE_SPRING_DAMPING,
+      delay: BADGE_ANIMATION_DELAY,
     },
   },
 };
@@ -76,18 +96,18 @@ export const badgeVariants: Variants = {
 // Custom param: { i: number, direction: number } where direction is 1 (forward) or -1 (backward)
 export const pileCardVariants: Variants = {
   enter: ({ direction }: { i: number; direction: number }) => ({
-    x: direction > 0 ? 0 : -300,
+    x: direction > 0 ? 0 : -PILE_CARD_OFFSET_PX,
     opacity: direction > 0 ? 1 : 0,
     rotate: direction > 0 ? 0 : 10,
     scale: 1,
   }),
   behind: ({ i }: { i: number; direction: number }) => ({
     x: 0,
-    scale: 1 - i * 0.04,
-    y: i * 6,
-    rotate: (i % 2 === 0 ? 1 : -1) * i * 1.5,
+    scale: 1 - i * PILE_CARD_SCALE_REDUCTION,
+    y: i * PILE_CARD_Y_OFFSET_PX,
+    rotate: (i % 2 === 0 ? 1 : -1) * i * PILE_CARD_ROTATION_DEG,
     zIndex: 10 - i,
-    opacity: 1 - i * 0.12,
+    opacity: 1 - i * PILE_CARD_OPACITY_REDUCTION,
   }),
   front: {
     x: 0,
@@ -98,22 +118,22 @@ export const pileCardVariants: Variants = {
     opacity: 1,
   },
   exit: ({ direction }: { i: number; direction: number }) => ({
-    x: direction > 0 ? -300 : 300,
+    x: direction > 0 ? -PILE_CARD_OFFSET_PX : PILE_CARD_OFFSET_PX,
     opacity: 0,
     rotate: direction > 0 ? -10 : 10,
-    transition: { duration: 0.3 },
+    transition: { duration: PILE_CARD_EXIT_DURATION },
   }),
 };
 
 // Default spring for satisfying physical feel
 export const springTransition: Transition = {
   type: 'spring',
-  stiffness: 300,
-  damping: 25,
+  stiffness: SPRING_STIFFNESS,
+  damping: SPRING_DAMPING,
 };
 
 // Tap feedback scale
 export const tapScale = {
-  whileTap: { scale: 0.97 },
-  transition: { type: 'spring', stiffness: 400, damping: 17 },
+  whileTap: { scale: TAP_SCALE },
+  transition: { type: 'spring', stiffness: TAP_SPRING_STIFFNESS, damping: TAP_SPRING_DAMPING },
 };

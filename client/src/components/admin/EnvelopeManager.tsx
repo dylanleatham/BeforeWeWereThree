@@ -4,6 +4,7 @@ import type { Envelope, CreateEnvelopeRequest, UpdateEnvelopeRequest } from 'sha
 import { Button, Card, Heading, Text } from '../common';
 import { EnvelopeForm } from './EnvelopeForm';
 import { createEnvelope, updateEnvelope, deleteEnvelope, resetParticipants } from '../../services/api';
+import { STRINGS } from '../../constants/strings';
 import './EnvelopeManager.css';
 
 interface EnvelopeManagerProps {
@@ -34,9 +35,9 @@ export function EnvelopeManager({
       const result = await resetParticipants();
       if (result.success) {
         setResetConfirm(false);
-        alert('Guest participants have been reset. New devices will get A/B designations.');
+        alert(STRINGS.MANAGER_RESET_SUCCESS);
       } else {
-        alert('Failed to reset participants: ' + result.error?.message);
+        alert(STRINGS.MANAGER_RESET_ERROR(result.error?.message ?? 'Unknown error'));
       }
     } finally {
       setIsSaving(false);
@@ -107,25 +108,25 @@ export function EnvelopeManager({
   return (
     <div className="envelope-manager">
       <header className="envelope-manager__header">
-        <Heading level={2}>Envelope Management</Heading>
+        <Heading level={2}>{STRINGS.MANAGER_HEADING}</Heading>
         <Button
           variant="primary"
           onClick={() => setFormMode({ type: 'create' })}
           disabled={isLoading}
         >
           <Plus size={18} />
-          <span>Add Envelope</span>
+          <span>{STRINGS.MANAGER_ADD_BUTTON}</span>
         </Button>
       </header>
 
       {isLoading && envelopes.length === 0 ? (
         <div className="envelope-manager__loading">
-          <Text color="muted">Loading envelopes...</Text>
+          <Text color="muted">{STRINGS.MANAGER_LOADING}</Text>
         </div>
       ) : envelopes.length === 0 ? (
         <Card className="envelope-manager__empty">
           <Mail size={48} strokeWidth={1} />
-          <Text color="muted">No envelopes yet. Create your first one!</Text>
+          <Text color="muted">{STRINGS.MANAGER_EMPTY}</Text>
         </Card>
       ) : (
         <ul className="envelope-manager__list">
@@ -148,7 +149,7 @@ export function EnvelopeManager({
                   <button
                     className="envelope-manager__btn"
                     onClick={() => setFormMode({ type: 'edit', envelope })}
-                    aria-label={`Edit ${envelope.title}`}
+                    aria-label={STRINGS.MANAGER_ARIA_EDIT(envelope.title)}
                     disabled={isSaving}
                   >
                     <Edit2 size={18} />
@@ -160,21 +161,21 @@ export function EnvelopeManager({
                         onClick={() => handleDelete(envelope.id)}
                         disabled={isSaving}
                       >
-                        Confirm
+                        {STRINGS.MANAGER_CONFIRM}
                       </button>
                       <button
                         className="envelope-manager__btn"
                         onClick={() => setDeleteConfirm(null)}
                         disabled={isSaving}
                       >
-                        Cancel
+                        {STRINGS.MANAGER_CANCEL}
                       </button>
                     </>
                   ) : (
                     <button
                       className="envelope-manager__btn envelope-manager__btn--danger"
                       onClick={() => setDeleteConfirm(envelope.id)}
-                      aria-label={`Delete ${envelope.title}`}
+                      aria-label={STRINGS.MANAGER_ARIA_DELETE(envelope.title)}
                       disabled={isSaving}
                     >
                       <Trash2 size={18} />
@@ -189,14 +190,14 @@ export function EnvelopeManager({
 
       {/* Debug/Test Tools */}
       <section className="envelope-manager__tools">
-        <Heading level={3}>Test Tools</Heading>
+        <Heading level={3}>{STRINGS.MANAGER_TOOLS_HEADING}</Heading>
         <Card className="envelope-manager__tool-card">
           <div className="envelope-manager__tool-info">
             <Users size={20} />
             <div>
-              <Text>Reset Participants</Text>
+              <Text>{STRINGS.MANAGER_RESET_TITLE}</Text>
               <Text variant="small" color="muted">
-                Clear all guest A/B designations. New logins will be reassigned.
+                {STRINGS.MANAGER_RESET_DESCRIPTION}
               </Text>
             </div>
           </div>
@@ -207,14 +208,14 @@ export function EnvelopeManager({
                 onClick={handleResetParticipants}
                 disabled={isSaving}
               >
-                Confirm Reset
+                {STRINGS.MANAGER_RESET_CONFIRM}
               </button>
               <button
                 className="envelope-manager__btn"
                 onClick={() => setResetConfirm(false)}
                 disabled={isSaving}
               >
-                Cancel
+                {STRINGS.MANAGER_CANCEL}
               </button>
             </div>
           ) : (
@@ -223,7 +224,7 @@ export function EnvelopeManager({
               onClick={() => setResetConfirm(true)}
               disabled={isSaving}
             >
-              Reset
+              {STRINGS.MANAGER_RESET_BUTTON}
             </Button>
           )}
         </Card>

@@ -9,6 +9,8 @@ import {
   contentRevealVariants,
 } from '../../utils/motion';
 import { EnvelopeCard } from './EnvelopeCard';
+import { STRINGS } from '../../constants/strings';
+import { ANIMATION_DURATION_MS, CONTENT_REVEAL_DURATION } from '../../constants/animation';
 import './BaseEnvelope.css';
 
 interface BaseEnvelopeProps {
@@ -51,7 +53,7 @@ export function BaseEnvelope({
     setTimeout(() => {
       setIsAnimating(false);
       onStatusChange?.('opened');
-    }, 500);
+    }, ANIMATION_DURATION_MS);
   }, [envelope.status, isAnimating, onStatusChange, triggerTap]);
 
   const handleClose = useCallback(() => {
@@ -77,13 +79,13 @@ export function BaseEnvelope({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.25 }}
+        transition={{ duration: CONTENT_REVEAL_DURATION }}
       >
         {/* Close button */}
         <button
           className="base-envelope__close"
           onClick={handleClose}
-          aria-label="Close envelope"
+          aria-label={STRINGS.ENVELOPE_CLOSE_ARIA}
         >
           <X size={24} strokeWidth={1.5} />
         </button>
@@ -119,7 +121,7 @@ export function BaseEnvelope({
           <div className="base-envelope__body">
             {children || (
               <p className="base-envelope__placeholder">
-                Activity content will appear here
+                {STRINGS.ENVELOPE_PLACEHOLDER}
               </p>
             )}
           </div>
@@ -128,7 +130,7 @@ export function BaseEnvelope({
           {partnerPresent && (
             <div className="base-envelope__partner-indicator">
               <span className="base-envelope__partner-dot" />
-              <span>Partner is here</span>
+              <span>{STRINGS.ENVELOPE_PARTNER}</span>
             </div>
           )}
         </motion.div>

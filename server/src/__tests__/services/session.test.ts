@@ -78,9 +78,9 @@ describe('Session Service', () => {
       const expiration = getSessionExpiration();
       const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-      // Allow 1 minute tolerance
+      // Allow 2 hour tolerance to account for DST transitions
       const diff = Math.abs(expiration.getTime() - thirtyDaysFromNow.getTime());
-      expect(diff).toBeLessThan(60 * 1000);
+      expect(diff).toBeLessThan(2 * 60 * 60 * 1000);
     });
   });
 });

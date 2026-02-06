@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useDrag } from '@use-gesture/react';
+import { SWIPE_THRESHOLD_PX, FAST_SWIPE_VELOCITY } from '../constants/config';
 
 interface UseSwipeNavigationOptions {
   /** Total number of items */
@@ -35,7 +36,7 @@ interface UseSwipeNavigationResult {
  */
 export function useSwipeNavigation({
   itemCount,
-  threshold = 80,
+  threshold = SWIPE_THRESHOLD_PX,
   onIndexChange,
 }: UseSwipeNavigationOptions): UseSwipeNavigationResult {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -79,7 +80,7 @@ export function useSwipeNavigation({
       } else {
         // Check if swipe threshold exceeded or velocity is high
         const passedThreshold = Math.abs(mx) > threshold;
-        const fastSwipe = Math.abs(vx) > 0.5;
+        const fastSwipe = Math.abs(vx) > FAST_SWIPE_VELOCITY;
 
         if (passedThreshold || fastSwipe) {
           // Swipe left (dx < 0) = next, swipe right (dx > 0) = prev

@@ -1,0 +1,136 @@
+/**
+ * PIN Entry Component Styles
+ *
+ * Warm, welcoming design for entering 8-digit date-based PIN.
+ * "Entering a special space" feel, intimate not corporate.
+ */
+
+/* ===========================================
+ * CONTAINER - Full-viewport centered layout
+ * =========================================== */
+.pin-entry {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--color-cream) 100%);
+  padding: var(--space-4);
+}
+
+/* ===========================================
+ * CARD - Elevated white card
+ * =========================================== */
+.pin-entry__card {
+  background: var(--bg-elevated);
+  border-radius: var(--space-6);
+  padding: var(--space-12) var(--space-8);
+  max-width: var(--content-width-narrow);
+  width: 100%;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+/* ===========================================
+ * HEADER
+ * =========================================== */
+.pin-entry__header {
+  margin-bottom: var(--space-8);
+}
+
+.pin-entry__title {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.pin-entry__subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ===========================================
+ * INPUT
+ * =========================================== */
+.pin-entry__input-wrapper {
+  margin-bottom: var(--space-4);
+}
+
+.pin-entry__input {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: var(--text-2xl);
+  font-family: var(--font-mono);
+  text-align: center;
+  border: 2px solid var(--color-light-linen);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--duration-normal) var(--ease-default);
+  background-color: var(--color-light-linen);
+  color: var(--text-primary);
+  letter-spacing: 0.1em;
+  box-sizing: border-box;
+}
+
+.pin-entry__input:focus {
+  border-color: var(--color-sunrise-gold);
+}
+
+.pin-entry__input:disabled {
+  opacity: 0.6;
+}
+
+/* ===========================================
+ * ERROR & LOADING MESSAGES
+ * =========================================== */
+.pin-entry__error {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-dusk-rose);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.pin-entry__loading {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-4) 0;
+}
+
+/* ===========================================
+ * PROGRESS DOTS
+ * =========================================== */
+.pin-entry__dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+}
+
+.pin-entry__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-light-linen);
+  transition: background-color var(--duration-normal) var(--ease-default);
+}
+
+.pin-entry__dot--filled {
+  background-color: var(--color-sunrise-gold);
+}
+
+/* ===========================================
+ * SHAKE ANIMATION
+ * =========================================== */
+@keyframes pin-entry-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+  20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+.pin-entry__input-wrapper--shaking {
+  animation: pin-entry-shake 0.5s var(--ease-default);
+}

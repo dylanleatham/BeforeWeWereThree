@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { HAPTIC_TAP_DURATION_MS, HAPTIC_SUCCESS_PATTERN_MS } from '../constants/animation';
 
 /**
  * Hook for mobile haptic feedback via Web Vibration API
@@ -37,11 +38,11 @@ export function useHaptics(): HapticsHook {
   );
 
   const triggerTap = useCallback(() => {
-    triggerPattern(50);
+    triggerPattern(HAPTIC_TAP_DURATION_MS);
   }, [triggerPattern]);
 
   const triggerSuccess = useCallback(() => {
-    triggerPattern([50, 50, 80]);
+    triggerPattern([...HAPTIC_SUCCESS_PATTERN_MS]);
   }, [triggerPattern]);
 
   return {

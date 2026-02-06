@@ -5,6 +5,8 @@ import { useSwipeNavigation } from '../../hooks/useSwipeNavigation';
 import { pileCardVariants, springTransition } from '../../utils/motion';
 import { EnvelopeCard } from './EnvelopeCard';
 import { BaseEnvelope } from './BaseEnvelope';
+import { STRINGS } from '../../constants/strings';
+import { ENVELOPE_PILE_VISIBLE_COUNT } from '../../constants/config';
 import './EnvelopePile.css';
 
 interface EnvelopePileProps {
@@ -48,8 +50,8 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
     [selectedEnvelope, onStatusChange]
   );
 
-  // Visible envelopes: current + 2 behind (wraps for looping)
-  const visibleCount = Math.min(3, envelopes.length);
+  // Visible envelopes: current + cards behind (wraps for looping)
+  const visibleCount = Math.min(ENVELOPE_PILE_VISIBLE_COUNT, envelopes.length);
   const visibleEnvelopes: Envelope[] = [];
   for (let i = 0; i < visibleCount; i++) {
     visibleEnvelopes.push(envelopes[(currentIndex + i) % envelopes.length] as Envelope);
@@ -74,7 +76,7 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="envelope-pile" style={{ touchAction: 'pan-y' }}>
+      <div className="envelope-pile">
         <div className="envelope-pile__stack" {...bind()}>
           <AnimatePresence mode="popLayout">
             {visibleEnvelopes.map((envelope, i) => (
@@ -105,27 +107,27 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
 
         {/* Navigation indicators */}
         {envelopes.length > 1 && (
-          <nav className="envelope-pile__nav" aria-label="Envelope navigation">
+          <nav className="envelope-pile__nav" aria-label={STRINGS.PILE_NAV_ARIA}>
             <div className="envelope-pile__dots">
               {envelopes.map((_, i) => (
                 <button
                   key={i}
                   className={`envelope-pile__dot ${i === currentIndex ? 'envelope-pile__dot--active' : ''}`}
                   onClick={() => goTo(i)}
-                  aria-label={`Go to envelope ${i + 1}`}
+                  aria-label={STRINGS.PILE_ARIA_GO_TO(i + 1)}
                   aria-current={i === currentIndex ? 'true' : undefined}
                 />
               ))}
             </div>
             <p className="envelope-pile__count">
-              {currentIndex + 1} of {envelopes.length}
+              {STRINGS.PILE_COUNT(currentIndex + 1, envelopes.length)}
             </p>
           </nav>
         )}
 
         {/* Swipe hint (shown briefly) */}
         {!isDragging && currentIndex === 0 && envelopes.length > 1 && (
-          <p className="envelope-pile__hint">Swipe to see more</p>
+          <p className="envelope-pile__hint">{STRINGS.PILE_HINT}</p>
         )}
       </div>
     </MotionConfig>

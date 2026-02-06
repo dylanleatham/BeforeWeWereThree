@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Role, Designation } from 'shared';
 import { validatePin as apiValidatePin, getSession, logout as apiLogout } from '../services/api';
 import { getDeviceFingerprint } from '../services/fingerprint';
+import { STRINGS } from '../constants/strings';
 
 /**
  * Session state interface
@@ -110,13 +111,12 @@ export function useSession(): UseSessionReturn {
         return { success: false, error: response.error.message };
       }
     } catch {
-      const errorMessage = 'Unable to connect to server';
       setState((prev) => ({
         ...prev,
         isLoading: false,
-        error: errorMessage,
+        error: STRINGS.SESSION_ERROR_NETWORK,
       }));
-      return { success: false, error: errorMessage };
+      return { success: false, error: STRINGS.SESSION_ERROR_NETWORK };
     }
   }, []);
 

@@ -1,6 +1,8 @@
 import { useState, useCallback, FormEvent } from 'react';
 import type { Envelope, CreateEnvelopeRequest, EnvelopeType } from 'shared';
 import { Button } from '../common';
+import { STRINGS, ENVELOPE_TYPES } from '../../constants/strings';
+import { ENVELOPE_TITLE_MAX_LENGTH } from '../../constants/config';
 import './EnvelopeForm.css';
 
 interface EnvelopeFormProps {
@@ -13,14 +15,6 @@ interface EnvelopeFormProps {
   /** Loading state */
   isLoading?: boolean;
 }
-
-const ENVELOPE_TYPES: { value: EnvelopeType; label: string }[] = [
-  { value: 'would-you-rather', label: 'Would You Rather' },
-  { value: 'letter', label: 'Letter to Baby' },
-  { value: 'trivia', label: 'Trivia' },
-  { value: 'name-game', label: 'Name Game' },
-  { value: 'gender-reveal', label: 'Gender Reveal' },
-];
 
 /**
  * Form for creating or editing an envelope
@@ -46,13 +40,13 @@ export function EnvelopeForm({
 
       // Basic validation
       if (!title.trim()) {
-        setError('Title is required');
+        setError(STRINGS.FORM_ERROR_TITLE_REQUIRED);
         return;
       }
 
       const orderNum = parseInt(order, 10);
       if (isNaN(orderNum) || orderNum < 0) {
-        setError('Order must be a non-negative number');
+        setError(STRINGS.FORM_ERROR_ORDER_INVALID);
         return;
       }
 
@@ -63,7 +57,7 @@ export function EnvelopeForm({
           order: orderNum,
         });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to save envelope');
+        setError(err instanceof Error ? err.message : STRINGS.FORM_ERROR_SAVE_FALLBACK);
       }
     },
     [title, type, order, onSubmit]
@@ -72,7 +66,7 @@ export function EnvelopeForm({
   return (
     <form className="envelope-form" onSubmit={handleSubmit}>
       <h3 className="envelope-form__title">
-        {isEditing ? 'Edit Envelope' : 'Create Envelope'}
+        {isEditing ? STRINGS.FORM_TITLE_EDIT : STRINGS.FORM_TITLE_CREATE}
       </h3>
 
       {error && (
@@ -83,7 +77,7 @@ export function EnvelopeForm({
 
       <div className="envelope-form__field">
         <label htmlFor="envelope-title" className="envelope-form__label">
-          Title
+          {STRINGS.FORM_LABEL_TITLE}
         </label>
         <input
           id="envelope-title"
@@ -91,8 +85,8 @@ export function EnvelopeForm({
           className="envelope-form__input"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g., Would You Rather #1"
-          maxLength={100}
+          placeholder={STRINGS.FORM_PLACEHOLDER_TITLE}
+          maxLength={ENVELOPE_TITLE_MAX_LENGTH}
           disabled={isLoading}
           autoFocus
         />
@@ -100,7 +94,7 @@ export function EnvelopeForm({
 
       <div className="envelope-form__field">
         <label htmlFor="envelope-type" className="envelope-form__label">
-          Activity Type
+          {STRINGS.FORM_LABEL_TYPE}
         </label>
         <select
           id="envelope-type"
@@ -119,7 +113,7 @@ export function EnvelopeForm({
 
       <div className="envelope-form__field">
         <label htmlFor="envelope-order" className="envelope-form__label">
-          Display Order
+          {STRINGS.FORM_LABEL_ORDER}
         </label>
         <input
           id="envelope-order"
@@ -131,7 +125,7 @@ export function EnvelopeForm({
           disabled={isLoading}
         />
         <p className="envelope-form__hint">
-          Lower numbers appear first in the pile
+          {STRINGS.FORM_HINT_ORDER}
         </p>
       </div>
 
@@ -142,10 +136,10 @@ export function EnvelopeForm({
           onClick={onCancel}
           disabled={isLoading}
         >
-          Cancel
+          {STRINGS.FORM_BUTTON_CANCEL}
         </Button>
         <Button type="submit" variant="primary" disabled={isLoading}>
-          {isLoading ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Envelope'}
+          {isLoading ? STRINGS.FORM_BUTTON_SAVING : isEditing ? STRINGS.FORM_BUTTON_SAVE : STRINGS.FORM_BUTTON_CREATE}
         </Button>
       </div>
     </form>

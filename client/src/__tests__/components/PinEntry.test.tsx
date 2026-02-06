@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PinEntry } from '../../components/auth/PinEntry';
+import { PIN_LENGTH } from '../../constants/config';
 
 describe('PinEntry', () => {
   const mockOnSubmit = vi.fn();
@@ -30,12 +31,11 @@ describe('PinEntry', () => {
       expect(input).toHaveAttribute('inputMode', 'numeric');
     });
 
-    it('should render 8 progress dots', () => {
+    it('should render progress dots matching PIN length', () => {
       const { container } = render(<PinEntry onSubmit={mockOnSubmit} />);
 
-      // The dots are styled divs inside a container
-      const dotsContainer = container.querySelector('[style*="gap: 0.5rem"]');
-      expect(dotsContainer?.children).toHaveLength(8);
+      const dots = container.querySelectorAll('.pin-entry__dot');
+      expect(dots).toHaveLength(PIN_LENGTH);
     });
 
     it('should focus input on mount', async () => {
@@ -96,18 +96,15 @@ describe('PinEntry', () => {
       const { container } = render(<PinEntry onSubmit={mockOnSubmit} />);
 
       const input = screen.getByPlaceholderText('MM/DD/YYYY');
-      const dotsContainer = container.querySelector('[style*="gap: 0.5rem"]');
-      const dots = dotsContainer?.children;
 
-      // Initially all dots should be unfilled (light color)
-      expect(dots?.[0]).toHaveStyle({ backgroundColor: '#E0D8D0' });
+      // Initially no dots should be filled
+      expect(container.querySelectorAll('.pin-entry__dot--filled')).toHaveLength(0);
 
       await user.type(input, '0115');
 
       // First 4 dots should be filled
-      expect(dots?.[0]).toHaveStyle({ backgroundColor: '#F4A261' });
-      expect(dots?.[3]).toHaveStyle({ backgroundColor: '#F4A261' });
-      expect(dots?.[4]).toHaveStyle({ backgroundColor: '#E0D8D0' });
+      const filledDots = container.querySelectorAll('.pin-entry__dot--filled');
+      expect(filledDots).toHaveLength(4);
     });
   });
 

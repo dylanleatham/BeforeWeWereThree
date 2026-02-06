@@ -3,6 +3,8 @@ import { Mail, MailOpen, Heart } from 'lucide-react';
 import clsx from 'clsx';
 import type { Envelope } from 'shared';
 import { badgeVariants } from '../../utils/motion';
+import { STRINGS } from '../../constants/strings';
+import { HOVER_LIFT_PX, TAP_SCALE } from '../../constants/animation';
 import './EnvelopeCard.css';
 
 interface EnvelopeCardProps {
@@ -37,13 +39,13 @@ export function EnvelopeCard({
       onClick={isSealed ? onClick : undefined}
       role={isSealed ? 'button' : undefined}
       tabIndex={isSealed ? 0 : undefined}
-      aria-label={isSealed ? `Open ${title}` : title}
+      aria-label={isSealed ? STRINGS.CARD_ARIA_OPEN(title) : title}
       whileHover={
         isSealed
-          ? { y: -4, boxShadow: '0 8px 24px rgba(61, 58, 56, 0.15)' }
+          ? { y: -HOVER_LIFT_PX, boxShadow: '0 8px 24px rgba(61, 58, 56, 0.15)' }
           : undefined
       }
-      whileTap={isSealed ? { scale: 0.98 } : undefined}
+      whileTap={isSealed ? { scale: TAP_SCALE } : undefined}
       onKeyDown={(e) => {
         if (isSealed && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
@@ -53,7 +55,7 @@ export function EnvelopeCard({
     >
       {/* Partner presence indicator */}
       {partnerPresent && (
-        <span className="envelope-card__partner" aria-label="Partner is viewing">
+        <span className="envelope-card__partner" aria-label={STRINGS.CARD_PARTNER_ARIA}>
           <span className="envelope-card__partner-dot" />
         </span>
       )}
@@ -68,7 +70,7 @@ export function EnvelopeCard({
           variants={badgeVariants}
           initial="hidden"
           animate="visible"
-          aria-label="Completed"
+          aria-label={STRINGS.CARD_COMPLETED_ARIA}
         >
           <Heart size={18} fill="currentColor" />
         </motion.span>

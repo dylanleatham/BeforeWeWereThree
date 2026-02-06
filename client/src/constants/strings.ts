@@ -100,6 +100,13 @@ export const STRINGS = {
   WYR_SWIPE_PROMPT: 'Swipe to choose',
   WYR_SWIPE_HINT: 'Swipe left or right',
   WYR_RECONNECTING: 'Reconnecting...',
+
+  // Would You Rather - WaitingPhase & RevealPhase
+  WYR_WAITING: (name: string) => `Waiting for ${name}...`,
+  WYR_YOUR_CHOICE: 'Your choice',
+  WYR_PARTNER_CHOICE: "Partner's choice",
+  WYR_MATCH: 'You matched!',
+  WYR_NEXT: 'Next',
 } as const;
 
 /**

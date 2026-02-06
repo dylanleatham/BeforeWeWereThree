@@ -85,6 +85,21 @@ None currently
 
 - Azure SignalR Service needs to be configured before end-to-end testing (see 03-01-USER-SETUP.md)
 
+### Lessons Learned
+
+Gotchas discovered during development that future phases should avoid:
+
+| Phase | Lesson | Details |
+|-------|--------|---------|
+| 03-04 | **Envelope type uses hyphens, not underscores** | TypeScript types define `'would-you-rather'` but SQL examples/docs sometimes use `'would_you_rather'`. The switch statement in BaseEnvelope.tsx won't match if DB has wrong format. Always use hyphens: `'would-you-rather'`, `'name-game'`, `'gender-reveal'`. |
+| 03-04 | **Guests need dedicated open endpoint** | PATCH /envelopes/:id requires admin. Guests opening envelopes need POST /envelopes/:id/open with authMiddleware. Client must call openEnvelope() for opening, updateEnvelope() for admin status changes. |
+| 03-04 | **SignalR 503 without Azure SignalR configured** | Local dev without `SIGNALR_CONNECTION_STRING` shows 503 errors. Real-time features gracefully degrade but console logs errors. Expected behavior - not a bug. |
+| 03-04 | **Activities must work offline** | Don't block UI with "Reconnecting" overlays when SignalR unavailable. API calls work without SignalR - real-time sync is enhancement, not requirement. Remove `if (!isConnected) return;` blocking patterns. |
+| 03-03 | **useDrag + motion.div type conflict** | Can't apply `useDrag` bind() directly to `motion.div` - onDrag type signatures conflict. Pattern: wrap with plain div for gesture, inner motion.div for animation. |
+| 03-01 | **No Node.js SDK for Azure SignalR** | Server must use REST API to send messages; only clients use WebSocket. Common misconception that there's a server SDK. |
+| 02-04 | **DELETE endpoints must return JSON body** | Returning 204 No Content causes `response.json()` to throw. Always return `{ success: true, data: {} }`. |
+| 02-01 | **motion/react not framer-motion** | Package renamed in v12+. Import from `'motion/react'`, not deprecated `'framer-motion'`. |
+
 ## Session Continuity
 
 Last session: 2026-02-06

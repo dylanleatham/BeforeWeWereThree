@@ -84,6 +84,35 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /envelopes/:id/open
+ * Open a sealed envelope (any authenticated user)
+ * Only allows transitioning from 'sealed' to 'opened'
+ */
+router.post('/:id/open', authMiddleware, async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params;
+    const existing = await getEnvelopeById(id);
+
+    if (!existing) {
+      res.status(404).json(errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found'));
+      return;
+    }
+
+    if (existing.status !== 'sealed') {
+      // Already opened or completed - return current state
+      res.json(successResponse({ envelope: existing }));
+      return;
+    }
+
+    const envelope = await updateEnvelope(id, { status: 'opened' });
+    res.json(successResponse({ envelope }));
+  } catch (error) {
+    console.error('Failed to open envelope:', error);
+    res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to open envelope'));
+  }
+});
+
+/**
  * PATCH /envelopes/:id
  * Update envelope (admin only)
  */

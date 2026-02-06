@@ -3,6 +3,7 @@ import type { Envelope, EnvelopeStatus } from 'shared';
 import {
   getEnvelopes,
   updateEnvelope as apiUpdateEnvelope,
+  openEnvelope as apiOpenEnvelope,
 } from '../services/api';
 
 interface UseEnvelopesResult {
@@ -51,7 +52,13 @@ export function useEnvelopes(): UseEnvelopesResult {
       );
 
       try {
-        await apiUpdateEnvelope(id, { status });
+        // Use dedicated open endpoint for opening (guest-accessible)
+        // Use admin update endpoint for other status changes
+        if (status === 'opened') {
+          await apiOpenEnvelope(id);
+        } else {
+          await apiUpdateEnvelope(id, { status });
+        }
       } catch (err) {
         // Revert on error
         await fetchEnvelopes();

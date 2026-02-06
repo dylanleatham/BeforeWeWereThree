@@ -178,6 +178,22 @@ export async function deleteEnvelope(id: string): Promise<void> {
   }
 }
 
+/**
+ * Open a sealed envelope (any authenticated user)
+ * Transitions envelope from 'sealed' to 'opened'
+ */
+export async function openEnvelope(id: string): Promise<Envelope> {
+  const response = await apiFetch<EnvelopeResponse>(`/envelopes/${id}/open`, {
+    method: 'POST',
+  });
+
+  if (!response.success) {
+    throw new Error(response.error?.message || STRINGS.API_ERROR_UPDATE_ENVELOPE);
+  }
+
+  return response.data.envelope;
+}
+
 // ============================================================================
 // SignalR API
 // ============================================================================

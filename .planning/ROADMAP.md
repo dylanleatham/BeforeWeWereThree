@@ -68,13 +68,13 @@ Plans:
   3. Each participant votes independently without seeing partner's choice
   4. Reveal shows both choices side-by-side only after both have voted
   5. UI shows optimistic updates with sync status indicators
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 03-01: Azure SignalR Service setup and connection handling
-- [ ] 03-02: Presence indicators and reconnection logic
-- [ ] 03-03: Would You Rather data model and voting API
-- [ ] 03-04: Synchronized reveal and envelope completion
+- [ ] 03-01-PLAN.md — SignalR infrastructure (server negotiate + REST API, client context + hooks) (Wave 1)
+- [ ] 03-02-PLAN.md — WYR data model, Prisma migration, and API endpoints (Wave 1, parallel)
+- [ ] 03-03-PLAN.md — Presence indicator and WYR UI components (Wave 2)
+- [ ] 03-04-PLAN.md — Full integration, useWouldYouRather hook, envelope completion (Wave 3)
 
 ### Phase 4: Letters to Baby & Media
 **Goal**: Users can write letters with photos; media library works
@@ -155,8 +155,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Foundation | 4/4 | Complete | 2026-02-02 |
-| 2. UI Foundation & Envelope | 0/4 | Not started | - |
-| 3. Real-Time Sync & WYR | 0/4 | Not started | - |
+| 2. UI Foundation & Envelope | 4/4 | Complete | 2026-02-04 |
+| 3. Real-Time Sync & WYR | 0/4 | Planned | - |
 | 4. Letters & Media | 0/5 | Not started | - |
 | 5. Baby Name Game & AI | 0/4 | Not started | - |
 | 6. Trivia Activity | 0/3 | Not started | - |

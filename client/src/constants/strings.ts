@@ -85,6 +85,7 @@ export const STRINGS = {
   API_ERROR_CREATE_ENVELOPE: 'Failed to create envelope',
   API_ERROR_UPDATE_ENVELOPE: 'Failed to update envelope',
   API_ERROR_DELETE_ENVELOPE: 'Failed to delete envelope',
+  API_ERROR_SIGNALR_NEGOTIATE: 'Failed to establish real-time connection',
 
   // useSession.ts
   SESSION_ERROR_NETWORK: 'Unable to connect to server',

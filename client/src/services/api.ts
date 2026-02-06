@@ -7,6 +7,7 @@ import type {
   EnvelopeResponse,
   CreateEnvelopeRequest,
   UpdateEnvelopeRequest,
+  SignalRNegotiateResponse,
 } from 'shared';
 import { STRINGS } from '../constants/strings';
 
@@ -172,4 +173,24 @@ export async function deleteEnvelope(id: string): Promise<void> {
   if (!response.success) {
     throw new Error(response.error?.message || STRINGS.API_ERROR_DELETE_ENVELOPE);
   }
+}
+
+// ============================================================================
+// SignalR API
+// ============================================================================
+
+/**
+ * Negotiate SignalR connection
+ * Returns URL and access token for connecting to Azure SignalR Service
+ */
+export async function negotiateSignalR(): Promise<SignalRNegotiateResponse> {
+  const response = await apiFetch<SignalRNegotiateResponse>('/signalr/negotiate', {
+    method: 'POST',
+  });
+
+  if (!response.success) {
+    throw new Error(response.error?.message || STRINGS.API_ERROR_SIGNALR_NEGOTIATE);
+  }
+
+  return response.data;
 }

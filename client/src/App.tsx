@@ -5,6 +5,7 @@ import { PinEntry } from './components/auth/PinEntry';
 import { EnvelopePile } from './components/envelope';
 import { EnvelopeManager } from './components/admin';
 import { Heading, Text } from './components/common';
+import { SignalRProvider } from './context/SignalRContext';
 import { STRINGS } from './constants/strings';
 import './styles/globals.css';
 
@@ -23,13 +24,15 @@ function App() {
     return <PinEntry onSubmit={login} isLoading={sessionLoading} />;
   }
 
-  // Authenticated: show main app
+  // Authenticated: show main app wrapped in SignalR provider
   return (
-    <AuthenticatedApp
-      role={role}
-      designation={designation}
-      sessionLoading={sessionLoading}
-    />
+    <SignalRProvider>
+      <AuthenticatedApp
+        role={role}
+        designation={designation}
+        sessionLoading={sessionLoading}
+      />
+    </SignalRProvider>
   );
 }
 

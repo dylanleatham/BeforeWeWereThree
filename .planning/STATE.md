@@ -95,19 +95,52 @@ Gotchas discovered during development that future phases should avoid:
 | 03-04 | **Guests need dedicated open endpoint** | PATCH /envelopes/:id requires admin. Guests opening envelopes need POST /envelopes/:id/open with authMiddleware. Client must call openEnvelope() for opening, updateEnvelope() for admin status changes. |
 | 03-04 | **SignalR 503 without Azure SignalR configured** | Local dev without `SIGNALR_CONNECTION_STRING` shows 503 errors. Real-time features gracefully degrade but console logs errors. Expected behavior - not a bug. |
 | 03-04 | **Activities must work offline** | Don't block UI with "Reconnecting" overlays when SignalR unavailable. API calls work without SignalR - real-time sync is enhancement, not requirement. Remove `if (!isConnected) return;` blocking patterns. |
+| 03-04 | **Opened envelopes must be navigable** | EnvelopePile and EnvelopeCard originally only allowed clicking sealed envelopes. Users need to return to opened (in-progress) activities. Check `status !== 'completed'` not `status === 'sealed'`. |
+| 03-04 | **WYR options must be visible before choosing** | Original design hid options behind swipe card - users couldn't read choices before deciding. Redesigned to show both options upfront as cards, with swipe handle below. UX principle: show all info needed to make a decision. |
+| 03-04 | **Prisma field names vs DB column names** | Prisma uses camelCase (`optionA`), DB uses snake_case (`option_a`). Schema has `@map()` directives. In TypeScript use `optionA`, in raw SQL use `option_a`. Table `WyrPrompt` maps to `wyr_prompts`. |
+| 03-04 | **WYR requires two participants** | WaitingPhase shows "Waiting for Partner" after voting. Without SignalR, no real-time notification. For solo testing: either use two browser windows (different fingerprints = different participants) or manually insert partner vote in DB. |
+| 03-04 | **WYR prompt needs actual content** | Creating envelope doesn't auto-create WYR prompt. Must separately create prompt with option_a and option_b text. Empty strings = nothing displays. |
 | 03-03 | **useDrag + motion.div type conflict** | Can't apply `useDrag` bind() directly to `motion.div` - onDrag type signatures conflict. Pattern: wrap with plain div for gesture, inner motion.div for animation. |
 | 03-01 | **No Node.js SDK for Azure SignalR** | Server must use REST API to send messages; only clients use WebSocket. Common misconception that there's a server SDK. |
 | 02-04 | **DELETE endpoints must return JSON body** | Returning 204 No Content causes `response.json()` to throw. Always return `{ success: true, data: {} }`. |
 | 02-01 | **motion/react not framer-motion** | Package renamed in v12+. Import from `'motion/react'`, not deprecated `'framer-motion'`. |
 
+### Testing WYR Locally (Without SignalR)
+
+1. **Create envelope** with type `'would-you-rather'` (hyphens!)
+2. **Create WYR prompt** in database:
+   ```sql
+   INSERT INTO wyr_prompts (id, envelope_id, option_a, option_b, created_at)
+   VALUES (gen_random_uuid(), 'envelope-id', 'Option A text', 'Option B text', NOW());
+   ```
+3. **Test with two browser windows** (one normal, one incognito) - different fingerprints get different participant designations
+4. **Or simulate partner vote**:
+   ```sql
+   INSERT INTO wyr_votes (id, prompt_id, participant_id, choice, created_at)
+   VALUES (gen_random_uuid(), 'prompt-id', 'partner-participant-id', 'option_a', NOW());
+   ```
+5. **Refresh to see results** (no real-time updates without SignalR)
+
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 03-03-PLAN.md
+Stopped at: 03-04 manual testing and bug fixes
 Resume file: None
 
 **Phase 3 Progress:**
 - [x] 03-01: SignalR Infrastructure (complete, 2026-02-06)
 - [x] 03-02: WYR Data Model & API (complete, 2026-02-06)
 - [x] 03-03: WYR UI Components (complete, 2026-02-06)
-- [ ] 03-04: useWouldYouRather hook
+- [~] 03-04: Integration - in manual testing, multiple fixes applied
+
+**Recent Commits (03-04 fixes):**
+- `dc3d9f3` - fix: add guest-accessible envelope open endpoint
+- `0645af6` - fix: allow WYR activity to work without SignalR
+- `5f1377e` - feat: allow navigating to opened envelopes
+- `edb94d5` - fix: redesign WYR voting to show options upfront
+
+**Current State:**
+- WYR voting UI redesigned - options visible before choosing
+- Graceful degradation works - voting works without SignalR
+- Opened envelopes can be re-opened to continue activity
+- Waiting phase shows after voting (needs partner or manual DB insert to proceed)

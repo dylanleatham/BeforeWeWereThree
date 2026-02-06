@@ -30,7 +30,8 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
 
   const handleOpenEnvelope = useCallback(
     (envelope: Envelope) => {
-      if (envelope.status === 'sealed') {
+      // Allow opening sealed and opened envelopes (not completed)
+      if (envelope.status !== 'completed') {
         setSelectedEnvelope(envelope);
       }
     },

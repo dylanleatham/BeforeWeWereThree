@@ -26,6 +26,7 @@ export function EnvelopeCard({
   const { status, title, type } = envelope;
   const isSealed = status === 'sealed';
   const isCompleted = status === 'completed';
+  const isClickable = !isCompleted; // Both sealed and opened can be clicked
 
   // Format activity type for display
   const typeLabel = type
@@ -36,18 +37,18 @@ export function EnvelopeCard({
   return (
     <motion.article
       className={clsx('envelope-card', `envelope-card--${status}`)}
-      onClick={isSealed ? onClick : undefined}
-      role={isSealed ? 'button' : undefined}
-      tabIndex={isSealed ? 0 : undefined}
-      aria-label={isSealed ? STRINGS.CARD_ARIA_OPEN(title) : title}
+      onClick={isClickable ? onClick : undefined}
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      aria-label={isClickable ? STRINGS.CARD_ARIA_OPEN(title) : title}
       whileHover={
-        isSealed
+        isClickable
           ? { y: -HOVER_LIFT_PX, boxShadow: '0 8px 24px rgba(61, 58, 56, 0.15)' }
           : undefined
       }
-      whileTap={isSealed ? { scale: TAP_SCALE } : undefined}
+      whileTap={isClickable ? { scale: TAP_SCALE } : undefined}
       onKeyDown={(e) => {
-        if (isSealed && (e.key === 'Enter' || e.key === ' ')) {
+        if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           onClick?.();
         }

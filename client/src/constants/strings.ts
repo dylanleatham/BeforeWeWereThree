@@ -89,6 +89,12 @@ export const STRINGS = {
 
   // useSession.ts
   SESSION_ERROR_NETWORK: 'Unable to connect to server',
+
+  // Would You Rather - PartnerPresence
+  WYR_PARTNER_JOINED: (name: string) => `${name} joined`,
+  WYR_PARTNER_LEFT: (name: string) => `${name} left`,
+  WYR_PARTNER_ONLINE: 'Online',
+  WYR_PARTNER_OFFLINE: 'Offline',
 } as const;
 
 /**

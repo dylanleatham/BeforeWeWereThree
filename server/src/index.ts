@@ -8,6 +8,7 @@ import healthRouter from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { envelopesRouter } from './routes/envelopes.js';
 import { signalrRouter } from './routes/signalr.js';
+import { wyrRouter } from './routes/wyr.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -51,6 +52,7 @@ app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/envelopes', envelopesRouter);
 app.use('/api/signalr', signalrRouter);
+app.use('/api/wyr', wyrRouter);
 
 // Serve static files from client build
 // In production bundle, public/ is in the same directory as index.js

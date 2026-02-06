@@ -43,6 +43,28 @@ export type {
   SignalRMessage,
 } from './signalr.js';
 
+// Re-export WYR types
+export type {
+  WYRChoice,
+  WYRPhase,
+  WYRPrompt,
+  WYRResults,
+  WYRState,
+  WYRPromptResponse,
+  WYRVoteRequest,
+  WYRVoteResponse,
+  WYRVoteSubmittedMessage,
+  WYRRevealReadyMessage,
+  CreateWYRPromptRequest,
+  UpdateWYRPromptRequest,
+} from './wyr.js';
+export {
+  wyrChoiceSchema,
+  wyrVoteRequestSchema,
+  createWyrPromptSchema,
+  updateWyrPromptSchema,
+} from './wyr.js';
+
 /**
  * Health check response data
  */

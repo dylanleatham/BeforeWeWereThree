@@ -28,6 +28,8 @@ model Participant {
   role              String // 'guest' or 'admin'
   createdAt         DateTime @default(now()) @map("created_at")
 
+  wyrVotes WyrVote[]
+
   @@map("participants")
 }
 
@@ -42,5 +44,38 @@ model Envelope {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  wyrPrompt WyrPrompt?
+
   @@map("envelopes")
+}
+
+// Would You Rather prompt
+// One prompt per envelope, presents two options for participants to choose between
+model WyrPrompt {
+  id         String   @id @default(uuid())
+  envelopeId String   @unique @map("envelope_id")
+  optionA    String   @map("option_a")
+  optionB    String   @map("option_b")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  envelope Envelope  @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  votes    WyrVote[]
+
+  @@map("wyr_prompts")
+}
+
+// Would You Rather vote
+// Tracks each participant's choice for a prompt
+model WyrVote {
+  id            String   @id @default(uuid())
+  promptId      String   @map("prompt_id")
+  participantId String   @map("participant_id")
+  choice        String   // 'option_a' or 'option_b'
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  prompt      WyrPrompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id])
+
+  @@unique([promptId, participantId])
+  @@map("wyr_votes")
 }

@@ -36,6 +36,13 @@ export type {
 } from './envelope.js';
 export { createEnvelopeSchema, updateEnvelopeSchema } from './envelope.js';
 
+// Re-export SignalR types
+export type {
+  SignalRNegotiateResponse,
+  PartnerPresenceMessage,
+  SignalRMessage,
+} from './signalr.js';
+
 /**
  * Health check response data
  */

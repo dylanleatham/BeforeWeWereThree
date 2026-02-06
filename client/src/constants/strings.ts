@@ -107,6 +107,11 @@ export const STRINGS = {
   WYR_PARTNER_CHOICE: "Partner's choice",
   WYR_MATCH: 'You matched!',
   WYR_NEXT: 'Next',
+
+  // Would You Rather - useWouldYouRather hook
+  WYR_ERROR_LOADING: 'Failed to load activity',
+  WYR_ERROR_VOTING: 'Failed to submit vote',
+  WYR_ERROR_OFFLINE: 'You need to be connected to vote',
 } as const;
 
 /**

@@ -156,12 +156,6 @@ export function useWouldYouRather({
    */
   const vote = useCallback(
     async (choice: WYRChoice) => {
-      // Block if offline
-      if (!isConnected) {
-        setError(STRINGS.WYR_ERROR_OFFLINE);
-        return;
-      }
-
       if (!prompt) {
         return;
       }
@@ -194,7 +188,7 @@ export function useWouldYouRather({
         setError(STRINGS.WYR_ERROR_VOTING);
       }
     },
-    [isConnected, prompt, showHint]
+    [prompt, showHint]
   );
 
   /**

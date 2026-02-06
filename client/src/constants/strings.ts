@@ -100,6 +100,7 @@ export const STRINGS = {
   WYR_SWIPE_PROMPT: 'Swipe to choose',
   WYR_SWIPE_HINT: 'Swipe left or right',
   WYR_RECONNECTING: 'Reconnecting...',
+  WYR_OFFLINE_NOTICE: 'Offline mode - real-time sync unavailable',
 
   // Would You Rather - WaitingPhase & RevealPhase
   WYR_WAITING: (name: string) => `Waiting for ${name}...`,

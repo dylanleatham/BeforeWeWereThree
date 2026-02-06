@@ -90,7 +90,6 @@ export function WouldYouRatherActivity({
             optionA={prompt.optionA}
             optionB={prompt.optionB}
             onVote={vote}
-            isConnected={isConnected}
             showHint={showHint}
           />
         );
@@ -141,14 +140,14 @@ export function WouldYouRatherActivity({
         {renderPhase()}
       </motion.div>
 
-      {/* Reconnecting overlay */}
+      {/* Offline notice (non-blocking) */}
       {!isConnected && phase !== 'revealing' && phase !== 'complete' && (
         <div
-          className="wyr-activity__reconnecting"
+          className="wyr-activity__offline-notice"
           role="status"
           aria-live="polite"
         >
-          {STRINGS.WYR_RECONNECTING}
+          {STRINGS.WYR_OFFLINE_NOTICE}
         </div>
       )}
     </div>

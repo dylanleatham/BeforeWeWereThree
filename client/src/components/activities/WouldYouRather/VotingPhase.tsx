@@ -17,8 +17,6 @@ interface VotingPhaseProps {
   optionB: string;
   /** Callback when user makes a choice */
   onVote: (choice: WYRChoice) => void;
-  /** Whether SignalR connection is active */
-  isConnected: boolean;
   /** Show swipe hint for first-time users */
   showHint: boolean;
 }
@@ -38,7 +36,6 @@ export function VotingPhase({
   optionA,
   optionB,
   onVote,
-  isConnected,
   showHint,
 }: VotingPhaseProps) {
   const [dragX, setDragX] = useState(0);
@@ -52,9 +49,6 @@ export function VotingPhase({
 
   const bind = useDrag(
     ({ active, movement: [mx], direction: [dx], velocity: [vx] }) => {
-      // Block voting when offline
-      if (!isConnected) return;
-
       if (active) {
         setDragX(mx);
         x.set(mx);
@@ -113,12 +107,6 @@ export function VotingPhase({
         </motion.div>
       </div>
 
-      {/* Reconnecting overlay */}
-      {!isConnected && (
-        <div className="wyr-voting__offline" role="status" aria-live="polite">
-          {STRINGS.WYR_RECONNECTING}
-        </div>
-      )}
     </div>
   );
 }

@@ -88,29 +88,17 @@
   outline-offset: 2px;
 }
 
-/* Reconnecting overlay */
-.wyr-activity__reconnecting {
+/* Offline notice (non-blocking banner) */
+.wyr-activity__offline-notice {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(250, 243, 232, 0.9); /* warm-sand with transparency */
-  z-index: 20;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(188, 108, 74, 0.1); /* deep-terracotta with transparency */
   font-family: var(--font-body);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-xs);
   color: var(--color-deep-terracotta);
-  animation: pulse-opacity 2s ease-in-out infinite;
-}
-
-@keyframes pulse-opacity {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
+  text-align: center;
+  z-index: 5;
 }

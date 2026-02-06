@@ -95,6 +95,11 @@ export const STRINGS = {
   WYR_PARTNER_LEFT: (name: string) => `${name} left`,
   WYR_PARTNER_ONLINE: 'Online',
   WYR_PARTNER_OFFLINE: 'Offline',
+
+  // Would You Rather - VotingPhase
+  WYR_SWIPE_PROMPT: 'Swipe to choose',
+  WYR_SWIPE_HINT: 'Swipe left or right',
+  WYR_RECONNECTING: 'Reconnecting...',
 } as const;
 
 /**

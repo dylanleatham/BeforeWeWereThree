@@ -92,3 +92,25 @@ export const HAPTIC_TAP_DURATION_MS = 50;
 
 /** Vibration pattern for success feedback (tap-pause-tap) in milliseconds */
 export const HAPTIC_SUCCESS_PATTERN_MS = [50, 50, 80] as const;
+
+// =============================================================================
+// Would You Rather
+// =============================================================================
+
+/** Minimum distance in pixels to trigger WYR vote */
+export const WYR_SWIPE_THRESHOLD_PX = 80;
+
+/** Velocity threshold for fast swipe to trigger vote (overrides distance) */
+export const WYR_SWIPE_VELOCITY = 0.5;
+
+/** Spring physics for WYR card snap-back */
+export const WYR_CARD_SPRING = { stiffness: 300, damping: 25 };
+
+/** Stagger delay between reveal animations in milliseconds */
+export const WYR_REVEAL_STAGGER_MS = 200;
+
+/** Duration of reveal card animation in milliseconds */
+export const WYR_REVEAL_DURATION_MS = 400;
+
+/** Duration of match glow celebration effect in milliseconds */
+export const WYR_MATCH_GLOW_DURATION_MS = 1500;

@@ -9,6 +9,7 @@ import {
   contentRevealVariants,
 } from '../../utils/motion';
 import { EnvelopeCard } from './EnvelopeCard';
+import { WouldYouRatherActivity } from '../activities/WouldYouRather';
 import { STRINGS } from '../../constants/strings';
 import { ANIMATION_DURATION_MS, CONTENT_REVEAL_DURATION } from '../../constants/animation';
 import './BaseEnvelope.css';
@@ -59,6 +60,46 @@ export function BaseEnvelope({
   const handleClose = useCallback(() => {
     onClose?.();
   }, [onClose]);
+
+  /**
+   * Handle activity completion - marks envelope as completed
+   */
+  const handleActivityComplete = useCallback(() => {
+    onStatusChange?.('completed');
+    onClose?.();
+  }, [onStatusChange, onClose]);
+
+  /**
+   * Render the appropriate activity content based on envelope type
+   */
+  const renderActivityContent = () => {
+    // Only render activities for opened envelopes (not sealed, not completed)
+    if (envelope.status !== 'opened') {
+      return children || (
+        <p className="base-envelope__placeholder">
+          {STRINGS.ENVELOPE_PLACEHOLDER}
+        </p>
+      );
+    }
+
+    switch (envelope.type) {
+      case 'would-you-rather':
+        return (
+          <WouldYouRatherActivity
+            envelopeId={envelope.id}
+            onComplete={handleActivityComplete}
+          />
+        );
+
+      // Other activity types will be added in future phases
+      default:
+        return children || (
+          <p className="base-envelope__placeholder">
+            {STRINGS.ENVELOPE_PLACEHOLDER}
+          </p>
+        );
+    }
+  };
 
   // If envelope is still sealed, show the card view
   if (!isOpen) {
@@ -117,13 +158,9 @@ export function BaseEnvelope({
             </span>
           </header>
 
-          {/* Activity content (passed as children) */}
+          {/* Activity content */}
           <div className="base-envelope__body">
-            {children || (
-              <p className="base-envelope__placeholder">
-                {STRINGS.ENVELOPE_PLACEHOLDER}
-              </p>
-            )}
+            {renderActivityContent()}
           </div>
 
           {/* Partner indicator */}

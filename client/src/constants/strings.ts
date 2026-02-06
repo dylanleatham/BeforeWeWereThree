@@ -97,8 +97,14 @@ export const STRINGS = {
   WYR_PARTNER_OFFLINE: 'Offline',
 
   // Would You Rather - VotingPhase
+  WYR_TITLE: 'Would you rather...',
+  WYR_OPTION_A_LABEL: 'Option A',
+  WYR_OPTION_B_LABEL: 'Option B',
+  WYR_OR: 'or',
   WYR_SWIPE_PROMPT: 'Swipe to choose',
-  WYR_SWIPE_HINT: 'Swipe left or right',
+  WYR_SWIPE_HINT: '← Swipe left for A · Swipe right for B →',
+  WYR_CHOOSING_A: 'Choosing A...',
+  WYR_CHOOSING_B: 'Choosing B...',
   WYR_RECONNECTING: 'Reconnecting...',
   WYR_OFFLINE_NOTICE: 'Offline mode - real-time sync unavailable',
 

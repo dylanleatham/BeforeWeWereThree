@@ -8,6 +8,9 @@ import type {
   CreateEnvelopeRequest,
   UpdateEnvelopeRequest,
   SignalRNegotiateResponse,
+  WYRPromptResponse,
+  WYRVoteResponse,
+  WYRPrompt,
 } from 'shared';
 import { STRINGS } from '../constants/strings';
 
@@ -193,4 +196,83 @@ export async function negotiateSignalR(): Promise<SignalRNegotiateResponse> {
   }
 
   return response.data;
+}
+
+// ============================================================================
+// Would You Rather API
+// ============================================================================
+
+/**
+ * Get WYR prompt state for an envelope
+ */
+export async function getWyrPrompt(envelopeId: string): Promise<WYRPromptResponse> {
+  const response = await apiFetch<WYRPromptResponse>(`/wyr/${envelopeId}`);
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch WYR prompt');
+  }
+  return response.data;
+}
+
+/**
+ * Submit vote for a WYR prompt
+ */
+export async function submitWyrVote(
+  promptId: string,
+  choice: 'option_a' | 'option_b'
+): Promise<WYRVoteResponse> {
+  const response = await apiFetch<WYRVoteResponse>(`/wyr/${promptId}/vote`, {
+    method: 'POST',
+    body: JSON.stringify({ choice }),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to submit vote');
+  }
+  return response.data;
+}
+
+/**
+ * Create WYR prompt (admin only)
+ */
+export async function createWyrPrompt(data: {
+  envelopeId: string;
+  optionA: string;
+  optionB: string;
+}): Promise<WYRPrompt> {
+  const response = await apiFetch<{ prompt: WYRPrompt }>('/wyr', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to create WYR prompt');
+  }
+  return response.data.prompt;
+}
+
+/**
+ * Update WYR prompt (admin only)
+ */
+export async function updateWyrPrompt(
+  id: string,
+  data: { optionA?: string; optionB?: string }
+): Promise<WYRPrompt> {
+  const response = await apiFetch<{ prompt: WYRPrompt }>(`/wyr/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to update WYR prompt');
+  }
+  return response.data.prompt;
+}
+
+/**
+ * Delete WYR prompt (admin only)
+ */
+export async function deleteWyrPrompt(id: string): Promise<void> {
+  const response = await apiFetch<Record<string, never>>(`/wyr/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to delete WYR prompt');
+  }
 }

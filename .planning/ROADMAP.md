@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Azure Infrastructure & Foundation** - Deploy pipeline, secrets, database, PIN auth
 - [x] **Phase 2: UI Foundation & Envelope Model** - Design system, envelope states, animations
-- [ ] **Phase 3: Real-Time Sync & Would You Rather** - SignalR, presence, synchronized voting
+- [x] **Phase 3: Real-Time Sync & Would You Rather** - SignalR, presence, synchronized voting
 - [ ] **Phase 4: Letters to Baby & Media** - Text input, photo uploads, media library
 - [ ] **Phase 5: Baby Name Game & AI** - Anthropic API, voting, match detection
 - [ ] **Phase 6: Trivia Activity** - Simple Q&A demonstrating pattern reuse
@@ -71,10 +71,10 @@ Plans:
 **Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 03-01-PLAN.md — SignalR infrastructure (server negotiate + REST API, client context + hooks) (Wave 1)
-- [ ] 03-02-PLAN.md — WYR data model, Prisma migration, and API endpoints (Wave 1, parallel)
-- [ ] 03-03-PLAN.md — Presence indicator and WYR UI components (Wave 2)
-- [ ] 03-04-PLAN.md — Full integration, useWouldYouRather hook, envelope completion (Wave 3)
+- [x] 03-01-PLAN.md — SignalR infrastructure (server negotiate + REST API, client context + hooks) (Wave 1) -- Completed 2026-02-06
+- [x] 03-02-PLAN.md — WYR data model, Prisma migration, and API endpoints (Wave 1, parallel) -- Completed 2026-02-06
+- [x] 03-03-PLAN.md — Presence indicator and WYR UI components (Wave 2) -- Completed 2026-02-06
+- [x] 03-04-PLAN.md — Full integration, useWouldYouRather hook, envelope completion (Wave 3) -- Completed 2026-02-06
 
 ### Phase 4: Letters to Baby & Media
 **Goal**: Users can write letters with photos; media library works
@@ -156,7 +156,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Foundation | 4/4 | Complete | 2026-02-02 |
 | 2. UI Foundation & Envelope | 4/4 | Complete | 2026-02-04 |
-| 3. Real-Time Sync & WYR | 0/4 | Planned | - |
+| 3. Real-Time Sync & WYR | 4/4 | Complete | 2026-02-06 |
 | 4. Letters & Media | 0/5 | Not started | - |
 | 5. Baby Name Game & AI | 0/4 | Not started | - |
 | 6. Trivia Activity | 0/3 | Not started | - |

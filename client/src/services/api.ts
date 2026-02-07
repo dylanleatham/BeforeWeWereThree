@@ -91,10 +91,36 @@ export async function logout(): Promise<ApiResponse<{ message: string }>> {
 /**
  * Reset all guest participants (admin only)
  * Useful for testing A/B designation reassignment
+ * @deprecated Use resetSession() instead for comprehensive reset
  */
 export async function resetParticipants(): Promise<ApiResponse<{ message: string }>> {
   return apiFetch<{ message: string }>('/auth/participants', {
     method: 'DELETE',
+  });
+}
+
+/**
+ * Reset session response includes counts of what was reset
+ */
+export interface ResetSessionResponse {
+  message: string;
+  participantsDeleted: number;
+  envelopesReset: number;
+  votesDeleted: number;
+}
+
+/**
+ * Reset entire session state (admin only)
+ *
+ * Comprehensive reset that:
+ * - Kicks out all guest participants (clears A/B designations)
+ * - Resets all envelopes to 'sealed' status
+ * - Deletes all WYR votes
+ * - (Future features should add their reset logic here)
+ */
+export async function resetSession(): Promise<ApiResponse<ResetSessionResponse>> {
+  return apiFetch<ResetSessionResponse>('/admin/reset-session', {
+    method: 'POST',
   });
 }
 

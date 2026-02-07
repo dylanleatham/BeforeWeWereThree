@@ -94,6 +94,7 @@ Request validation uses Zod. Standard error codes: `ENVELOPE_NOT_FOUND`, `VALIDA
 7. **Custom hooks for state** — components stay pure
 8. **Style guide adherence** — all UI references the design system
 9. **Centralized constants** — no magic numbers or inline strings (see Constants section below)
+10. **Reset capability** — all features must support admin session reset (see Reset Capability section)
 
 ## Design System
 
@@ -148,6 +149,40 @@ All client-side constants live in `client/src/constants/`. Never use magic numbe
 **When inline is OK:**
 - Truly one-off values that are self-explanatory in context
 - Standard/obvious values like `min="0"`
+
+## Reset Capability
+
+The admin UI includes a **Reset Session** button that returns the app to a fresh state. This is essential for testing and re-running the babymoon experience.
+
+**When adding new features, include reset logic in `server/src/services/admin.ts`:**
+
+```typescript
+// In resetSession() function, add cleanup for your feature:
+export async function resetSession(): Promise<ResetSessionResult> {
+  const result = await db.$transaction(async (tx) => {
+    // Existing resets...
+    const votesDeleted = await tx.wyrVote.deleteMany({});
+    const participantsDeleted = await tx.participant.deleteMany({ where: { role: 'guest' } });
+    const envelopesReset = await tx.envelope.updateMany({ data: { status: 'sealed' } });
+
+    // ADD YOUR FEATURE'S RESET HERE:
+    // const myFeatureReset = await tx.myFeatureTable.deleteMany({});
+    // OR: await tx.myFeatureTable.updateMany({ data: { status: 'initial' } });
+
+    return { participantsDeleted, envelopesReset, votesDeleted /*, myFeatureCount */ };
+  });
+  return result;
+}
+```
+
+**What to reset:**
+- User-generated content (votes, letters, responses)
+- Activity state (progress, completion status)
+- Session-specific data (participant designations)
+
+**What NOT to reset:**
+- Admin-created content (prompts, questions, configuration)
+- Envelope definitions (just reset status to 'sealed')
 
 ## Build Philosophy
 

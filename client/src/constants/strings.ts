@@ -53,12 +53,14 @@ export const STRINGS = {
   MANAGER_CONFIRM: 'Confirm',
   MANAGER_CANCEL: 'Cancel',
   MANAGER_TOOLS_HEADING: 'Test Tools',
-  MANAGER_RESET_TITLE: 'Reset Participants',
-  MANAGER_RESET_DESCRIPTION: 'Clear all guest A/B designations. New logins will be reassigned.',
-  MANAGER_RESET_BUTTON: 'Reset',
+  MANAGER_RESET_TITLE: 'Reset Session',
+  MANAGER_RESET_DESCRIPTION:
+    'Kick out all guests, reseal envelopes, and clear all votes. Start fresh!',
+  MANAGER_RESET_BUTTON: 'Reset Session',
   MANAGER_RESET_CONFIRM: 'Confirm Reset',
-  MANAGER_RESET_SUCCESS: 'Guest participants have been reset. New devices will get A/B designations.',
-  MANAGER_RESET_ERROR: (msg: string) => `Failed to reset participants: ${msg}`,
+  MANAGER_RESET_SUCCESS: (result: { participantsDeleted: number; envelopesReset: number; votesDeleted: number }) =>
+    `Session reset! ${result.participantsDeleted} guests kicked, ${result.envelopesReset} envelopes resealed, ${result.votesDeleted} votes cleared.`,
+  MANAGER_RESET_ERROR: (msg: string) => `Failed to reset session: ${msg}`,
   MANAGER_ARIA_EDIT: (title: string) => `Edit ${title}`,
   MANAGER_ARIA_DELETE: (title: string) => `Delete ${title}`,
 

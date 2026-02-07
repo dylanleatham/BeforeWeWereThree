@@ -3,7 +3,7 @@ import { Plus, Edit2, Trash2, Mail, Users } from 'lucide-react';
 import type { Envelope, CreateEnvelopeRequest, UpdateEnvelopeRequest } from 'shared';
 import { Button, Card, Heading, Text } from '../common';
 import { EnvelopeForm } from './EnvelopeForm';
-import { createEnvelope, updateEnvelope, deleteEnvelope, resetParticipants } from '../../services/api';
+import { createEnvelope, updateEnvelope, deleteEnvelope, resetSession } from '../../services/api';
 import { STRINGS } from '../../constants/strings';
 import './EnvelopeManager.css';
 
@@ -29,20 +29,22 @@ export function EnvelopeManager({
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [resetConfirm, setResetConfirm] = useState(false);
 
-  const handleResetParticipants = useCallback(async () => {
+  const handleResetSession = useCallback(async () => {
     setIsSaving(true);
     try {
-      const result = await resetParticipants();
+      const result = await resetSession();
       if (result.success) {
         setResetConfirm(false);
-        alert(STRINGS.MANAGER_RESET_SUCCESS);
+        alert(STRINGS.MANAGER_RESET_SUCCESS(result.data));
+        // Refresh envelope list since statuses were reset
+        await onRefresh();
       } else {
         alert(STRINGS.MANAGER_RESET_ERROR(result.error?.message ?? 'Unknown error'));
       }
     } finally {
       setIsSaving(false);
     }
-  }, []);
+  }, [onRefresh]);
 
   const handleCreate = useCallback(async (data: CreateEnvelopeRequest) => {
     setIsSaving(true);
@@ -205,7 +207,7 @@ export function EnvelopeManager({
             <div className="envelope-manager__actions">
               <button
                 className="envelope-manager__btn envelope-manager__btn--danger"
-                onClick={handleResetParticipants}
+                onClick={handleResetSession}
                 disabled={isSaving}
               >
                 {STRINGS.MANAGER_RESET_CONFIRM}

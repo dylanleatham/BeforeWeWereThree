@@ -3,6 +3,7 @@
  * Updated for Phase 2 envelope pile and admin manager integration
  */
 
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from '../App';
@@ -15,6 +16,18 @@ vi.mock('../hooks/useSession', () => ({
 // Mock useEnvelopes hook
 vi.mock('../hooks/useEnvelopes', () => ({
   useEnvelopes: vi.fn(),
+}));
+
+// Mock SignalRContext to prevent connection attempts during tests
+vi.mock('../context/SignalRContext', () => ({
+  SignalRProvider: ({ children }: { children: React.ReactNode }) => children,
+  useSignalR: () => ({
+    isConnected: false,
+    connectionState: 'disconnected',
+    sendMessage: vi.fn(),
+    joinGroup: vi.fn(),
+    leaveGroup: vi.fn(),
+  }),
 }));
 
 import { useSession } from '../hooks/useSession';

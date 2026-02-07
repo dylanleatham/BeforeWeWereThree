@@ -1,11 +1,30 @@
 /**
- * SignalR types for real-time synchronization
+ * Real-time messaging types
  * Used by both server and client for type-safe messaging
+ * Supports both Socket.io (local dev) and Azure SignalR (production)
  */
+
+/** Transport type for real-time messaging */
+export type RealtimeTransport = 'socketio' | 'signalr';
 
 /**
  * Response from /api/signalr/negotiate endpoint
- * Contains URL and access token for client to connect to Azure SignalR
+ * Contains transport type and connection details
+ */
+export interface RealtimeNegotiateResponse {
+  /** Transport type: 'socketio' for local dev, 'signalr' for production */
+  transport: RealtimeTransport;
+  /** URL to connect to */
+  url: string;
+  /** User ID for the connection */
+  userId: string;
+  /** Access token (only for Azure SignalR) */
+  accessToken?: string;
+}
+
+/**
+ * @deprecated Use RealtimeNegotiateResponse instead
+ * Legacy type kept for backwards compatibility
  */
 export interface SignalRNegotiateResponse {
   url: string;

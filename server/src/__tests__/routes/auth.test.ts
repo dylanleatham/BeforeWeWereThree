@@ -21,6 +21,7 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
     $connect: jest.fn(),
     $disconnect: jest.fn(),
   },
+  disconnectDatabase: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
 }));
 
 jest.unstable_mockModule('../../db/queries/config.js', () => ({

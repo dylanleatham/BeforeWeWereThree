@@ -7,10 +7,11 @@ import type {
   EnvelopeResponse,
   CreateEnvelopeRequest,
   UpdateEnvelopeRequest,
-  SignalRNegotiateResponse,
+  RealtimeNegotiateResponse,
   WYRPromptResponse,
   WYRVoteResponse,
   WYRPrompt,
+  ResetSessionResponse,
 } from 'shared';
 import { STRINGS } from '../constants/strings';
 
@@ -23,7 +24,7 @@ const API_BASE = '/api';
 
 /**
  * Base fetch wrapper
- * Includes credentials for cookie handling
+ * Includes credentials for cookie handling and proper HTTP status checking
  */
 async function apiFetch<T>(
   endpoint: string,
@@ -40,6 +41,28 @@ async function apiFetch<T>(
         ...options.headers,
       },
     });
+
+    // Check if response is OK before parsing JSON
+    if (!response.ok) {
+      // Try to parse error response as JSON
+      try {
+        const errorData = await response.json();
+        if (errorData && typeof errorData === 'object' && 'error' in errorData) {
+          return errorData as ApiResponse<T>;
+        }
+      } catch {
+        // Response is not JSON (e.g., HTML error page)
+      }
+
+      // Return generic error based on status code
+      return {
+        success: false,
+        error: {
+          code: `HTTP_${response.status}`,
+          message: response.statusText || `Request failed with status ${response.status}`,
+        },
+      };
+    }
 
     const data = await response.json();
     return data as ApiResponse<T>;
@@ -97,16 +120,6 @@ export async function resetParticipants(): Promise<ApiResponse<{ message: string
   return apiFetch<{ message: string }>('/auth/participants', {
     method: 'DELETE',
   });
-}
-
-/**
- * Reset session response includes counts of what was reset
- */
-export interface ResetSessionResponse {
-  message: string;
-  participantsDeleted: number;
-  envelopesReset: number;
-  votesDeleted: number;
 }
 
 /**
@@ -221,15 +234,15 @@ export async function openEnvelope(id: string): Promise<Envelope> {
 }
 
 // ============================================================================
-// SignalR API
+// Realtime API
 // ============================================================================
 
 /**
- * Negotiate SignalR connection
- * Returns URL and access token for connecting to Azure SignalR Service
+ * Negotiate real-time connection
+ * Returns transport type and connection details for Socket.io or Azure SignalR
  */
-export async function negotiateSignalR(): Promise<SignalRNegotiateResponse> {
-  const response = await apiFetch<SignalRNegotiateResponse>('/signalr/negotiate', {
+export async function negotiateRealtime(): Promise<RealtimeNegotiateResponse> {
+  const response = await apiFetch<RealtimeNegotiateResponse>('/signalr/negotiate', {
     method: 'POST',
   });
 

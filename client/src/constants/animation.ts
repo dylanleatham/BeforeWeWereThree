@@ -97,15 +97,6 @@ export const HAPTIC_SUCCESS_PATTERN_MS = [50, 50, 80] as const;
 // Would You Rather
 // =============================================================================
 
-/** Minimum distance in pixels to trigger WYR vote */
-export const WYR_SWIPE_THRESHOLD_PX = 80;
-
-/** Velocity threshold for fast swipe to trigger vote (overrides distance) */
-export const WYR_SWIPE_VELOCITY = 0.5;
-
-/** Spring physics for WYR card snap-back */
-export const WYR_CARD_SPRING = { stiffness: 300, damping: 25 };
-
 /** Stagger delay between reveal animations in milliseconds */
 export const WYR_REVEAL_STAGGER_MS = 200;
 
@@ -114,3 +105,37 @@ export const WYR_REVEAL_DURATION_MS = 400;
 
 /** Duration of match glow celebration effect in milliseconds */
 export const WYR_MATCH_GLOW_DURATION_MS = 1500;
+
+/** Delay before showing continue button in reveal phase in milliseconds */
+export const WYR_REVEAL_BUTTON_DELAY_MS = 200;
+
+/** Duration of waiting phase pulse animation in seconds */
+export const WYR_WAITING_PULSE_DURATION_S = 2;
+
+/** Duration of complete phase content fade in seconds */
+export const WYR_COMPLETE_CONTENT_DURATION_S = 0.4;
+
+/** Delay before complete phase button appears in seconds */
+export const WYR_COMPLETE_BUTTON_DELAY_S = 0.5;
+
+/** Duration of partner presence toast display in milliseconds */
+export const PARTNER_TOAST_DURATION_MS = 3000;
+
+// =============================================================================
+// Scale Factors
+// =============================================================================
+
+/** Scale factor for button hover feedback */
+export const BUTTON_HOVER_SCALE = 1.02;
+
+/** Scale factor for option tap feedback */
+export const OPTION_TAP_SCALE = 0.97;
+
+/** Scale factor for modal/overlay enter animation */
+export const MODAL_ENTER_SCALE = 0.95;
+
+/** Scale factor for celebration/reveal enter animation */
+export const CELEBRATION_ENTER_SCALE = 0.8;
+
+/** Opacity range for pulse animation [min, max, min] */
+export const PULSE_OPACITY_RANGE = [0.6, 1, 0.6] as const;

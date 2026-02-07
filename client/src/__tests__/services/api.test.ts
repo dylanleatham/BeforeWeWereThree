@@ -22,6 +22,7 @@ describe('API Service', () => {
   describe('validatePin', () => {
     it('should call fetch with correct parameters', async () => {
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () =>
           Promise.resolve({
             success: true,
@@ -55,6 +56,7 @@ describe('API Service', () => {
         },
       };
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve(mockResponse),
       });
 
@@ -76,6 +78,7 @@ describe('API Service', () => {
         },
       };
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve(mockResponse),
       });
 
@@ -103,6 +106,7 @@ describe('API Service', () => {
   describe('getSession', () => {
     it('should call fetch with correct parameters', async () => {
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () =>
           Promise.resolve({
             success: true,
@@ -136,6 +140,7 @@ describe('API Service', () => {
         },
       };
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve(mockResponse),
       });
 
@@ -149,6 +154,7 @@ describe('API Service', () => {
 
     it('should return error when not authenticated', async () => {
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () =>
           Promise.resolve({
             success: false,
@@ -165,6 +171,7 @@ describe('API Service', () => {
   describe('logout', () => {
     it('should call fetch with POST method', async () => {
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () =>
           Promise.resolve({
             success: true,
@@ -185,6 +192,7 @@ describe('API Service', () => {
 
     it('should return success response', async () => {
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () =>
           Promise.resolve({
             success: true,

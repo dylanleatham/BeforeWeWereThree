@@ -90,17 +90,17 @@
 }
 
 .envelope-manager__status--sealed {
-  background: rgba(244, 162, 97, 0.15);
+  background: var(--color-sunrise-gold-15);
   color: var(--color-deep-terracotta);
 }
 
 .envelope-manager__status--opened {
-  background: rgba(107, 102, 98, 0.15);
+  background: var(--color-soft-graphite-15);
   color: var(--color-soft-graphite);
 }
 
 .envelope-manager__status--completed {
-  background: rgba(157, 181, 160, 0.15);
+  background: var(--color-soft-sage-15);
   color: var(--color-soft-sage);
 }
 
@@ -134,7 +134,7 @@
 }
 
 .envelope-manager__btn--danger {
-  background: rgba(224, 122, 95, 0.1);
+  background: var(--color-dusk-rose-10);
   color: var(--color-dusk-rose);
 }
 

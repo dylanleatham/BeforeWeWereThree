@@ -2,7 +2,7 @@
  * Would You Rather Voting Phase Styles
  *
  * Options are displayed upfront so users can read before choosing.
- * Swipe handle at bottom indicates pending choice.
+ * Tap an option to select it.
  */
 
 /* =============================================================================
@@ -51,18 +51,28 @@
   border-radius: var(--radius-lg);
   text-align: center;
   transition: all var(--duration-fast) var(--ease-default);
+  cursor: pointer;
 }
 
-.wyr-voting__choice--a.wyr-voting__choice--selected {
+.wyr-voting__choice:active {
+  transform: scale(0.97);
+}
+
+.wyr-voting__choice:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
+.wyr-voting__choice--a:hover,
+.wyr-voting__choice--a:focus-visible {
   border-color: var(--color-dusk-rose);
-  background-color: rgba(224, 122, 95, 0.1);
-  transform: scale(1.02);
+  background-color: var(--color-dusk-rose-10);
 }
 
-.wyr-voting__choice--b.wyr-voting__choice--selected {
+.wyr-voting__choice--b:hover,
+.wyr-voting__choice--b:focus-visible {
   border-color: var(--color-soft-sage);
-  background-color: rgba(157, 181, 160, 0.1);
-  transform: scale(1.02);
+  background-color: var(--color-soft-sage-10);
 }
 
 .wyr-voting__choice-label {
@@ -97,61 +107,4 @@
   font-size: var(--text-sm);
   color: var(--text-muted);
   text-transform: lowercase;
-}
-
-/* =============================================================================
- * Swipe Area
- * ============================================================================= */
-
-.wyr-voting__swipe-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  max-width: 280px;
-  padding: var(--space-4) 0;
-  cursor: grab;
-  touch-action: pan-y;
-  user-select: none;
-}
-
-.wyr-voting__swipe-area:active {
-  cursor: grabbing;
-}
-
-.wyr-voting__swipe-handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: var(--space-4) var(--space-6);
-  background-color: var(--color-sunrise-gold);
-  color: var(--bg-elevated);
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-card);
-}
-
-.wyr-voting__swipe-text {
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  font-weight: 600;
-}
-
-.wyr-voting__hint {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-  text-align: center;
-  animation: hint-pulse 2s ease-in-out infinite;
-}
-
-@keyframes hint-pulse {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
 }

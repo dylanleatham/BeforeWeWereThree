@@ -4,6 +4,7 @@ import { PartnerPresence } from './PartnerPresence';
 import { VotingPhase } from './VotingPhase';
 import { WaitingPhase } from './WaitingPhase';
 import { RevealPhase } from './RevealPhase';
+import { CompletePhase } from './CompletePhase';
 import { STRINGS } from '../../../constants/strings';
 import './WouldYouRatherActivity.css';
 
@@ -21,7 +22,7 @@ interface WouldYouRatherActivityProps {
  *
  * Orchestrates the full WYR experience:
  * 1. Loading state while fetching prompt
- * 2. VotingPhase - swipe to choose
+ * 2. VotingPhase - tap to choose
  * 3. WaitingPhase - waiting for partner
  * 4. RevealPhase - side-by-side reveal
  * 5. Complete - triggers onComplete callback
@@ -41,15 +42,18 @@ export function WouldYouRatherActivity({
     isLoading,
     error,
     isConnected,
-    showHint,
     vote,
     advance,
     retry,
   } = useWouldYouRather({ envelopeId });
 
-  // Handle advance - call parent onComplete
+  // Handle advance from reveal to complete phase
   const handleAdvance = () => {
     advance();
+  };
+
+  // Handle close from complete phase - call parent onComplete
+  const handleClose = () => {
     onComplete();
   };
 
@@ -90,7 +94,6 @@ export function WouldYouRatherActivity({
             optionA={prompt.optionA}
             optionB={prompt.optionB}
             onVote={vote}
-            showHint={showHint}
           />
         );
 
@@ -114,8 +117,12 @@ export function WouldYouRatherActivity({
         );
 
       case 'complete':
-        // Parent will handle closing
-        return null;
+        return (
+          <CompletePhase
+            isMatch={results?.isMatch ?? false}
+            onClose={handleClose}
+          />
+        );
 
       default:
         return null;

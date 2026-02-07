@@ -25,7 +25,7 @@
 .wyr-reveal--match {
   background: radial-gradient(
     ellipse at center,
-    rgba(244, 162, 97, 0.15) 0%,
+    var(--color-sunrise-gold-15) 0%,
     var(--bg-primary) 70%
   );
 }

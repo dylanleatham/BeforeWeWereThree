@@ -12,11 +12,6 @@ import { useSignalREvent } from './useSignalREvent';
 import { getWyrPrompt, submitWyrVote } from '../services/api';
 import { STRINGS } from '../constants/strings';
 
-/**
- * Local storage key for tracking if user has seen the hint
- */
-const WYR_HINT_SHOWN_KEY = 'wyr_hint_shown';
-
 interface UseWouldYouRatherProps {
   /** Envelope ID to fetch WYR prompt for */
   envelopeId: string;
@@ -39,8 +34,6 @@ interface UseWouldYouRatherReturn {
   error: string | null;
   /** Whether SignalR connection is active */
   isConnected: boolean;
-  /** Whether to show swipe hint for first-time users */
-  showHint: boolean;
   /** Submit a vote */
   vote: (choice: WYRChoice) => Promise<void>;
   /** Advance to complete phase (after reveal) */
@@ -57,7 +50,6 @@ interface UseWouldYouRatherReturn {
  * - Phase state machine (voting -> waiting -> revealing -> complete)
  * - SignalR event subscriptions for real-time updates
  * - Vote submission with connection validation
- * - First-time hint tracking via localStorage
  *
  * @example
  * const { prompt, phase, vote, isConnected } = useWouldYouRather({ envelopeId });
@@ -75,13 +67,27 @@ export function useWouldYouRather({
   // UI state
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showHint, setShowHint] = useState(false);
 
   // Connection state from SignalR context
-  const { isConnected } = useSignalRConnection();
+  const { connection, isConnected } = useSignalRConnection();
 
   // Track if we've loaded data (for retry)
   const loadedRef = useRef(false);
+
+  /**
+   * Join the activity group for real-time updates
+   * This is required for Socket.io to receive broadcasts
+   */
+  useEffect(() => {
+    if (!connection || !envelopeId) return;
+
+    const groupName = `activity:${envelopeId}`;
+    connection.joinGroup(groupName);
+
+    return () => {
+      connection.leaveGroup(groupName);
+    };
+  }, [connection, envelopeId]);
 
   /**
    * Load initial prompt state from API
@@ -108,12 +114,6 @@ export function useWouldYouRather({
       } else {
         // Haven't voted yet
         setPhase('voting');
-
-        // Check if this is user's first time (show hint)
-        const hintShown = localStorage.getItem(WYR_HINT_SHOWN_KEY);
-        if (!hintShown) {
-          setShowHint(true);
-        }
       }
 
       loadedRef.current = true;
@@ -161,12 +161,6 @@ export function useWouldYouRather({
       }
 
       try {
-        // Mark hint as shown
-        if (showHint) {
-          localStorage.setItem(WYR_HINT_SHOWN_KEY, 'true');
-          setShowHint(false);
-        }
-
         // Optimistic update
         setMyVote(choice);
         setPhase('waiting');
@@ -188,7 +182,7 @@ export function useWouldYouRather({
         setError(STRINGS.WYR_ERROR_VOTING);
       }
     },
-    [prompt, showHint]
+    [prompt]
   );
 
   /**
@@ -215,7 +209,6 @@ export function useWouldYouRather({
     isLoading,
     error,
     isConnected,
-    showHint,
     vote,
     advance,
     retry,

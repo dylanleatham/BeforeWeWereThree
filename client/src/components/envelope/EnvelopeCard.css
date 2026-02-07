@@ -13,9 +13,7 @@
 /* Sealed state - elevated, clickable */
 .envelope-card--sealed {
   cursor: pointer;
-  box-shadow:
-    0 4px 12px rgba(61, 58, 56, 0.08),
-    0 12px 32px rgba(61, 58, 56, 0.12);
+  box-shadow: var(--shadow-elevated);
 }
 
 .envelope-card--sealed:focus-visible {
@@ -26,14 +24,14 @@
 /* Opened state - less prominent */
 .envelope-card--opened {
   background: var(--bg-card);
-  box-shadow: 0 2px 8px rgba(61, 58, 56, 0.06);
+  box-shadow: var(--shadow-card);
 }
 
 /* Completed state - muted */
 .envelope-card--completed {
   background: var(--color-light-linen);
   opacity: 0.85;
-  box-shadow: 0 1px 4px rgba(61, 58, 56, 0.04);
+  box-shadow: 0 1px 4px var(--color-warm-charcoal-4);
 }
 
 /* Wax seal decoration - elegant sealed indicator */
@@ -50,7 +48,7 @@
   );
   border-radius: 50%;
   box-shadow:
-    0 2px 4px rgba(61, 58, 56, 0.2),
+    0 2px 4px var(--color-warm-charcoal-20),
     inset 0 1px 2px rgba(255, 255, 255, 0.2);
   pointer-events: none;
 }

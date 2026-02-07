@@ -1,5 +1,5 @@
 import { db } from '../db/connection.js';
-import { getSignalRService } from './signalr.js';
+import { getRealtimeService } from './realtime.js';
 import {
   getPromptByEnvelopeId,
   getPromptById,
@@ -116,16 +116,16 @@ export async function submitVote(
   });
 
   // Broadcast vote submitted via SignalR
-  const signalr = getSignalRService();
+  const realtime = getRealtimeService();
   const voteSubmittedMessage: WYRVoteSubmittedMessage = {
     type: 'wyr_vote_submitted',
     promptId,
     participantId,
   };
 
-  if (signalr) {
+  if (realtime) {
     // Use envelope ID as group name for activity-specific messaging
-    await signalr.sendToGroup(`activity:${result.prompt.envelopeId}`, {
+    await realtime.sendToGroup(`activity:${result.prompt.envelopeId}`, {
       target: 'wyrVoteSubmitted',
       arguments: [voteSubmittedMessage],
     });
@@ -151,13 +151,13 @@ export async function submitVote(
       await updateEnvelopeStatus(result.prompt.envelopeId, 'completed');
 
       // Broadcast reveal ready via SignalR
-      if (signalr) {
+      if (realtime) {
         const revealMessage: WYRRevealReadyMessage = {
           type: 'wyr_reveal_ready',
           promptId,
           results,
         };
-        await signalr.sendToGroup(`activity:${result.prompt.envelopeId}`, {
+        await realtime.sendToGroup(`activity:${result.prompt.envelopeId}`, {
           target: 'wyrRevealReady',
           arguments: [revealMessage],
         });

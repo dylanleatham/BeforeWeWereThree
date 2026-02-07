@@ -2,22 +2,44 @@ import { createContext, useContext, useEffect, useState, useRef, type ReactNode 
 import {
   HubConnection,
   HubConnectionBuilder,
-  HubConnectionState,
   LogLevel,
 } from '@microsoft/signalr';
-import { negotiateSignalR } from '../services/api';
+import { io, Socket } from 'socket.io-client';
+import { negotiateRealtime } from '../services/api';
+import type { RealtimeTransport } from 'shared';
+
+/**
+ * Connection state enum (matches SignalR states)
+ */
+type ConnectionState = 'Disconnected' | 'Connecting' | 'Connected' | 'Reconnecting';
+
+/**
+ * Unified connection interface for both Socket.io and SignalR
+ */
+interface RealtimeConnection {
+  /** Register an event handler */
+  on(event: string, callback: (...args: unknown[]) => void): void;
+  /** Remove an event handler */
+  off(event: string, callback: (...args: unknown[]) => void): void;
+  /** Join a group (for activity-specific messaging) */
+  joinGroup(groupName: string): void;
+  /** Leave a group */
+  leaveGroup(groupName: string): void;
+}
 
 /**
  * SignalR connection context value
- * Provides connection state and access to the HubConnection
+ * Provides connection state and access to the unified connection interface
  */
 interface SignalRContextValue {
-  /** The SignalR hub connection (null if not yet connected) */
-  connection: HubConnection | null;
+  /** The realtime connection (null if not yet connected) */
+  connection: RealtimeConnection | null;
   /** Current connection state */
-  connectionState: HubConnectionState;
+  connectionState: ConnectionState;
   /** Convenience boolean for connected state */
   isConnected: boolean;
+  /** Current transport type */
+  transport: RealtimeTransport | null;
 }
 
 const SignalRContext = createContext<SignalRContextValue | null>(null);
@@ -27,70 +49,166 @@ interface SignalRProviderProps {
 }
 
 /**
- * SignalR connection provider
+ * Wrapper for Socket.io to match our unified interface
+ */
+function createSocketIOConnection(socket: Socket): RealtimeConnection {
+  return {
+    on(event: string, callback: (...args: unknown[]) => void): void {
+      socket.on(event, callback);
+    },
+    off(event: string, callback: (...args: unknown[]) => void): void {
+      socket.off(event, callback);
+    },
+    joinGroup(groupName: string): void {
+      socket.emit('joinGroup', groupName);
+    },
+    leaveGroup(groupName: string): void {
+      socket.emit('leaveGroup', groupName);
+    },
+  };
+}
+
+/**
+ * Wrapper for SignalR HubConnection to match our unified interface
+ */
+function createSignalRConnection(hub: HubConnection): RealtimeConnection {
+  return {
+    on(event: string, callback: (...args: unknown[]) => void): void {
+      hub.on(event, callback);
+    },
+    off(event: string, callback: (...args: unknown[]) => void): void {
+      hub.off(event, callback);
+    },
+    joinGroup(groupName: string): void {
+      // Azure SignalR uses server-side group management
+      // Groups are joined via REST API, not client-side
+      // For now, we'll invoke a method if the hub supports it
+      hub.invoke('JoinGroup', groupName).catch(console.error);
+    },
+    leaveGroup(groupName: string): void {
+      hub.invoke('LeaveGroup', groupName).catch(console.error);
+    },
+  };
+}
+
+/**
+ * Real-time connection provider
  *
- * Manages the lifecycle of the SignalR connection:
- * - Negotiates with backend to get access token
- * - Establishes connection to Azure SignalR Service
+ * Manages the lifecycle of the real-time connection:
+ * - Negotiates with backend to get transport type and credentials
+ * - Establishes connection via Socket.io (local) or Azure SignalR (production)
  * - Handles automatic reconnection
  * - Cleans up on unmount
  *
  * Usage: Wrap authenticated content with this provider.
- * Only connect when user is authenticated.
  */
 export function SignalRProvider({ children }: SignalRProviderProps) {
-  const [connection, setConnection] = useState<HubConnection | null>(null);
-  const [connectionState, setConnectionState] = useState(HubConnectionState.Disconnected);
-  const connectionRef = useRef<HubConnection | null>(null);
+  const [connection, setConnection] = useState<RealtimeConnection | null>(null);
+  const [connectionState, setConnectionState] = useState<ConnectionState>('Disconnected');
+  const [transport, setTransport] = useState<RealtimeTransport | null>(null);
+
+  // Keep references for cleanup
+  const socketRef = useRef<Socket | null>(null);
+  const hubRef = useRef<HubConnection | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     async function connect() {
       try {
-        // Get negotiation info from backend
-        const { url, accessToken } = await negotiateSignalR();
+        setConnectionState('Connecting');
 
-        const conn = new HubConnectionBuilder()
-          .withUrl(url, { accessTokenFactory: () => accessToken })
-          .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-          .configureLogging(LogLevel.Warning)
-          .build();
+        // Get connection info from backend
+        const negotiateResult = await negotiateRealtime();
+        const { transport: transportType, url, userId, accessToken } = negotiateResult;
 
-        // Handle reconnection state changes
-        conn.onreconnecting(() => {
-          if (mounted) {
-            setConnectionState(HubConnectionState.Reconnecting);
+        if (!mounted) return;
+
+        setTransport(transportType);
+
+        if (transportType === 'socketio') {
+          // Connect via Socket.io
+          const socket = io(url, {
+            auth: { userId },
+            transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 30000,
+          });
+
+          socket.on('connect', () => {
+            if (mounted) {
+              setConnectionState('Connected');
+            }
+          });
+
+          socket.on('disconnect', () => {
+            if (mounted) {
+              setConnectionState('Disconnected');
+            }
+          });
+
+          socket.on('reconnecting', () => {
+            if (mounted) {
+              setConnectionState('Reconnecting');
+            }
+          });
+
+          socket.on('reconnect', () => {
+            if (mounted) {
+              setConnectionState('Connected');
+            }
+          });
+
+          socketRef.current = socket;
+          setConnection(createSocketIOConnection(socket));
+
+          // Socket.io auto-connects, so we set connected state after setup
+          if (socket.connected && mounted) {
+            setConnectionState('Connected');
           }
-        });
-
-        conn.onreconnected(() => {
-          if (mounted) {
-            setConnectionState(HubConnectionState.Connected);
-          }
-        });
-
-        conn.onclose(() => {
-          if (mounted) {
-            setConnectionState(HubConnectionState.Disconnected);
-          }
-        });
-
-        // Start the connection
-        await conn.start();
-
-        if (mounted) {
-          connectionRef.current = conn;
-          setConnection(conn);
-          setConnectionState(HubConnectionState.Connected);
         } else {
-          // Component unmounted during connect - stop immediately
-          conn.stop();
+          // Connect via Azure SignalR
+          const hub = new HubConnectionBuilder()
+            .withUrl(url, { accessTokenFactory: () => accessToken! })
+            .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+            .configureLogging(LogLevel.Warning)
+            .build();
+
+          hub.onreconnecting(() => {
+            if (mounted) {
+              setConnectionState('Reconnecting');
+            }
+          });
+
+          hub.onreconnected(() => {
+            if (mounted) {
+              setConnectionState('Connected');
+            }
+          });
+
+          hub.onclose(() => {
+            if (mounted) {
+              setConnectionState('Disconnected');
+            }
+          });
+
+          await hub.start();
+
+          if (mounted) {
+            hubRef.current = hub;
+            setConnection(createSignalRConnection(hub));
+            setConnectionState('Connected');
+          } else {
+            // Component unmounted during connect
+            hub.stop();
+          }
         }
       } catch (error) {
-        console.error('SignalR connection failed:', error);
+        console.error('Real-time connection failed:', error);
         if (mounted) {
-          setConnectionState(HubConnectionState.Disconnected);
+          setConnectionState('Disconnected');
         }
       }
     }
@@ -99,7 +217,8 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
 
     return () => {
       mounted = false;
-      connectionRef.current?.stop();
+      socketRef.current?.disconnect();
+      hubRef.current?.stop();
     };
   }, []);
 
@@ -108,7 +227,8 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
       value={{
         connection,
         connectionState,
-        isConnected: connectionState === HubConnectionState.Connected,
+        isConnected: connectionState === 'Connected',
+        transport,
       }}
     >
       {children}
@@ -117,7 +237,7 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
 }
 
 /**
- * Hook to access SignalR connection
+ * Hook to access real-time connection
  *
  * Must be used within a SignalRProvider.
  *

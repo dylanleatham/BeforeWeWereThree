@@ -14,7 +14,7 @@
 }
 
 .envelope-form__error {
-  background: rgba(224, 122, 95, 0.1);
+  background: var(--color-dusk-rose-10);
   color: var(--color-dusk-rose);
   padding: var(--space-3) var(--space-4);
   border-radius: 0.5rem;

@@ -95,7 +95,7 @@
   left: 0;
   right: 0;
   padding: var(--spacing-xs) var(--spacing-sm);
-  background: rgba(188, 108, 74, 0.1); /* deep-terracotta with transparency */
+  background: var(--color-deep-terracotta-10);
   font-family: var(--font-body);
   font-size: var(--font-size-xs);
   color: var(--color-deep-terracotta);

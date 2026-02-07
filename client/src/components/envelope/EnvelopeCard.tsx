@@ -43,7 +43,7 @@ export function EnvelopeCard({
       aria-label={isClickable ? STRINGS.CARD_ARIA_OPEN(title) : title}
       whileHover={
         isClickable
-          ? { y: -HOVER_LIFT_PX, boxShadow: '0 8px 24px rgba(61, 58, 56, 0.15)' }
+          ? { y: -HOVER_LIFT_PX, boxShadow: 'var(--shadow-elevated-hover)' }
           : undefined
       }
       whileTap={isClickable ? { scale: TAP_SCALE } : undefined}

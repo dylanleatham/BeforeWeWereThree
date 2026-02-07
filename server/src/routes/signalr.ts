@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { SignJWT } from 'jose';
 import { authMiddleware } from '../middleware/auth.js';
-import { successResponse, errorResponse } from 'shared';
-import type { SignalRNegotiateResponse } from 'shared';
+import { successResponse } from 'shared';
+import type { RealtimeNegotiateResponse } from 'shared';
+import { getTransport } from '../services/realtime.js';
 
 const router = Router();
 
@@ -26,37 +27,58 @@ function parseConnectionString(connStr: string): { endpoint: string; accessKey: 
 
 /**
  * POST /negotiate
- * Generate SignalR access token for client connection
+ * Get connection info for real-time messaging
  *
- * Returns URL and access token for client to connect to Azure SignalR Service.
- * Token includes user ID claim (asrs.s.uid) set to participant ID for targeted messaging.
+ * Returns transport type and connection details:
+ * - For Socket.io: transport='socketio', url to connect to
+ * - For Azure SignalR: transport='signalr', url and accessToken
  */
 router.post('/negotiate', authMiddleware, async (req, res) => {
-  const connectionString = process.env.SIGNALR_CONNECTION_STRING;
+  const transport = getTransport();
+  const userId = req.session!.participantId;
 
+  if (transport === 'socketio') {
+    // Socket.io: Return the backend URL for Socket.io connection
+    // In development, this will be proxied by Vite
+    const protocol = req.protocol;
+    const host = req.get('host') ?? 'localhost:3000';
+    const url = `${protocol}://${host}`;
+
+    res.json(successResponse<RealtimeNegotiateResponse>({
+      transport: 'socketio',
+      url,
+      userId,
+    }));
+    return;
+  }
+
+  // Azure SignalR
+  const connectionString = process.env.SIGNALR_CONNECTION_STRING;
   if (!connectionString) {
-    res.status(503).json(
-      errorResponse('SIGNALR_NOT_CONFIGURED', 'Real-time features are not available')
-    );
+    // This shouldn't happen if transport is 'signalr', but handle it gracefully
+    res.status(503).json({
+      success: false,
+      error: { code: 'SIGNALR_NOT_CONFIGURED', message: 'Real-time features are not available' },
+    });
     return;
   }
 
   const parsed = parseConnectionString(connectionString);
   if (!parsed) {
-    res.status(500).json(
-      errorResponse('SIGNALR_CONFIG_ERROR', 'Invalid SignalR configuration')
-    );
+    res.status(500).json({
+      success: false,
+      error: { code: 'SIGNALR_CONFIG_ERROR', message: 'Invalid SignalR configuration' },
+    });
     return;
   }
 
   const { endpoint, accessKey } = parsed;
   const hub = 'sync';
-  const userId = req.session!.participantId;
   const url = `${endpoint}/client/?hub=${hub}`;
 
   try {
-    // Generate access token using jose (same pattern as session.ts)
-    const token = await new SignJWT({
+    // Generate access token for Azure SignalR
+    const accessToken = await new SignJWT({
       'asrs.s.uid': userId, // SignalR user ID claim for targeted messaging
     })
       .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
@@ -65,12 +87,18 @@ router.post('/negotiate', authMiddleware, async (req, res) => {
       .setExpirationTime('1h')
       .sign(new TextEncoder().encode(accessKey));
 
-    res.json(successResponse<SignalRNegotiateResponse>({ url, accessToken: token }));
+    res.json(successResponse<RealtimeNegotiateResponse>({
+      transport: 'signalr',
+      url,
+      accessToken,
+      userId,
+    }));
   } catch (error) {
     console.error('SignalR negotiate error:', error);
-    res.status(500).json(
-      errorResponse('SIGNALR_TOKEN_ERROR', 'Failed to generate connection token')
-    );
+    res.status(500).json({
+      success: false,
+      error: { code: 'SIGNALR_TOKEN_ERROR', message: 'Failed to generate connection token' },
+    });
   }
 });
 

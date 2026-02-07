@@ -5,10 +5,12 @@
 
 // Re-export API types
 export type {
+  ErrorCode,
   ApiError,
   ApiSuccessResponse,
   ApiErrorResponse,
   ApiResponse,
+  ResetSessionResponse,
 } from './api.js';
 export { successResponse, errorResponse } from './api.js';
 
@@ -36,8 +38,10 @@ export type {
 } from './envelope.js';
 export { createEnvelopeSchema, updateEnvelopeSchema } from './envelope.js';
 
-// Re-export SignalR types
+// Re-export SignalR/Realtime types
 export type {
+  RealtimeTransport,
+  RealtimeNegotiateResponse,
   SignalRNegotiateResponse,
   PartnerPresenceMessage,
   SignalRMessage,

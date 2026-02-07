@@ -88,12 +88,12 @@
 }
 
 .btn--ghost:hover:not(:disabled) {
-  background-color: rgba(61, 58, 56, 0.05);
+  background-color: var(--color-warm-charcoal-5);
   color: var(--color-deep-terracotta);
 }
 
 .btn--ghost:active:not(:disabled) {
-  background-color: rgba(61, 58, 56, 0.08);
+  background-color: var(--color-warm-charcoal-8);
 }
 
 /* ===========================================

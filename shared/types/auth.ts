@@ -41,7 +41,10 @@ export const pinSchema = z
  */
 export const validatePinRequestSchema = z.object({
   pin: pinSchema,
-  deviceFingerprint: z.string().min(1, 'Device fingerprint is required'),
+  deviceFingerprint: z
+    .string()
+    .min(1, 'Device fingerprint is required')
+    .max(512, 'Device fingerprint exceeds maximum length'),
 });
 
 export type ValidatePinRequest = z.infer<typeof validatePinRequestSchema>;

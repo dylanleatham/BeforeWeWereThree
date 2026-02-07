@@ -1,15 +1,7 @@
 import { Router, Request, Response } from 'express';
+import type { HealthData } from 'shared';
 
 const router = Router();
-
-/**
- * Health check response data
- */
-interface HealthData {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  timestamp: string;
-  version: string;
-}
 
 /**
  * GET /api/health

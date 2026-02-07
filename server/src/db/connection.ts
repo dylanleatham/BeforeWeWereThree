@@ -17,3 +17,11 @@ export const db =
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = db;
 }
+
+/**
+ * Gracefully disconnect from database
+ * Call this during server shutdown
+ */
+export async function disconnectDatabase(): Promise<void> {
+  await db.$disconnect();
+}

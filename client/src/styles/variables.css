@@ -17,6 +17,12 @@
   --color-deep-terracotta: #BC6C4A;
   --color-soft-sage: #9DB5A0;
 
+  /* RGB values for opacity variants */
+  --color-sunrise-gold-rgb: 244, 162, 97;
+  --color-dusk-rose-rgb: 224, 122, 95;
+  --color-deep-terracotta-rgb: 188, 108, 74;
+  --color-soft-sage-rgb: 157, 181, 160;
+
   /* ===========================================
    * NEUTRAL PALETTE
    * =========================================== */
@@ -25,6 +31,10 @@
   --color-muted-stone: #A8A29E;
   --color-cream: #FFFEF9;
   --color-light-linen: #F5F1EB;
+
+  /* RGB values for opacity variants */
+  --color-warm-charcoal-rgb: 61, 58, 56;
+  --color-soft-graphite-rgb: 107, 102, 98;
 
   /* ===========================================
    * SEMANTIC COLORS
@@ -109,17 +119,47 @@
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* ===========================================
+   * COLOR OPACITY VARIANTS
+   * Use these for consistent transparency
+   * =========================================== */
+  --color-warm-charcoal-4: rgba(var(--color-warm-charcoal-rgb), 0.04);
+  --color-warm-charcoal-5: rgba(var(--color-warm-charcoal-rgb), 0.05);
+  --color-warm-charcoal-6: rgba(var(--color-warm-charcoal-rgb), 0.06);
+  --color-warm-charcoal-8: rgba(var(--color-warm-charcoal-rgb), 0.08);
+  --color-warm-charcoal-10: rgba(var(--color-warm-charcoal-rgb), 0.1);
+  --color-warm-charcoal-12: rgba(var(--color-warm-charcoal-rgb), 0.12);
+  --color-warm-charcoal-15: rgba(var(--color-warm-charcoal-rgb), 0.15);
+  --color-warm-charcoal-20: rgba(var(--color-warm-charcoal-rgb), 0.2);
+
+  --color-sunrise-gold-8: rgba(var(--color-sunrise-gold-rgb), 0.08);
+  --color-sunrise-gold-15: rgba(var(--color-sunrise-gold-rgb), 0.15);
+  --color-sunrise-gold-40: rgba(var(--color-sunrise-gold-rgb), 0.4);
+
+  --color-dusk-rose-6: rgba(var(--color-dusk-rose-rgb), 0.06);
+  --color-dusk-rose-10: rgba(var(--color-dusk-rose-rgb), 0.1);
+
+  --color-deep-terracotta-10: rgba(var(--color-deep-terracotta-rgb), 0.1);
+  --color-deep-terracotta-15: rgba(var(--color-deep-terracotta-rgb), 0.15);
+
+  --color-soft-sage-10: rgba(var(--color-soft-sage-rgb), 0.1);
+  --color-soft-sage-15: rgba(var(--color-soft-sage-rgb), 0.15);
+
+  --color-soft-graphite-15: rgba(var(--color-soft-graphite-rgb), 0.15);
+
+  /* ===========================================
    * SHADOWS
    * =========================================== */
   --shadow-card:
-    0 1px 3px rgba(61, 58, 56, 0.04),
-    0 4px 12px rgba(61, 58, 56, 0.06);
+    0 1px 3px var(--color-warm-charcoal-4),
+    0 4px 12px var(--color-warm-charcoal-6);
   --shadow-card-hover:
-    0 2px 6px rgba(61, 58, 56, 0.06),
-    0 8px 24px rgba(61, 58, 56, 0.1);
+    0 2px 6px var(--color-warm-charcoal-6),
+    0 8px 24px var(--color-warm-charcoal-10);
   --shadow-elevated:
-    0 4px 12px rgba(61, 58, 56, 0.08),
-    0 12px 32px rgba(61, 58, 56, 0.12);
+    0 4px 12px var(--color-warm-charcoal-8),
+    0 12px 32px var(--color-warm-charcoal-12);
+  --shadow-elevated-hover:
+    0 8px 24px var(--color-warm-charcoal-15);
 
   /* ===========================================
    * BORDERS
@@ -132,5 +172,5 @@
   /* ===========================================
    * FOCUS RING
    * =========================================== */
-  --focus-ring: 0 0 0 3px rgba(244, 162, 97, 0.4);
+  --focus-ring: 0 0 0 3px var(--color-sunrise-gold-40);
 }

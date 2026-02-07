@@ -71,18 +71,31 @@ export async function optionalAuthMiddleware(
 /**
  * Admin-only middleware
  * Requires auth + admin role
+ * Note: Implemented without nested middleware to avoid double-response issues
  */
 export async function adminMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  // First run auth middleware
-  await authMiddleware(req, res, () => {
-    if (req.session?.role !== 'admin') {
+  const sessionCookie = req.cookies?.session;
+
+  if (!sessionCookie) {
+    res.status(401).json(errorResponse('UNAUTHORIZED', 'Authentication required'));
+    return;
+  }
+
+  try {
+    const session = await verifySession(sessionCookie);
+    req.session = session;
+
+    if (session.role !== 'admin') {
       res.status(403).json(errorResponse('FORBIDDEN', 'Admin access required'));
       return;
     }
+
     next();
-  });
+  } catch {
+    res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
+  }
 }

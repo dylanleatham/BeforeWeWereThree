@@ -67,12 +67,12 @@ body {
   background-image:
     radial-gradient(
       ellipse at top right,
-      rgba(244, 162, 97, 0.08) 0%,
+      var(--color-sunrise-gold-8) 0%,
       transparent 50%
     ),
     radial-gradient(
       ellipse at bottom left,
-      rgba(224, 122, 95, 0.06) 0%,
+      var(--color-dusk-rose-6) 0%,
       transparent 50%
     );
   min-height: 100vh;
@@ -197,7 +197,7 @@ a:hover {
   top: var(--space-4);
   right: var(--space-4);
   padding: var(--space-2) var(--space-4);
-  background: rgba(188, 108, 74, 0.1);
+  background: var(--color-deep-terracotta-10);
   color: var(--color-deep-terracotta);
   border-radius: 0.5rem;
   font-family: var(--font-body);
@@ -272,4 +272,57 @@ a:hover {
     opacity: 0.6;
     transform: scale(0.9);
   }
+}
+
+/* ===========================================
+ * ERROR BOUNDARY
+ * =========================================== */
+.error-boundary {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: var(--bg-primary);
+}
+
+.error-boundary__content {
+  text-align: center;
+  max-width: var(--content-width-narrow);
+}
+
+.error-boundary__title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.error-boundary__message {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+.error-boundary__button {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--color-cream);
+  background: var(--color-sunrise-gold);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-6);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+.error-boundary__button:hover {
+  background: var(--color-deep-terracotta);
+}
+
+.error-boundary__button:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
 }

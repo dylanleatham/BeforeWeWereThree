@@ -32,8 +32,9 @@ export function useSignalREvent<T>(
     if (!connection) return;
 
     // Wrap handler to use current ref value
-    const wrappedHandler = (data: T) => {
-      handlerRef.current(data);
+    // Handler receives unknown args from connection, we cast first arg to T
+    const wrappedHandler = (...args: unknown[]) => {
+      handlerRef.current(args[0] as T);
     };
 
     // Subscribe to event

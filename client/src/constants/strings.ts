@@ -92,6 +92,12 @@ export const STRINGS = {
   // useSession.ts
   SESSION_ERROR_NETWORK: 'Unable to connect to server',
 
+  // ErrorBoundary
+  ERROR_BOUNDARY_TITLE: 'Something went wrong',
+  ERROR_BOUNDARY_MESSAGE: 'We encountered an unexpected error. Please try again.',
+  ERROR_BOUNDARY_RETRY: 'Try again',
+  ERROR_UNKNOWN: 'Unknown error',
+
   // Would You Rather - PartnerPresence
   WYR_PARTNER_JOINED: (name: string) => `${name} joined`,
   WYR_PARTNER_LEFT: (name: string) => `${name} left`,
@@ -103,10 +109,6 @@ export const STRINGS = {
   WYR_OPTION_A_LABEL: 'Option A',
   WYR_OPTION_B_LABEL: 'Option B',
   WYR_OR: 'or',
-  WYR_SWIPE_PROMPT: 'Swipe to choose',
-  WYR_SWIPE_HINT: '← Swipe left for A · Swipe right for B →',
-  WYR_CHOOSING_A: 'Choosing A...',
-  WYR_CHOOSING_B: 'Choosing B...',
   WYR_RECONNECTING: 'Reconnecting...',
   WYR_OFFLINE_NOTICE: 'Offline mode - real-time sync unavailable',
 
@@ -116,6 +118,14 @@ export const STRINGS = {
   WYR_PARTNER_CHOICE: "Partner's choice",
   WYR_MATCH: 'You matched!',
   WYR_NEXT: 'Next',
+
+  // Would You Rather - CompletePhase
+  WYR_COMPLETE_TITLE: 'All done!',
+  WYR_COMPLETE_MESSAGE: 'Great choices, both of you.',
+  WYR_COMPLETE_MESSAGE_MATCH: 'You two really are on the same wavelength!',
+  WYR_COMPLETE_ICON: '\u2728', // ✨
+  WYR_COMPLETE_ICON_MATCH: '\uD83D\uDC95', // 💕
+  WYR_COMPLETE_CLOSE: 'Back to envelopes',
 
   // Would You Rather - useWouldYouRather hook
   WYR_ERROR_LOADING: 'Failed to load activity',

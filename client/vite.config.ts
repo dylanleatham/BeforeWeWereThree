@@ -16,6 +16,11 @@ export default defineConfig({
         changeOrigin: true,
         cookieDomainRewrite: 'localhost',
       },
+      '/socket.io': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        ws: true, // Enable WebSocket proxying for Socket.io
+      },
     },
   },
   test: {

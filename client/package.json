@@ -20,7 +20,8 @@
     "motion": "^12.30.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "shared": "*"
+    "shared": "*",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

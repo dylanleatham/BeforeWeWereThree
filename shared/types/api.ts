@@ -4,10 +4,30 @@
  */
 
 /**
+ * Standard error codes used across the API
+ * Provides type safety for error handling
+ */
+export type ErrorCode =
+  | 'UNAUTHORIZED'
+  | 'FORBIDDEN'
+  | 'VALIDATION_ERROR'
+  | 'ENVELOPE_NOT_FOUND'
+  | 'PROMPT_NOT_FOUND'
+  | 'PROMPT_EXISTS'
+  | 'ALREADY_VOTED'
+  | 'INVALID_PIN'
+  | 'NETWORK_ERROR'
+  | 'INTERNAL_ERROR'
+  | 'SIGNALR_NOT_CONFIGURED'
+  | 'SIGNALR_CONFIG_ERROR'
+  | 'SIGNALR_TOKEN_ERROR'
+  | `HTTP_${number}`; // For HTTP status code errors
+
+/**
  * Standard API error shape
  */
 export interface ApiError {
-  code: string;
+  code: ErrorCode | string; // Allow string for backwards compatibility
   message: string;
   details?: Record<string, unknown>;
 }
@@ -44,9 +64,19 @@ export function successResponse<T>(data: T): ApiSuccessResponse<T> {
  * Helper to create error response
  */
 export function errorResponse(
-  code: string,
+  code: ErrorCode | string,
   message: string,
   details?: Record<string, unknown>
 ): ApiErrorResponse {
   return { success: false, error: { code, message, details } };
+}
+
+/**
+ * Reset session response - includes counts of what was reset
+ */
+export interface ResetSessionResponse {
+  message: string;
+  participantsDeleted: number;
+  envelopesReset: number;
+  votesDeleted: number;
 }

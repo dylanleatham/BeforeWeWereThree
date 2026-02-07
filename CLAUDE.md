@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Frontend | React 18+ |
 | Backend | Node.js with Express |
 | Database | PostgreSQL (Azure Flexible Server) |
-| Real-time | Azure SignalR Service |
+| Real-time | Socket.io (local) / Azure SignalR (production) |
 | Testing | Jest, React Testing Library |
 | AI | Anthropic API (Claude for name generation) |
 | Infrastructure | Azure (App Service, Front Door, Key Vault, Blob Storage) |
@@ -192,3 +192,17 @@ Each phase results in a working, deployed checkpoint in production. New complexi
 
 - **Prisma config:** The `package.json#prisma` key is deprecated (removed in Prisma 7). Use `server/prisma.config.ts` instead.
 - **Module-level timers need `.unref()`:** Any `setInterval`/`setTimeout` at module scope in server code must call `.unref()` so Jest worker processes can exit cleanly. Without it, tests pass but Jest force-kills the worker and prints a warning about leaked handles.
+
+### Real-time (Socket.io / SignalR)
+
+- **Dual transport pattern:** Use Socket.io for local development (no external services needed), Azure SignalR for production. Abstract behind a `RealtimeAdapter` interface with `sendToGroup()`, `sendToUser()`, `joinGroup()`, `leaveGroup()`. See `server/src/services/realtime.ts`.
+- **Clients must join groups explicitly:** With Socket.io, clients must call `connection.joinGroup(groupName)` to receive broadcasts. The server sends to groups, but clients aren't automatically members. Add join/leave in a `useEffect` when the activity mounts/unmounts.
+- **Vite proxy needs `ws: true`:** For Socket.io to work through Vite's dev proxy, add `ws: true` to the proxy config for the `/socket.io` path.
+- **Negotiate endpoint returns transport type:** The `/api/signalr/negotiate` endpoint returns `{ transport: 'socketio' | 'signalr', url, userId, accessToken? }` so the client knows which library to use.
+- **Testing real-time locally:** Use two different browsers (Chrome + Firefox), not regular + private mode. Browser fingerprinting produces identical IDs for both modes on the same machine.
+
+### Interaction Design
+
+- **Match gesture direction to layout:** If options are arranged vertically (top/bottom), use vertical gestures or tap. Horizontal swipe for vertically-stacked options is unintuitive.
+- **Prefer tap over swipe for selection:** Direct tap on the desired option is more intuitive than swipe gestures, especially when both options are visible. Swipe is better for navigation (next/previous) than selection.
+- **Always include a completion screen:** Activities should show a warm "All done!" screen before returning to the main view. This gives users a moment to reflect and provides closure. Include contextual messaging (e.g., different text for matched vs. different choices).

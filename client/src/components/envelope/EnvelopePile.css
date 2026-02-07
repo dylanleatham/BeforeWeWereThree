@@ -16,6 +16,7 @@
   position: relative;
   height: 280px;
   cursor: grab;
+  touch-action: none; /* Prevent browser scrolling during drag gesture */
 }
 
 .envelope-pile__stack:active {

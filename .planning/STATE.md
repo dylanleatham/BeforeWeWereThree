@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 4 of 7 (Letters to Baby & Media)
-Plan: 0 of 5 in current phase
-Status: Ready to plan
-Last activity: 2026-02-06 - Completed Phase 3
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-08 - Completed 04-01-PLAN.md
 
-Progress: [..............................] 0% (Phase 4)
-Overall:  [███████████████████████.......] 54% (12/24 plans)
+Progress: [██████........................] 20% (Phase 4)
+Overall:  [████████████████████████......] 56% (13/24 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: ~28 min (including manual debugging)
-- Total execution time: ~5 hours 36 min
+- Total plans completed: 13
+- Average duration: ~27 min (including manual debugging)
+- Total execution time: ~5 hours 44 min
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Overall:  [███████████████████████
 | 01 | 4/4 | ~2 hrs | ~30 min |
 | 02 | 4/4 | ~18 min | ~5 min |
 | 03 | 4/4 | ~238 min | ~60 min |
+| 04 | 1/5 | ~8 min | ~8 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (~15 min), 03-02 (~43 min), 03-03 (~61 min), 03-04 (~119 min)
-- Trend: Integration plan with manual testing took longest
+- Last 5 plans: 03-02 (~43 min), 03-03 (~61 min), 03-04 (~119 min), 04-01 (~8 min)
+- Trend: Foundation plans faster than integration
 
 *Updated after each plan completion*
 
@@ -76,6 +77,8 @@ Recent decisions affecting current work:
 | 03-02 | Reveal on vote count >= 2 | Simple count check after transaction ensures both votes in |
 | 03-03 | Gesture on wrapper div pattern | Apply useDrag bind() to wrapper, animate inner motion.div |
 | 03-03 | Glow effect for match celebration | Intimate aesthetic - subtle, not confetti |
+| 04-01 | 10-minute SAS token expiry | Balance between usability and security for photo uploads |
+| 04-01 | submittedAt null/set for letter state | Distinguishes drafts from submitted letters without separate status |
 
 ### Pending Todos
 
@@ -84,6 +87,7 @@ None currently
 ### Blockers/Concerns
 
 - Azure SignalR Service needs to be configured before end-to-end testing (see 03-01-USER-SETUP.md)
+- Azure Storage Account needs to be configured for photo uploads (set AZURE_STORAGE_ACCOUNT, AZURE_STORAGE_KEY)
 
 ### Lessons Learned
 
@@ -104,6 +108,7 @@ Gotchas discovered during development that future phases should avoid:
 | 03-01 | **No Node.js SDK for Azure SignalR** | Server must use REST API to send messages; only clients use WebSocket. Common misconception that there's a server SDK. |
 | 02-04 | **DELETE endpoints must return JSON body** | Returning 204 No Content causes `response.json()` to throw. Always return `{ success: true, data: {} }`. |
 | 02-01 | **motion/react not framer-motion** | Package renamed in v12+. Import from `'motion/react'`, not deprecated `'framer-motion'`. |
+| 04-01 | **Windows Prisma file lock workaround** | EPERM errors on `prisma generate` due to DLL locking. Fix: `rm -rf node_modules/.prisma` before regenerating. Known Windows issue. |
 
 ### Testing WYR Locally (Without SignalR)
 
@@ -123,20 +128,19 @@ Gotchas discovered during development that future phases should avoid:
 
 ## Session Continuity
 
-Last session: 2026-02-06
-Stopped at: Phase 3 complete, ready for Phase 4
+Last session: 2026-02-08
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
 
-**Phase 3 Completed:**
-- [x] 03-01: SignalR Infrastructure (complete, 2026-02-06)
-- [x] 03-02: WYR Data Model & API (complete, 2026-02-06)
-- [x] 03-03: WYR UI Components (complete, 2026-02-06)
-- [x] 03-04: Integration (complete, 2026-02-06)
+**Phase 4 Progress:**
+- [x] 04-01: Letters and Media Foundation (complete, 2026-02-08)
+- [ ] 04-02: Letter API Routes
+- [ ] 04-03: Letter UI Components
+- [ ] 04-04: Media UI Components
+- [ ] 04-05: Integration
 
-**Phase 3 Accomplishments:**
-- SignalR infrastructure with graceful degradation
-- WYR activity fully functional (vote, wait, reveal flow)
-- Partner presence indicators
-- Works offline (SignalR is enhancement only)
-
-**Ready for Phase 4: Letters to Baby & Media**
+**Phase 4 Accomplishments (so far):**
+- LetterPrompt, Letter, Photo Prisma models
+- Shared types for letters and media
+- Azure Blob Storage SAS token generation
+- Media API routes (sas, register, list, get, delete)

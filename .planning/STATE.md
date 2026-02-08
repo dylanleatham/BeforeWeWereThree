@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 4 of 7 (Letters to Baby & Media)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-08 - Completed 04-02-PLAN.md
+Last activity: 2026-02-08 - Completed 04-04-PLAN.md
 
-Progress: [████████....................] 40% (Phase 4)
-Overall:  [██████████████████████████....] 58% (14/24 plans)
+Progress: [████████████████............] 80% (Phase 4)
+Overall:  [████████████████████████████..] 67% (16/24 plans)
 
 ## Performance Metrics
 
@@ -31,11 +31,11 @@ Overall:  [███████████████████████
 | 01 | 4/4 | ~2 hrs | ~30 min |
 | 02 | 4/4 | ~18 min | ~5 min |
 | 03 | 4/4 | ~238 min | ~60 min |
-| 04 | 2/5 | ~12 min | ~6 min |
+| 04 | 4/5 | ~31 min | ~8 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (~61 min), 03-04 (~119 min), 04-01 (~8 min), 04-03 (~4 min)
-- Trend: Foundation plans faster than integration
+- Last 5 plans: 03-04 (~119 min), 04-01 (~8 min), 04-02 (~8 min), 04-03 (~4 min), 04-04 (~7 min)
+- Trend: Phase 4 plans executing very fast (~7 min avg)
 
 *Updated after each plan completion*
 
@@ -85,6 +85,9 @@ Recent decisions affecting current work:
 | 04-02 | Browser-direct upload via BlockBlobClient | Better UX with progress tracking than server-side upload |
 | 04-02 | yet-another-react-lightbox with plugins | Zoom, Slideshow, Thumbnails plugins for full slideshow experience |
 | 04-02 | MediaLibrary doesn't complete | Always available for browsing, unlike WYR with complete flow |
+| 04-04 | Reuse PartnerPresence from WYR | DRY principle - same online indicator works for all activities |
+| 04-04 | useAutoSave is generic | useAutoSave<T> can be reused for any debounced save operation |
+| 04-04 | Flush pending save before submit | Ensures no data loss when submitting letter |
 
 ### Pending Todos
 
@@ -151,14 +154,14 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 04-02-PLAN.md
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None
 
 **Phase 4 Progress:**
 - [x] 04-01: Letters and Media Foundation (complete, 2026-02-08)
 - [x] 04-02: Photo Upload & Media Library (complete, 2026-02-08)
-- [ ] 04-03: Letter UI Components
-- [ ] 04-04: Media UI Components
+- [x] 04-03: Letter Backend (complete, 2026-02-08)
+- [x] 04-04: Letter UI Components (complete, 2026-02-08)
 - [ ] 04-05: Integration
 
 **Phase 4 Accomplishments (so far):**
@@ -169,3 +172,8 @@ Resume file: None
 - usePhotoUpload hook with browser-direct Azure upload
 - useMediaLibrary hook for photo list management
 - PhotoAttachment, PhotoGrid, SlideshowViewer, MediaLibraryActivity components
+- Letter API routes (getLetterState, saveLetter, submitLetter)
+- Letter SignalR integration (letterSubmitted, letterRevealReady events)
+- useAutoSave hook for debounced content saving
+- useLetter hook for letter activity state management
+- LetterActivity with Writing, Waiting, Reveal, Complete phases

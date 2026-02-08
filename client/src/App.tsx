@@ -4,7 +4,7 @@ import { useEnvelopes } from './hooks/useEnvelopes';
 import { PinEntry } from './components/auth/PinEntry';
 import { EnvelopePile } from './components/envelope';
 import { EnvelopeManager } from './components/admin';
-import { Heading, Text } from './components/common';
+import { Heading, Text, SpotifyButton } from './components/common';
 import { SignalRProvider } from './context/SignalRContext';
 import { STRINGS } from './constants/strings';
 import './styles/globals.css';
@@ -129,6 +129,9 @@ function AuthenticatedApp({
             />
           )}
         </main>
+
+        {/* Floating Spotify button (visible when URL configured) */}
+        <SpotifyButton />
       </div>
     </MotionConfig>
   );

@@ -1,0 +1,70 @@
+/**
+ * SpotifyButton - Floating action button for Spotify playlist
+ *
+ * Position: Fixed bottom-right with safe area padding
+ * Style: Golden Hour theme (Dusk Rose background, Warm Sand icon)
+ */
+
+.spotify-button {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: 100;
+
+  /* Circular button */
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+
+  /* Colors - Golden Hour theme, NOT Spotify green */
+  background-color: var(--color-dusk-rose);
+  color: var(--color-warm-sand);
+
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Shadow */
+  box-shadow: var(--shadow-elevated);
+
+  /* Transitions */
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+
+  /* Remove link styling */
+  text-decoration: none;
+
+  /* Ensure touch target is large enough */
+  min-width: 44px;
+  min-height: 44px;
+
+  /* Safe area padding for devices with notches/home indicators */
+  bottom: max(var(--space-6), env(safe-area-inset-bottom, 0px) + var(--space-4));
+  right: max(var(--space-6), env(safe-area-inset-right, 0px) + var(--space-4));
+}
+
+/* Hover state */
+.spotify-button:hover {
+  background-color: var(--color-deep-terracotta);
+  box-shadow: var(--shadow-elevated-hover);
+  transform: scale(1.05);
+}
+
+/* Active/pressed state */
+.spotify-button:active {
+  transform: scale(0.95);
+}
+
+/* Focus state for accessibility */
+.spotify-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring), var(--shadow-elevated);
+}
+
+/* Icon sizing */
+.spotify-button svg {
+  flex-shrink: 0;
+}

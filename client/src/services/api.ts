@@ -508,3 +508,39 @@ export async function deleteLetterPrompt(id: string): Promise<void> {
     throw new Error(response.error?.message || 'Failed to delete letter prompt');
   }
 }
+
+// ============================================================================
+// Config API
+// ============================================================================
+
+/**
+ * App config response type
+ */
+export interface AppConfig {
+  spotifyUrl: string | null;
+}
+
+/**
+ * Get public app config
+ */
+export async function getConfig(): Promise<AppConfig> {
+  const response = await apiFetch<AppConfig>('/config');
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch config');
+  }
+  return response.data;
+}
+
+/**
+ * Update app config (admin only)
+ */
+export async function updateConfig(config: { spotifyUrl?: string | null }): Promise<AppConfig> {
+  const response = await apiFetch<AppConfig>('/config', {
+    method: 'PUT',
+    body: JSON.stringify(config),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to update config');
+  }
+  return response.data;
+}

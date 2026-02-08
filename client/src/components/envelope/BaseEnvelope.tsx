@@ -10,6 +10,8 @@ import {
 } from '../../utils/motion';
 import { EnvelopeCard } from './EnvelopeCard';
 import { WouldYouRatherActivity } from '../activities/WouldYouRather';
+import { LetterActivity } from '../activities/Letter/LetterActivity';
+import { MediaLibraryActivity } from '../activities/MediaLibrary/MediaLibraryActivity';
 import { STRINGS } from '../../constants/strings';
 import { ANIMATION_DURATION_MS, CONTENT_REVEAL_DURATION } from '../../constants/animation';
 import './BaseEnvelope.css';
@@ -91,7 +93,24 @@ export function BaseEnvelope({
           />
         );
 
-      // Other activity types will be added in future phases
+      case 'letter':
+        return (
+          <LetterActivity
+            envelopeId={envelope.id}
+            onComplete={handleActivityComplete}
+            partnerName="Partner"
+          />
+        );
+
+      case 'media':
+        return (
+          <MediaLibraryActivity
+            envelopeId={envelope.id}
+            onComplete={handleActivityComplete}
+          />
+        );
+
+      // Other activity types (trivia, name-game, gender-reveal) will be added in future phases
       default:
         return children || (
           <p className="base-envelope__placeholder">

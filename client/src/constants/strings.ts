@@ -41,6 +41,7 @@ export const STRINGS = {
   // Envelope type labels
   FORM_TYPE_WOULD_YOU_RATHER: 'Would You Rather',
   FORM_TYPE_LETTER: 'Letter to Baby',
+  FORM_TYPE_MEDIA: 'Photo Library',
   FORM_TYPE_TRIVIA: 'Trivia',
   FORM_TYPE_NAME_GAME: 'Name Game',
   FORM_TYPE_GENDER_REVEAL: 'Gender Reveal',
@@ -165,6 +166,7 @@ export const STRINGS = {
 export const ENVELOPE_TYPES = [
   { value: 'would-you-rather', label: STRINGS.FORM_TYPE_WOULD_YOU_RATHER },
   { value: 'letter', label: STRINGS.FORM_TYPE_LETTER },
+  { value: 'media', label: STRINGS.FORM_TYPE_MEDIA },
   { value: 'trivia', label: STRINGS.FORM_TYPE_TRIVIA },
   { value: 'name-game', label: STRINGS.FORM_TYPE_NAME_GAME },
   { value: 'gender-reveal', label: STRINGS.FORM_TYPE_GENDER_REVEAL },

@@ -19,6 +19,7 @@ export type EnvelopeStatus = 'sealed' | 'opened' | 'completed';
 export type EnvelopeType =
   | 'would-you-rather'
   | 'letter'
+  | 'media'
   | 'trivia'
   | 'name-game'
   | 'gender-reveal';
@@ -41,7 +42,7 @@ export interface Envelope {
  */
 export const createEnvelopeSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
-  type: z.enum(['would-you-rather', 'letter', 'trivia', 'name-game', 'gender-reveal']),
+  type: z.enum(['would-you-rather', 'letter', 'media', 'trivia', 'name-game', 'gender-reveal']),
   order: z.number().int().min(0, 'Order must be non-negative'),
 });
 
@@ -52,7 +53,7 @@ export type CreateEnvelopeRequest = z.infer<typeof createEnvelopeSchema>;
  */
 export const updateEnvelopeSchema = z.object({
   title: z.string().min(1).max(100).optional(),
-  type: z.enum(['would-you-rather', 'letter', 'trivia', 'name-game', 'gender-reveal']).optional(),
+  type: z.enum(['would-you-rather', 'letter', 'media', 'trivia', 'name-game', 'gender-reveal']).optional(),
   status: z.enum(['sealed', 'opened', 'completed']).optional(),
   order: z.number().int().min(0).optional(),
 });

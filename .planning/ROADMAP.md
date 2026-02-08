@@ -87,14 +87,14 @@ Plans:
   4. User can browse all uploaded photos in media library
   5. User can view photos in slideshow/shuffle mode
   6. Admin can configure Spotify playlist URL (visible in app header)
-**Plans**: TBD
+**Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 04-01: Azure Blob Storage setup and SAS token generation
-- [ ] 04-02: Photo upload flow with progress indicators
-- [ ] 04-03: Letter writing interface with auto-save
-- [ ] 04-04: Media library with slideshow mode
-- [ ] 04-05: Spotify integration and admin media management
+- [ ] 04-01-PLAN.md — Database schema, types, Azure Blob Storage service, media API (Wave 1)
+- [ ] 04-02-PLAN.md — Photo upload hook, PhotoAttachment, MediaLibraryActivity with slideshow (Wave 2)
+- [ ] 04-03-PLAN.md — Letter backend: queries, service with SignalR, API routes (Wave 2, parallel)
+- [ ] 04-04-PLAN.md — Letter UI: auto-save hook, useLetter hook, phase components (Wave 3)
+- [ ] 04-05-PLAN.md — Spotify button, wire activities into BaseEnvelope, update reset (Wave 4)
 
 ### Phase 5: Baby Name Game & AI
 **Goal**: AI generates names; both partners vote and find matches
@@ -157,7 +157,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. Infrastructure & Foundation | 4/4 | Complete | 2026-02-02 |
 | 2. UI Foundation & Envelope | 4/4 | Complete | 2026-02-04 |
 | 3. Real-Time Sync & WYR | 4/4 | Complete | 2026-02-06 |
-| 4. Letters & Media | 0/5 | Not started | - |
+| 4. Letters & Media | 0/5 | Ready for execution | - |
 | 5. Baby Name Game & AI | 0/4 | Not started | - |
 | 6. Trivia Activity | 0/3 | Not started | - |
 | 7. Gender Reveal Ceremony | 0/3 | Not started | - |

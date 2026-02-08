@@ -1,0 +1,160 @@
+/* PhotoAttachment Component Styles */
+
+.photo-attachment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Hidden file input */
+.photo-attachment__input {
+  display: none;
+}
+
+/* Upload button state */
+.photo-attachment--empty {
+  padding: var(--space-4);
+  border: 2px dashed var(--color-sand-600);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-sand-100);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.photo-attachment--empty:hover {
+  border-color: var(--color-sunrise-gold);
+  background-color: var(--color-sand-200);
+}
+
+.photo-attachment__button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  min-height: 44px;
+  min-width: 44px;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background-color: var(--color-cream);
+  border: 2px solid var(--color-sunrise-gold);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.photo-attachment__button:hover:not(:disabled) {
+  background-color: var(--color-sunrise-gold);
+  color: white;
+}
+
+.photo-attachment__button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.photo-attachment__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.photo-attachment__button svg {
+  flex-shrink: 0;
+}
+
+/* Uploading state */
+.photo-attachment--uploading {
+  padding: var(--space-4);
+  border: 2px solid var(--color-sunrise-gold);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-sand-100);
+}
+
+.photo-attachment__progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.photo-attachment__progress-bar {
+  width: 100%;
+  max-width: 200px;
+  height: 8px;
+  background-color: var(--color-sand-300);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.photo-attachment__progress-fill {
+  height: 100%;
+  background-color: var(--color-sunrise-gold);
+  border-radius: var(--radius-full);
+  transition: width 0.2s ease-out;
+}
+
+.photo-attachment__progress-text {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Preview state */
+.photo-attachment--preview {
+  padding: 0;
+}
+
+.photo-attachment__image-container {
+  position: relative;
+  display: inline-block;
+  max-width: 200px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.photo-attachment__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.photo-attachment__remove {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: var(--radius-full);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.photo-attachment__remove:hover {
+  background-color: var(--color-dusk-rose);
+  transform: scale(1.1);
+}
+
+.photo-attachment__remove:active {
+  transform: scale(0.95);
+}
+
+/* Error message */
+.photo-attachment__error {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-error);
+  text-align: center;
+}

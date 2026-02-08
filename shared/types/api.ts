@@ -79,4 +79,5 @@ export interface ResetSessionResponse {
   participantsDeleted: number;
   envelopesReset: number;
   votesDeleted: number;
+  lettersDeleted: number;
 }

@@ -69,6 +69,38 @@ export {
   updateWyrPromptSchema,
 } from './wyr.js';
 
+// Re-export Letter types
+export type {
+  LetterPhase,
+  LetterPrompt,
+  Letter,
+  LetterState,
+  LetterPromptResponse,
+  SaveLetterRequest,
+  SubmitLetterRequest,
+  SubmitLetterResponse,
+  LetterSubmittedMessage,
+  LetterRevealReadyMessage,
+  CreateLetterPromptRequest,
+  UpdateLetterPromptRequest,
+} from './letter.js';
+export {
+  saveLetterSchema,
+  submitLetterSchema,
+  createLetterPromptSchema,
+  updateLetterPromptSchema,
+} from './letter.js';
+
+// Re-export Media types
+export type {
+  Photo,
+  UploadSasResponse,
+  PhotoListResponse,
+  RegisterPhotoRequest,
+  GenerateSasRequest,
+} from './media.js';
+export { generateSasSchema, registerPhotoSchema } from './media.js';
+
 /**
  * Health check response data
  */

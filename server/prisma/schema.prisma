@@ -29,6 +29,8 @@ model Participant {
   createdAt         DateTime @default(now()) @map("created_at")
 
   wyrVotes WyrVote[]
+  letters  Letter[]
+  photos   Photo[]
 
   @@map("participants")
 }
@@ -44,7 +46,8 @@ model Envelope {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  wyrPrompt WyrPrompt?
+  wyrPrompt    WyrPrompt?
+  letterPrompt LetterPrompt?
 
   @@map("envelopes")
 }
@@ -78,4 +81,52 @@ model WyrVote {
 
   @@unique([promptId, participantId])
   @@map("wyr_votes")
+}
+
+// Letter prompt
+// Admin creates a prompt that guides what participants write about
+model LetterPrompt {
+  id         String   @id @default(uuid())
+  envelopeId String   @unique @map("envelope_id")
+  prompt     String   // The question/prompt text admin creates
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  envelope Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  letters  Letter[]
+
+  @@map("letter_prompts")
+}
+
+// Letter content
+// Each participant writes one letter per prompt
+model Letter {
+  id            String    @id @default(uuid())
+  promptId      String    @map("prompt_id")
+  participantId String    @map("participant_id")
+  content       String    @default("")
+  photoUrl      String?   @map("photo_url")
+  submittedAt   DateTime? @map("submitted_at") // null = draft, set = submitted
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  prompt      LetterPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  participant Participant  @relation(fields: [participantId], references: [id])
+
+  @@unique([promptId, participantId])
+  @@map("letters")
+}
+
+// Photo uploaded to Azure Blob Storage
+// Tracks metadata for uploaded photos
+model Photo {
+  id           String   @id @default(uuid())
+  blobUrl      String   @unique @map("blob_url")
+  filename     String
+  contentType  String   @map("content_type")
+  uploadedById String   @map("uploaded_by_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  uploadedBy Participant @relation(fields: [uploadedById], references: [id])
+
+  @@map("photos")
 }

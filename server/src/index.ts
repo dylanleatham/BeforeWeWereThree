@@ -12,6 +12,7 @@ import { signalrRouter } from './routes/signalr.js';
 import { wyrRouter } from './routes/wyr.js';
 import { adminRouter } from './routes/admin.js';
 import { mediaRouter } from './routes/media.js';
+import { letterRouter } from './routes/letter.js';
 import { initializeRealtimeService } from './services/realtime.js';
 import { disconnectDatabase } from './db/connection.js';
 import { logger } from './utils/logger.js';
@@ -64,6 +65,7 @@ app.use('/api/signalr', signalrRouter);
 app.use('/api/wyr', wyrRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/media', mediaRouter);
+app.use('/api/letters', letterRouter);
 
 // Serve static files from client build
 // In production bundle, public/ is in the same directory as index.js

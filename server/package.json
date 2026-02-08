@@ -19,6 +19,8 @@
     "postdeploy": "prisma migrate deploy"
   },
   "dependencies": {
+    "@azure/identity": "^4.13.0",
+    "@azure/storage-blob": "^12.30.0",
     "@prisma/client": "^6.4.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

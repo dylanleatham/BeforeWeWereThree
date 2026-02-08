@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Two people, one screen each, sharing moments that matter.
-**Current focus:** Phase 4 - Letters to Baby & Media
+**Current focus:** Phase 4 Complete - Ready for Phase 5 (Trivia)
 
 ## Current Position
 
-Phase: 4 of 7 (Letters to Baby & Media)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-08 - Completed 04-04-PLAN.md
+Phase: 4 of 7 (Letters to Baby & Media) - COMPLETE
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-02-08 - Completed 04-05-PLAN.md
 
-Progress: [████████████████............] 80% (Phase 4)
-Overall:  [████████████████████████████..] 67% (16/24 plans)
+Progress: [████████████████████] 100% (Phase 4)
+Overall:  [██████████████████████████████] 71% (17/24 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: ~25 min (including manual debugging)
-- Total execution time: ~5 hours 48 min
+- Total plans completed: 17
+- Average duration: ~24 min (including manual debugging)
+- Total execution time: ~6 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Overall:  [███████████████████████
 | 01 | 4/4 | ~2 hrs | ~30 min |
 | 02 | 4/4 | ~18 min | ~5 min |
 | 03 | 4/4 | ~238 min | ~60 min |
-| 04 | 4/5 | ~31 min | ~8 min |
+| 04 | 5/5 | ~41 min | ~8 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-04 (~119 min), 04-01 (~8 min), 04-02 (~8 min), 04-03 (~4 min), 04-04 (~7 min)
-- Trend: Phase 4 plans executing very fast (~7 min avg)
+- Last 5 plans: 04-01 (~8 min), 04-02 (~8 min), 04-03 (~4 min), 04-04 (~7 min), 04-05 (~10 min)
+- Trend: Phase 4 completed very efficiently (~8 min avg)
 
 *Updated after each plan completion*
 
@@ -88,6 +88,10 @@ Recent decisions affecting current work:
 | 04-04 | Reuse PartnerPresence from WYR | DRY principle - same online indicator works for all activities |
 | 04-04 | useAutoSave is generic | useAutoSave<T> can be reused for any debounced save operation |
 | 04-04 | Flush pending save before submit | Ensures no data loss when submitting letter |
+| 04-05 | Golden Hour theme for Spotify button | Not Spotify green - maintain app aesthetic |
+| 04-05 | AppConfig key-value for spotifyUrl | Simple extensible pattern for app settings |
+| 04-05 | Reset order: letters -> votes -> participants | FK constraint order matters |
+| 04-05 | Photos persist across reset | Azure Blob not cleared during session reset |
 
 ### Pending Todos
 
@@ -154,7 +158,7 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 04-04-PLAN.md
+Stopped at: Completed 04-05-PLAN.md (Phase 4 complete!)
 Resume file: None
 
 **Phase 4 Progress:**
@@ -162,9 +166,9 @@ Resume file: None
 - [x] 04-02: Photo Upload & Media Library (complete, 2026-02-08)
 - [x] 04-03: Letter Backend (complete, 2026-02-08)
 - [x] 04-04: Letter UI Components (complete, 2026-02-08)
-- [ ] 04-05: Integration
+- [x] 04-05: Integration (complete, 2026-02-08)
 
-**Phase 4 Accomplishments (so far):**
+**Phase 4 Accomplishments:**
 - LetterPrompt, Letter, Photo Prisma models
 - Shared types for letters and media
 - Azure Blob Storage SAS token generation
@@ -177,3 +181,10 @@ Resume file: None
 - useAutoSave hook for debounced content saving
 - useLetter hook for letter activity state management
 - LetterActivity with Writing, Waiting, Reveal, Complete phases
+- Config API for Spotify URL setting
+- SpotifyButton floating action button
+- Letter and media activities wired into BaseEnvelope
+- Reset includes letters in deletion
+- Admin service tests
+
+**Ready for Phase 5:** Trivia activity

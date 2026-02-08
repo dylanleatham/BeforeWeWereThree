@@ -131,6 +131,32 @@ export const STRINGS = {
   WYR_ERROR_LOADING: 'Failed to load activity',
   WYR_ERROR_VOTING: 'Failed to submit vote',
   WYR_ERROR_OFFLINE: 'You need to be connected to vote',
+
+  // Letter to Baby
+  LETTER_PLACEHOLDER: 'Write your letter here...',
+  LETTER_SUBMIT: 'Submit Letter',
+  LETTER_SAVING: 'Saving...',
+  LETTER_SAVED: (time: Date) => {
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    const displayHours = hours % 12 || 12;
+    const displayMinutes = minutes.toString().padStart(2, '0');
+    return `Saved at ${displayHours}:${displayMinutes} ${ampm}`;
+  },
+  LETTER_WAITING_TITLE: 'Letter Sent!',
+  LETTER_WAITING_MESSAGE: (partner: string) => `Waiting for ${partner} to finish their letter...`,
+  LETTER_REVEAL_TITLE: 'Your Letters',
+  LETTER_YOURS: 'Yours',
+  LETTER_PARTNERS: (name: string) => `${name}'s`,
+  LETTER_COMPLETE_TITLE: 'Beautifully Said',
+  LETTER_COMPLETE_MESSAGE: 'Your letters are treasured.',
+  LETTER_COMPLETE_ICON: '\u2709', // Envelope emoji
+  LETTER_CLOSE: 'Back to envelopes',
+  LETTER_ERROR_LOADING: "Couldn't load the letter activity",
+  LETTER_ERROR_SAVING: 'Failed to save letter',
+  LETTER_ERROR_SUBMITTING: 'Failed to submit letter',
+  LETTER_OFFLINE_NOTICE: 'Offline mode - your letter will sync when connected',
 } as const;
 
 /**

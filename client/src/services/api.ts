@@ -15,6 +15,10 @@ import type {
   UploadSasResponse,
   Photo,
   PhotoListResponse,
+  LetterPromptResponse,
+  Letter,
+  LetterPrompt,
+  SubmitLetterResponse,
 } from 'shared';
 import { STRINGS } from '../constants/strings';
 
@@ -410,5 +414,97 @@ export async function deletePhoto(id: string): Promise<void> {
   });
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to delete photo');
+  }
+}
+
+// ============================================================================
+// Letter API
+// ============================================================================
+
+/**
+ * Get letter state for an envelope
+ */
+export async function getLetterState(envelopeId: string): Promise<LetterPromptResponse> {
+  const response = await apiFetch<LetterPromptResponse>(`/letters/${envelopeId}`);
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch letter state');
+  }
+  return response.data;
+}
+
+/**
+ * Save letter content (auto-save, does not submit)
+ */
+export async function saveLetter(
+  envelopeId: string,
+  content: string,
+  photoUrl: string | null
+): Promise<Letter> {
+  const response = await apiFetch<{ letter: Letter }>(`/letters/${envelopeId}/save`, {
+    method: 'PUT',
+    body: JSON.stringify({ content, photoUrl }),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to save letter');
+  }
+  return response.data.letter;
+}
+
+/**
+ * Submit letter (locks content and marks as submitted)
+ */
+export async function submitLetter(envelopeId: string): Promise<SubmitLetterResponse> {
+  const response = await apiFetch<SubmitLetterResponse>(`/letters/${envelopeId}/submit`, {
+    method: 'POST',
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to submit letter');
+  }
+  return response.data;
+}
+
+/**
+ * Create letter prompt (admin only)
+ */
+export async function createLetterPrompt(data: {
+  envelopeId: string;
+  prompt: string;
+}): Promise<LetterPrompt> {
+  const response = await apiFetch<{ prompt: LetterPrompt }>('/letters', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to create letter prompt');
+  }
+  return response.data.prompt;
+}
+
+/**
+ * Update letter prompt (admin only)
+ */
+export async function updateLetterPrompt(
+  id: string,
+  data: { prompt?: string }
+): Promise<LetterPrompt> {
+  const response = await apiFetch<{ prompt: LetterPrompt }>(`/letters/prompt/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to update letter prompt');
+  }
+  return response.data.prompt;
+}
+
+/**
+ * Delete letter prompt (admin only)
+ */
+export async function deleteLetterPrompt(id: string): Promise<void> {
+  const response = await apiFetch<Record<string, never>>(`/letters/prompt/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to delete letter prompt');
   }
 }

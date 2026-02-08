@@ -1,0 +1,177 @@
+/**
+ * Letter Writing Phase Styles
+ *
+ * Intimate, handwritten feel with warm colors and soft shadows.
+ * Mobile-first, touch-friendly design.
+ */
+
+.letter-writing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+/* =============================================================================
+ * Prompt
+ * ============================================================================= */
+
+.letter-writing__prompt {
+  text-align: center;
+  padding: var(--space-4);
+  background: linear-gradient(
+    135deg,
+    var(--color-sand-100) 0%,
+    var(--color-cream) 100%
+  );
+  border-radius: var(--radius-lg);
+  border-left: 4px solid var(--color-sunrise-gold);
+}
+
+.letter-writing__prompt-text {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-style: italic;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* =============================================================================
+ * Editor
+ * ============================================================================= */
+
+.letter-writing__editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.letter-writing__textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background-color: var(--color-cream);
+  border: 2px solid var(--color-sand-400);
+  border-radius: var(--radius-lg);
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.letter-writing__textarea::placeholder {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.letter-writing__textarea:focus {
+  outline: none;
+  border-color: var(--color-sunrise-gold);
+  box-shadow: 0 0 0 3px var(--color-sunrise-gold-20);
+}
+
+.letter-writing__textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+ * Save Status
+ * ============================================================================= */
+
+.letter-writing__status {
+  min-height: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.letter-writing__status-text {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  transition: color 0.2s ease;
+}
+
+.letter-writing__status-text--saving {
+  color: var(--color-sunrise-gold);
+}
+
+.letter-writing__status-text--saved {
+  color: var(--color-soft-sage);
+}
+
+/* =============================================================================
+ * Photo
+ * ============================================================================= */
+
+.letter-writing__photo {
+  display: flex;
+  justify-content: center;
+}
+
+/* =============================================================================
+ * Submit Button
+ * ============================================================================= */
+
+.letter-writing__submit {
+  align-self: center;
+  padding: var(--space-3) var(--space-8);
+  min-height: 48px;
+  min-width: 160px;
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: white;
+  background-color: var(--color-sunrise-gold);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.letter-writing__submit:hover:not(:disabled) {
+  background-color: var(--color-deep-terracotta);
+}
+
+.letter-writing__submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.letter-writing__submit:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
+.letter-writing__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+ * Responsive
+ * ============================================================================= */
+
+@media (max-width: 480px) {
+  .letter-writing {
+    padding: var(--space-3);
+    gap: var(--space-4);
+  }
+
+  .letter-writing__prompt {
+    padding: var(--space-3);
+  }
+
+  .letter-writing__prompt-text {
+    font-size: var(--text-lg);
+  }
+
+  .letter-writing__textarea {
+    min-height: 180px;
+    padding: var(--space-3);
+  }
+}

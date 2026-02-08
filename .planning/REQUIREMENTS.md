@@ -50,10 +50,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Letters to Baby Activity
 
-- [ ] **LETTER-01**: User can write letter with text input
-- [ ] **LETTER-02**: User can attach photo from library or upload new
-- [ ] **LETTER-03**: Letter auto-saves or explicitly saves
-- [ ] **LETTER-04**: Envelope marks complete when both participants finish
+- [x] **LETTER-01**: User can write letter with text input
+- [x] **LETTER-02**: User can attach photo from library or upload new
+- [x] **LETTER-03**: Letter auto-saves or explicitly saves
+- [x] **LETTER-04**: Envelope marks complete when both participants finish
 
 ### Baby Name Game Activity
 
@@ -74,16 +74,16 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Media
 
-- [ ] **MEDIA-01**: User can upload photos to Azure Blob Storage via SAS token
-- [ ] **MEDIA-02**: User can browse media library of uploaded photos
-- [ ] **MEDIA-03**: User can view photos in slideshow/shuffle mode
-- [ ] **MEDIA-04**: Spotify playlist link accessible from app header
+- [x] **MEDIA-01**: User can upload photos to Azure Blob Storage via SAS token
+- [x] **MEDIA-02**: User can browse media library of uploaded photos
+- [x] **MEDIA-03**: User can view photos in slideshow/shuffle mode
+- [x] **MEDIA-04**: Spotify playlist link accessible from app header
 
 ### Admin Mode
 
 - [x] **ADMIN-01**: Admin can set Guest PIN and Admin PIN (via database; UI in later phase)
-- [ ] **ADMIN-02**: Admin can configure Spotify playlist URL
-- [ ] **ADMIN-03**: Admin can upload and delete photos in media library
+- [x] **ADMIN-02**: Admin can configure Spotify playlist URL
+- [x] **ADMIN-03**: Admin can upload and delete photos in media library
 - [ ] **ADMIN-04**: Admin can configure Gender Reveal (value + keys)
 - [ ] **ADMIN-05**: Admin can create/edit envelopes
 - [ ] **ADMIN-06**: Admin can create/edit WYR prompts, trivia questions, letter prompts
@@ -150,16 +150,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WYR-02 | Phase 3 | Pending |
 | WYR-03 | Phase 3 | Pending |
 | WYR-04 | Phase 3 | Pending |
-| LETTER-01 | Phase 4 | Pending |
-| LETTER-02 | Phase 4 | Pending |
-| LETTER-03 | Phase 4 | Pending |
-| LETTER-04 | Phase 4 | Pending |
-| MEDIA-01 | Phase 4 | Pending |
-| MEDIA-02 | Phase 4 | Pending |
-| MEDIA-03 | Phase 4 | Pending |
-| MEDIA-04 | Phase 4 | Pending |
-| ADMIN-02 | Phase 4 | Pending |
-| ADMIN-03 | Phase 4 | Pending |
+| LETTER-01 | Phase 4 | Complete |
+| LETTER-02 | Phase 4 | Complete |
+| LETTER-03 | Phase 4 | Complete |
+| LETTER-04 | Phase 4 | Complete |
+| MEDIA-01 | Phase 4 | Complete |
+| MEDIA-02 | Phase 4 | Complete |
+| MEDIA-03 | Phase 4 | Complete |
+| MEDIA-04 | Phase 4 | Complete |
+| ADMIN-02 | Phase 4 | Complete |
+| ADMIN-03 | Phase 4 | Complete |
 | NAME-01 | Phase 5 | Pending |
 | NAME-02 | Phase 5 | Pending |
 | NAME-03 | Phase 5 | Pending |

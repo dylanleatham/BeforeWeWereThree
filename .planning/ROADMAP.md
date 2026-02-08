@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Azure Infrastructure & Foundation** - Deploy pipeline, secrets, database, PIN auth
 - [x] **Phase 2: UI Foundation & Envelope Model** - Design system, envelope states, animations
 - [x] **Phase 3: Real-Time Sync & Would You Rather** - SignalR, presence, synchronized voting
-- [ ] **Phase 4: Letters to Baby & Media** - Text input, photo uploads, media library
+- [x] **Phase 4: Letters to Baby & Media** - Text input, photo uploads, media library
 - [ ] **Phase 5: Baby Name Game & AI** - Anthropic API, voting, match detection
 - [ ] **Phase 6: Trivia Activity** - Simple Q&A demonstrating pattern reuse
 - [ ] **Phase 7: Gender Reveal Ceremony** - Two-key validation, secret protection, celebration
@@ -90,11 +90,11 @@ Plans:
 **Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 04-01-PLAN.md — Database schema, types, Azure Blob Storage service, media API (Wave 1)
-- [ ] 04-02-PLAN.md — Photo upload hook, PhotoAttachment, MediaLibraryActivity with slideshow (Wave 2)
-- [ ] 04-03-PLAN.md — Letter backend: queries, service with SignalR, API routes (Wave 2, parallel)
-- [ ] 04-04-PLAN.md — Letter UI: auto-save hook, useLetter hook, phase components (Wave 3)
-- [ ] 04-05-PLAN.md — Spotify button, wire activities into BaseEnvelope, update reset (Wave 4)
+- [x] 04-01-PLAN.md — Database schema, types, Azure Blob Storage service, media API (Wave 1) -- Completed 2026-02-08
+- [x] 04-02-PLAN.md — Photo upload hook, PhotoAttachment, MediaLibraryActivity with slideshow (Wave 2) -- Completed 2026-02-08
+- [x] 04-03-PLAN.md — Letter backend: queries, service with SignalR, API routes (Wave 2, parallel) -- Completed 2026-02-08
+- [x] 04-04-PLAN.md — Letter UI: auto-save hook, useLetter hook, phase components (Wave 3) -- Completed 2026-02-08
+- [x] 04-05-PLAN.md — Spotify button, wire activities into BaseEnvelope, update reset (Wave 4) -- Completed 2026-02-08
 
 ### Phase 5: Baby Name Game & AI
 **Goal**: AI generates names; both partners vote and find matches
@@ -157,7 +157,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. Infrastructure & Foundation | 4/4 | Complete | 2026-02-02 |
 | 2. UI Foundation & Envelope | 4/4 | Complete | 2026-02-04 |
 | 3. Real-Time Sync & WYR | 4/4 | Complete | 2026-02-06 |
-| 4. Letters & Media | 0/5 | Ready for execution | - |
+| 4. Letters & Media | 5/5 | Complete | 2026-02-08 |
 | 5. Baby Name Game & AI | 0/4 | Not started | - |
 | 6. Trivia Activity | 0/3 | Not started | - |
 | 7. Gender Reveal Ceremony | 0/3 | Not started | - |

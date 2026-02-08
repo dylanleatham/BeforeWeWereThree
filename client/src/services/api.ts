@@ -12,6 +12,9 @@ import type {
   WYRVoteResponse,
   WYRPrompt,
   ResetSessionResponse,
+  UploadSasResponse,
+  Photo,
+  PhotoListResponse,
 } from 'shared';
 import { STRINGS } from '../constants/strings';
 
@@ -329,5 +332,83 @@ export async function deleteWyrPrompt(id: string): Promise<void> {
   });
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to delete WYR prompt');
+  }
+}
+
+// ============================================================================
+// Media API
+// ============================================================================
+
+/**
+ * Get SAS token for uploading a photo to Azure Blob Storage
+ * @param filename - Original filename
+ * @param contentType - MIME type (must start with 'image/')
+ */
+export async function getUploadSas(
+  filename: string,
+  contentType: string
+): Promise<UploadSasResponse> {
+  const response = await apiFetch<UploadSasResponse>('/media/sas', {
+    method: 'POST',
+    body: JSON.stringify({ filename, contentType }),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to get upload URL');
+  }
+  return response.data;
+}
+
+/**
+ * Register a photo in the database after uploading to blob storage
+ * @param blobUrl - The blob URL (without SAS token)
+ * @param filename - Original filename
+ * @param contentType - MIME type
+ */
+export async function registerPhoto(
+  blobUrl: string,
+  filename: string,
+  contentType: string
+): Promise<Photo> {
+  const response = await apiFetch<{ photo: Photo }>('/media/register', {
+    method: 'POST',
+    body: JSON.stringify({ blobUrl, filename, contentType }),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to register photo');
+  }
+  return response.data.photo;
+}
+
+/**
+ * Get all photos
+ */
+export async function getPhotos(): Promise<Photo[]> {
+  const response = await apiFetch<PhotoListResponse>('/media');
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch photos');
+  }
+  return response.data.photos;
+}
+
+/**
+ * Get a single photo by ID
+ */
+export async function getPhoto(id: string): Promise<Photo> {
+  const response = await apiFetch<{ photo: Photo }>(`/media/${id}`);
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch photo');
+  }
+  return response.data.photo;
+}
+
+/**
+ * Delete a photo (admin only)
+ */
+export async function deletePhoto(id: string): Promise<void> {
+  const response = await apiFetch<Record<string, never>>(`/media/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to delete photo');
   }
 }

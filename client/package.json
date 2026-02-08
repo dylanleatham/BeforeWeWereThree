@@ -12,6 +12,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.30.0",
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@microsoft/signalr": "^10.0.0",
     "@use-gesture/react": "^10.3.1",
@@ -21,7 +22,9 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "shared": "*",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "use-debounce": "^10.1.0",
+    "yet-another-react-lightbox": "^3.28.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

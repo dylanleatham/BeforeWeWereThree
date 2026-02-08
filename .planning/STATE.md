@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 4 of 7 (Letters to Baby & Media)
-Plan: 3 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-08 - Completed 04-03-PLAN.md
+Last activity: 2026-02-08 - Completed 04-02-PLAN.md
 
-Progress: [████████████..................] 60% (Phase 4)
+Progress: [████████....................] 40% (Phase 4)
 Overall:  [██████████████████████████....] 58% (14/24 plans)
 
 ## Performance Metrics
@@ -82,6 +82,9 @@ Recent decisions affecting current work:
 | 04-03 | Upsert pattern for letter auto-save | Eliminates need to check if letter exists before saving |
 | 04-03 | Silent auto-save (no SignalR) | No broadcast on PUT to avoid noise; only submit events broadcast |
 | 04-03 | Submit saves then marks submitted | Ensures latest content is submitted atomically |
+| 04-02 | Browser-direct upload via BlockBlobClient | Better UX with progress tracking than server-side upload |
+| 04-02 | yet-another-react-lightbox with plugins | Zoom, Slideshow, Thumbnails plugins for full slideshow experience |
+| 04-02 | MediaLibrary doesn't complete | Always available for browsing, unlike WYR with complete flow |
 
 ### Pending Todos
 
@@ -148,13 +151,13 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 04-03-PLAN.md
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
 
 **Phase 4 Progress:**
 - [x] 04-01: Letters and Media Foundation (complete, 2026-02-08)
-- [ ] 04-02: Letter UI Components (skipped - merged into 04-03)
-- [x] 04-03: Letter Backend (complete, 2026-02-08)
+- [x] 04-02: Photo Upload & Media Library (complete, 2026-02-08)
+- [ ] 04-03: Letter UI Components
 - [ ] 04-04: Media UI Components
 - [ ] 04-05: Integration
 
@@ -163,6 +166,6 @@ Resume file: None
 - Shared types for letters and media
 - Azure Blob Storage SAS token generation
 - Media API routes (sas, register, list, get, delete)
-- Letter database queries with upsert for auto-save
-- Letter service with SignalR broadcasting
-- Letter API routes (get, save, submit, admin CRUD)
+- usePhotoUpload hook with browser-direct Azure upload
+- useMediaLibrary hook for photo list management
+- PhotoAttachment, PhotoGrid, SlideshowViewer, MediaLibraryActivity components

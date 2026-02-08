@@ -141,13 +141,12 @@ export async function deletePhotoFromBlob(blobUrl: string): Promise<void> {
   // Format: https://{account}.blob.core.windows.net/{container}/{blobName}
   const url = new URL(blobUrl);
   const pathParts = url.pathname.split('/').filter(Boolean);
-
-  if (pathParts.length < 2) {
-    throw new Error(`Invalid blob URL: ${blobUrl}`);
-  }
-
   const containerName = pathParts[0];
   const blobName = pathParts.slice(1).join('/');
+
+  if (!containerName || !blobName) {
+    throw new Error(`Invalid blob URL: ${blobUrl}`);
+  }
 
   const containerClient = client.getContainerClient(containerName);
   const blobClient = containerClient.getBlobClient(blobName);

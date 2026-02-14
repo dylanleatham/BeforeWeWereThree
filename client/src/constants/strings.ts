@@ -153,6 +153,9 @@ export const STRINGS = {
   LETTER_COMPLETE_TITLE: 'Beautifully Said',
   LETTER_COMPLETE_MESSAGE: 'Your letters are treasured.',
   LETTER_COMPLETE_ICON: '\u2709', // Envelope emoji
+  LETTER_READ_YOURS: 'Read Your Letter',
+  LETTER_READ_PARTNERS: (name: string) => `Read ${name}'s Letter`,
+  LETTER_CLOSE_DETAIL: 'Close',
   LETTER_CLOSE: 'Back to envelopes',
   LETTER_ERROR_LOADING: "Couldn't load the letter activity",
   LETTER_ERROR_SAVING: 'Failed to save letter',

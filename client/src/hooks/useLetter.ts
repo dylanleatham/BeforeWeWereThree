@@ -188,13 +188,13 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
    * Submit the letter
    */
   const submit = useCallback(async () => {
-    if (!prompt) return;
+    if (!prompt || !myLetter) return;
 
     try {
       setError(null);
 
-      // Submit to server
-      const response = await submitLetter(envelopeId);
+      // Submit to server with final content
+      const response = await submitLetter(envelopeId, myLetter.content, myLetter.photoUrl ?? null);
 
       // Check if reveal is immediate (both submitted)
       if (response.revealed && response.letters && response.letters.length >= 2) {
@@ -212,7 +212,7 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
       console.error('Failed to submit letter:', err);
       setError(STRINGS.LETTER_ERROR_SUBMITTING);
     }
-  }, [prompt, envelopeId, myLetter?.id]);
+  }, [prompt, envelopeId, myLetter]);
 
   /**
    * Advance to complete phase (after reveal)

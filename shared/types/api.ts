@@ -9,6 +9,7 @@
  */
 export type ErrorCode =
   | 'UNAUTHORIZED'
+  | 'SESSION_EXPIRED'
   | 'FORBIDDEN'
   | 'VALIDATION_ERROR'
   | 'ENVELOPE_NOT_FOUND'

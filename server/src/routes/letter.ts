@@ -102,7 +102,7 @@ router.put(
         parsed.data.content,
         parsed.data.photoUrl ?? null
       );
-      res.json(successResponse(letter));
+      res.json(successResponse({ letter }));
     } catch (error) {
       // Handle known errors
       if (error instanceof Error) {

@@ -2,10 +2,26 @@
  * Auth middleware tests
  */
 
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { Request, Response } from 'express';
-import { authMiddleware, optionalAuthMiddleware, adminMiddleware } from '../../middleware/auth.js';
-import { createSession } from '../../services/session.js';
+
+type AnyMock = jest.Mock<any>;
+
+// Mock db before importing middleware
+const mockFindUnique = jest.fn() as AnyMock;
+
+jest.unstable_mockModule('../../db/connection.js', () => ({
+  db: {
+    participant: {
+      findUnique: mockFindUnique,
+    },
+  },
+}));
+
+// Import after mocking
+const { authMiddleware, optionalAuthMiddleware, adminMiddleware } =
+  await import('../../middleware/auth.js');
+const { createSession } = await import('../../services/session.js');
 
 // Simple mock helpers
 function createMockResponse() {
@@ -20,6 +36,12 @@ function createMockNext() {
 }
 
 describe('Auth Middleware', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default: participant exists
+    mockFindUnique.mockResolvedValue({ id: 'test-id' });
+  });
+
   describe('authMiddleware', () => {
     it('should return 401 if no session cookie', async () => {
       const req = { cookies: {} } as unknown as Request;
@@ -86,6 +108,27 @@ describe('Auth Middleware', () => {
       });
       expect(next).toHaveBeenCalled();
       expect(res.status).not.toHaveBeenCalled();
+    });
+
+    it('should return 401 if participant no longer exists', async () => {
+      mockFindUnique.mockResolvedValue(null);
+      const token = await createSession('deleted-id', 'guest', 'test-fp', 'A');
+      const req = { cookies: { session: token } } as unknown as Request;
+      const res = createMockResponse();
+      const next = createMockNext();
+
+      await authMiddleware(req, res as unknown as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: expect.objectContaining({
+            code: 'SESSION_EXPIRED',
+          }),
+        })
+      );
+      expect(next).not.toHaveBeenCalled();
     });
   });
 

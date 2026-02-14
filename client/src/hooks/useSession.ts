@@ -39,6 +39,23 @@ export function useSession(): UseSessionReturn {
     error: null,
   });
 
+  // Listen for session-expired events (stale session after admin reset)
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      setState({
+        isLoading: false,
+        isAuthenticated: false,
+        role: null,
+        participantId: null,
+        designation: null,
+        error: null,
+      });
+    };
+
+    window.addEventListener('session-expired', handleSessionExpired);
+    return () => window.removeEventListener('session-expired', handleSessionExpired);
+  }, []);
+
   // Check for existing session on mount
   useEffect(() => {
     async function checkSession() {

@@ -55,6 +55,10 @@ async function apiFetch<T>(
       try {
         const errorData = await response.json();
         if (errorData && typeof errorData === 'object' && 'error' in errorData) {
+          // Detect stale session after admin reset — notify app to return to PIN entry
+          if (errorData.error?.code === 'SESSION_EXPIRED') {
+            window.dispatchEvent(new CustomEvent('session-expired'));
+          }
           return errorData as ApiResponse<T>;
         }
       } catch {
@@ -440,7 +444,7 @@ export async function saveLetter(
   content: string,
   photoUrl: string | null
 ): Promise<Letter> {
-  const response = await apiFetch<{ letter: Letter }>(`/letters/${envelopeId}/save`, {
+  const response = await apiFetch<{ letter: Letter }>(`/letters/${envelopeId}`, {
     method: 'PUT',
     body: JSON.stringify({ content, photoUrl }),
   });
@@ -453,9 +457,14 @@ export async function saveLetter(
 /**
  * Submit letter (locks content and marks as submitted)
  */
-export async function submitLetter(envelopeId: string): Promise<SubmitLetterResponse> {
+export async function submitLetter(
+  envelopeId: string,
+  content: string,
+  photoUrl: string | null
+): Promise<SubmitLetterResponse> {
   const response = await apiFetch<SubmitLetterResponse>(`/letters/${envelopeId}/submit`, {
     method: 'POST',
+    body: JSON.stringify({ content, photoUrl }),
   });
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to submit letter');

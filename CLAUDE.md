@@ -201,6 +201,14 @@ Each phase results in a working, deployed checkpoint in production. New complexi
 - **Negotiate endpoint returns transport type:** The `/api/signalr/negotiate` endpoint returns `{ transport: 'socketio' | 'signalr', url, userId, accessToken? }` so the client knows which library to use.
 - **Testing real-time locally:** Use two different browsers (Chrome + Firefox), not regular + private mode. Browser fingerprinting produces identical IDs for both modes on the same machine.
 
+### Azure Blob Storage (Photo Uploads)
+
+- **Resource provider must be registered:** The `Microsoft.Storage` provider is not registered by default on new Azure subscriptions. Run `az provider register --namespace Microsoft.Storage --wait` before creating a storage account, otherwise all `az storage` commands fail with `SubscriptionNotFound`.
+- **CORS required for browser uploads:** The client uploads directly to Azure Blob Storage via SAS tokens (bypassing the Node.js server). The storage account must have a CORS rule allowing the app's origin (e.g., `http://localhost:5173` for dev). Without it, the preflight OPTIONS request fails. Set with: `az storage cors add --account-name <name> --services b --methods "PUT OPTIONS" --origins "<origin>" --allowed-headers "*" --exposed-headers "*" --max-age 3600`.
+- **Public blob read access for thumbnails:** The app stores bare `blobUrl` values (no SAS token) in the database for displaying photos. The storage account must have `--allow-blob-public-access true` and the `photos` container must have `--public-access blob`. Without this, image `<img src>` tags get 409 "Public access is not permitted" errors.
+- **Storage account name:** `bwwtstorage` in resource group `bwwt-rg`, region `centralus`. Container: `photos`.
+- **Env vars:** `AZURE_STORAGE_ACCOUNT` and `AZURE_STORAGE_KEY` in `server/.env`. The SAS endpoint returns 503 if these are missing.
+
 ### Interaction Design
 
 - **Match gesture direction to layout:** If options are arranged vertically (top/bottom), use vertical gestures or tap. Horizontal swipe for vertically-stacked options is unintuitive.

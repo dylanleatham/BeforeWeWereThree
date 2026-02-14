@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verifySession } from '../services/session.js';
 import { errorResponse } from 'shared';
 import type { SessionPayload } from 'shared';
+import { db } from '../db/connection.js';
 
 /**
  * Auth middleware for Before We Were Three
@@ -37,6 +38,17 @@ export async function authMiddleware(
 
   try {
     const session = await verifySession(sessionCookie);
+
+    // Verify participant still exists (handles stale sessions after admin reset)
+    const participant = await db.participant.findUnique({
+      where: { id: session.participantId },
+      select: { id: true },
+    });
+    if (!participant) {
+      res.status(401).json(errorResponse('SESSION_EXPIRED', 'Your session has expired. Please re-enter your PIN.'));
+      return;
+    }
+
     req.session = session;
     next();
   } catch {

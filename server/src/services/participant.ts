@@ -68,11 +68,39 @@ export async function getOrCreateParticipant(
     };
   }
 
-  // If existing is admin, delete it so guest can get proper designation
+  // If existing is admin, convert to guest with proper designation
+  // (Don't delete - would violate FK constraints from votes/letters)
   if (existing && existing.role === 'admin') {
-    await db.participant.delete({
-      where: { id: existing.id },
+    const updatedParticipant = await db.$transaction(async (tx) => {
+      // Count existing guest participants to determine designation
+      const guestCount = await tx.participant.count({
+        where: { role: 'guest' },
+      });
+
+      // Determine designation based on order
+      let designation: Designation;
+      if (guestCount === 0) {
+        designation = 'A';
+      } else if (guestCount === 1) {
+        designation = 'B';
+      } else {
+        designation = 'readonly';
+      }
+
+      // Update existing participant to guest role
+      return tx.participant.update({
+        where: { id: existing.id },
+        data: {
+          designation,
+          role: 'guest',
+        },
+      });
     });
+
+    return {
+      participantId: updatedParticipant.id,
+      designation: updatedParticipant.designation as Designation,
+    };
   }
 
   // Use transaction to prevent race condition when two devices login simultaneously

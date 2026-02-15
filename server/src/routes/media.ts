@@ -85,7 +85,7 @@ router.post('/register', authMiddleware, async (req: Request, res: Response) => 
 
     const { blobUrl, filename, contentType } = parsed.data;
     const photo = await registerPhoto(blobUrl, filename, contentType, participantId);
-    res.status(201).json(successResponse(photo));
+    res.status(201).json(successResponse({ photo }));
   } catch (error) {
     // Check for unique constraint violation (blob URL already registered)
     if (error instanceof Error && error.message.includes('Unique constraint')) {

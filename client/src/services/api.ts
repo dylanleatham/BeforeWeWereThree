@@ -19,6 +19,7 @@ import type {
   Letter,
   LetterPrompt,
   SubmitLetterResponse,
+  AppConfig,
 } from 'shared';
 import { STRINGS } from '../constants/strings';
 
@@ -262,6 +263,27 @@ export async function negotiateRealtime(): Promise<RealtimeNegotiateResponse> {
   }
 
   return response.data;
+}
+
+/**
+ * Join a real-time group (server-side group management)
+ * Used for activity-specific messaging
+ */
+export async function joinRealtimeGroup(groupName: string): Promise<void> {
+  await apiFetch('/signalr/groups/join', {
+    method: 'POST',
+    body: JSON.stringify({ groupName }),
+  });
+}
+
+/**
+ * Leave a real-time group
+ */
+export async function leaveRealtimeGroup(groupName: string): Promise<void> {
+  await apiFetch('/signalr/groups/leave', {
+    method: 'POST',
+    body: JSON.stringify({ groupName }),
+  });
 }
 
 // ============================================================================
@@ -521,13 +543,6 @@ export async function deleteLetterPrompt(id: string): Promise<void> {
 // ============================================================================
 // Config API
 // ============================================================================
-
-/**
- * App config response type
- */
-export interface AppConfig {
-  spotifyUrl: string | null;
-}
 
 /**
  * Get public app config

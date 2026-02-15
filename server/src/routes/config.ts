@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { successResponse, errorResponse } from 'shared';
+import { successResponse, errorResponse, type AppConfig } from 'shared';
 import { adminMiddleware } from '../middleware/auth.js';
 import { db } from '../db/connection.js';
 
@@ -28,13 +28,6 @@ const CONFIG_KEYS = {
 } as const;
 
 /**
- * Public config response type
- */
-interface PublicConfig {
-  spotifyUrl: string | null;
-}
-
-/**
  * GET /config
  * Get public config values (no auth required)
  */
@@ -45,7 +38,7 @@ router.get('/', async (_req: Request, res: Response) => {
       where: { key: CONFIG_KEYS.SPOTIFY_URL },
     });
 
-    const config: PublicConfig = {
+    const config: AppConfig = {
       spotifyUrl: spotifyConfig?.value ?? null,
     };
 
@@ -95,7 +88,7 @@ router.put('/', adminMiddleware, async (req: Request, res: Response) => {
       where: { key: CONFIG_KEYS.SPOTIFY_URL },
     });
 
-    const config: PublicConfig = {
+    const config: AppConfig = {
       spotifyUrl: updatedSpotifyConfig?.value ?? null,
     };
 

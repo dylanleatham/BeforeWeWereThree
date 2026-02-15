@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { BlockBlobClient } from '@azure/storage-blob';
 import { getUploadSas, registerPhoto } from '../services/api';
 
@@ -44,14 +44,14 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Cleanup on unmount
-  useState(() => {
+  useEffect(() => {
     return () => {
       mountedRef.current = false;
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
     };
-  });
+  }, []);
 
   const upload = useCallback(async (file: File): Promise<string | null> => {
     // Validate file type

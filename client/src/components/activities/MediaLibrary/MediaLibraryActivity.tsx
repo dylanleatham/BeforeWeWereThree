@@ -92,7 +92,7 @@ export function MediaLibraryActivity({
           className="media-library__spinner"
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          aria-label="Loading photos"
+          aria-label={STRINGS.MEDIA_LOADING_ARIA}
         />
       </div>
     );
@@ -114,7 +114,7 @@ export function MediaLibraryActivity({
     <div className="media-library">
       {/* Header with title and controls */}
       <header className="media-library__header">
-        <h2 className="media-library__title">Our Photos</h2>
+        <h2 className="media-library__title">{STRINGS.MEDIA_TITLE}</h2>
         <div className="media-library__controls">
           {/* Shuffle toggle */}
           <label className="media-library__shuffle">
@@ -124,7 +124,7 @@ export function MediaLibraryActivity({
               onChange={handleShuffleToggle}
               className="media-library__shuffle-checkbox"
             />
-            <span className="media-library__shuffle-label">Shuffle</span>
+            <span className="media-library__shuffle-label">{STRINGS.MEDIA_SHUFFLE}</span>
           </label>
         </div>
       </header>
@@ -141,7 +141,7 @@ export function MediaLibraryActivity({
           />
           {isUploading ? (
             <span className="media-library__upload-progress">
-              Uploading... {progress}%
+              {STRINGS.MEDIA_UPLOAD_PROGRESS(progress)}
             </span>
           ) : (
             <span className="media-library__upload-text">
@@ -154,7 +154,7 @@ export function MediaLibraryActivity({
               >
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
               </svg>
-              Add Photo
+              {STRINGS.MEDIA_ADD_PHOTO}
             </span>
           )}
         </label>

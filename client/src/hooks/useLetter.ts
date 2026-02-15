@@ -33,8 +33,8 @@ interface UseLetterReturn {
   isConnected: boolean;
   /** Save letter content (auto-save) */
   save: (content: string, photoUrl: string | null) => Promise<void>;
-  /** Submit the letter */
-  submit: () => Promise<void>;
+  /** Submit the letter with current content */
+  submit: (content: string, photoUrl: string | null) => Promise<void>;
   /** Advance to complete phase (after reveal) */
   advance: () => void;
   /** Retry loading after error */
@@ -185,21 +185,28 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
   );
 
   /**
-   * Submit the letter
+   * Submit the letter with current content from the textarea
+   * Accepts content directly to avoid submitting stale hook state
    */
-  const submit = useCallback(async () => {
+  const submit = useCallback(async (content: string, photoUrl: string | null) => {
     if (!prompt || !myLetter) return;
+
+    // Capture letter ID before async call for reveal matching
+    const myLetterId = myLetter.id;
 
     try {
       setError(null);
 
-      // Submit to server with final content
-      const response = await submitLetter(envelopeId, myLetter.content, myLetter.photoUrl ?? null);
+      // Submit to server with current content from caller
+      const response = await submitLetter(envelopeId, content, photoUrl);
+
+      // Update local letter state to reflect submission
+      setMyLetter((prev) => prev ? { ...prev, content, photoUrl, submittedAt: new Date().toISOString() } : prev);
 
       // Check if reveal is immediate (both submitted)
       if (response.revealed && response.letters && response.letters.length >= 2) {
-        const mine = response.letters.find((l) => l.id === myLetter?.id);
-        const partner = response.letters.find((l) => l.id !== myLetter?.id);
+        const mine = response.letters.find((l) => l.id === myLetterId);
+        const partner = response.letters.find((l) => l.id !== myLetterId);
         if (mine && partner) {
           setRevealedLetters({ mine, partner });
           setPhase('revealing');

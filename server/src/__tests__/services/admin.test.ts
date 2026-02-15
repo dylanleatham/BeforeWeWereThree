@@ -19,6 +19,10 @@ const mockParticipant = {
   deleteMany: jest.fn() as AnyMock,
 };
 
+const mockPhoto = {
+  deleteMany: jest.fn() as AnyMock,
+};
+
 const mockEnvelope = {
   updateMany: jest.fn() as AnyMock,
 };
@@ -29,6 +33,7 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
   db: {
     letter: mockLetter,
     wyrVote: mockWyrVote,
+    photo: mockPhoto,
     participant: mockParticipant,
     envelope: mockEnvelope,
     $transaction: mockTransaction,
@@ -46,6 +51,7 @@ describe('Admin Service', () => {
       return callback({
         letter: mockLetter,
         wyrVote: mockWyrVote,
+        photo: mockPhoto,
         participant: mockParticipant,
         envelope: mockEnvelope,
       });
@@ -56,6 +62,7 @@ describe('Admin Service', () => {
     it('should delete all letters', async () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 5 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 2 });
+      mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
 
@@ -68,6 +75,7 @@ describe('Admin Service', () => {
     it('should delete all WYR votes', async () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 10 });
+      mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
 
@@ -77,9 +85,23 @@ describe('Admin Service', () => {
       expect(result.votesDeleted).toBe(10);
     });
 
+    it('should delete all photos', async () => {
+      mockLetter.deleteMany.mockResolvedValue({ count: 0 });
+      mockWyrVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockPhoto.deleteMany.mockResolvedValue({ count: 4 });
+      mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
+      mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
+
+      const result = await resetSession();
+
+      expect(mockPhoto.deleteMany).toHaveBeenCalled();
+      expect(result.photosDeleted).toBe(4);
+    });
+
     it('should delete all guest participants', async () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 3 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 5 });
 
@@ -94,6 +116,7 @@ describe('Admin Service', () => {
     it('should reset all envelopes to sealed status', async () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 0 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 7 });
 
@@ -108,6 +131,7 @@ describe('Admin Service', () => {
     it('should run all operations in a transaction', async () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 1 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 2 });
+      mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 3 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 4 });
 
@@ -119,6 +143,7 @@ describe('Admin Service', () => {
     it('should return all reset counts', async () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 2 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 4 });
+      mockPhoto.deleteMany.mockResolvedValue({ count: 3 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 1 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 6 });
 
@@ -127,6 +152,7 @@ describe('Admin Service', () => {
       expect(result).toEqual({
         lettersDeleted: 2,
         votesDeleted: 4,
+        photosDeleted: 3,
         participantsDeleted: 1,
         envelopesReset: 6,
       });
@@ -135,6 +161,7 @@ describe('Admin Service', () => {
     it('should handle zero counts gracefully', async () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 0 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 0 });
 
@@ -143,6 +170,7 @@ describe('Admin Service', () => {
       expect(result).toEqual({
         lettersDeleted: 0,
         votesDeleted: 0,
+        photosDeleted: 0,
         participantsDeleted: 0,
         envelopesReset: 0,
       });

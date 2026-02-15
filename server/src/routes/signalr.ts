@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { SignJWT } from 'jose';
 import { authMiddleware } from '../middleware/auth.js';
-import { successResponse } from 'shared';
+import { successResponse, errorResponse } from 'shared';
 import type { RealtimeNegotiateResponse } from 'shared';
-import { getTransport } from '../services/realtime.js';
+import { getTransport, getRealtimeService } from '../services/realtime.js';
 
 const router = Router();
 
@@ -100,6 +100,51 @@ router.post('/negotiate', authMiddleware, async (req, res) => {
       error: { code: 'SIGNALR_TOKEN_ERROR', message: 'Failed to generate connection token' },
     });
   }
+});
+
+/**
+ * POST /groups/join
+ * Join a real-time group for activity-specific messaging
+ * Used by Azure SignalR transport where groups are managed server-side
+ */
+router.post('/groups/join', authMiddleware, async (req, res) => {
+  const { groupName } = req.body;
+  if (!groupName || typeof groupName !== 'string') {
+    res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
+    return;
+  }
+
+  const userId = req.session!.participantId;
+  const realtime = getRealtimeService();
+  if (!realtime) {
+    res.status(503).json(errorResponse('SERVICE_UNAVAILABLE', 'Real-time service not available'));
+    return;
+  }
+
+  await realtime.addUserToGroup(userId, groupName);
+  res.json(successResponse({ joined: true }));
+});
+
+/**
+ * POST /groups/leave
+ * Leave a real-time group
+ */
+router.post('/groups/leave', authMiddleware, async (req, res) => {
+  const { groupName } = req.body;
+  if (!groupName || typeof groupName !== 'string') {
+    res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
+    return;
+  }
+
+  const userId = req.session!.participantId;
+  const realtime = getRealtimeService();
+  if (!realtime) {
+    res.status(503).json(errorResponse('SERVICE_UNAVAILABLE', 'Real-time service not available'));
+    return;
+  }
+
+  await realtime.removeUserFromGroup(userId, groupName);
+  res.json(successResponse({ left: true }));
 });
 
 export { router as signalrRouter };

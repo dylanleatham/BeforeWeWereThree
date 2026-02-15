@@ -1,0 +1,147 @@
+/**
+ * usePhotoUpload hook tests
+ */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+
+// Hoist mock so it's available when vi.mock factory runs
+const { mockUploadData } = vi.hoisted(() => ({
+  mockUploadData: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Mock Azure Storage SDK with class-based mock for proper `new` behavior
+vi.mock('@azure/storage-blob', () => ({
+  BlockBlobClient: class MockBlockBlobClient {
+    uploadData = mockUploadData;
+  },
+}));
+
+// Mock api module
+vi.mock('../../services/api', () => ({
+  getUploadSas: vi.fn(),
+  registerPhoto: vi.fn(),
+}));
+
+import { getUploadSas, registerPhoto } from '../../services/api';
+import { usePhotoUpload } from '../../hooks/usePhotoUpload';
+
+const mockGetUploadSas = vi.mocked(getUploadSas);
+const mockRegisterPhoto = vi.mocked(registerPhoto);
+
+function createMockFile(name: string, type: string): File {
+  return new File(['fake image data'], name, { type });
+}
+
+describe('usePhotoUpload', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // jsdom may not have Blob.prototype.arrayBuffer; polyfill for tests
+    if (!Blob.prototype.arrayBuffer) {
+      Blob.prototype.arrayBuffer = function () {
+        return new Promise<ArrayBuffer>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as ArrayBuffer);
+          reader.readAsArrayBuffer(this);
+        });
+      };
+    }
+  });
+
+  it('should start with no upload state', () => {
+    const { result } = renderHook(() => usePhotoUpload());
+
+    expect(result.current.isUploading).toBe(false);
+    expect(result.current.progress).toBe(0);
+    expect(result.current.error).toBeNull();
+  });
+
+  it('should reject non-image files', async () => {
+    const { result } = renderHook(() => usePhotoUpload());
+
+    const textFile = createMockFile('notes.txt', 'text/plain');
+
+    let blobUrl: string | null = null;
+    await act(async () => {
+      blobUrl = await result.current.upload(textFile);
+    });
+
+    expect(blobUrl).toBeNull();
+    expect(result.current.error).toBe('Only image files are allowed');
+  });
+
+  it('should upload image and return blob URL', async () => {
+    mockGetUploadSas.mockResolvedValue({
+      sasUrl: 'https://storage.blob.core.windows.net/photos/blob?sas=token',
+      blobUrl: 'https://storage.blob.core.windows.net/photos/blob',
+      expiresAt: '2026-01-01T01:00:00.000Z',
+    });
+    mockRegisterPhoto.mockResolvedValue({
+      id: 'photo-1',
+      blobUrl: 'https://storage.blob.core.windows.net/photos/blob',
+      filename: 'pic.jpg',
+      contentType: 'image/jpeg',
+      uploadedById: 'participant-a',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    });
+
+    const { result } = renderHook(() => usePhotoUpload());
+
+    const imageFile = createMockFile('pic.jpg', 'image/jpeg');
+
+    let blobUrl: string | null = null;
+    await act(async () => {
+      blobUrl = await result.current.upload(imageFile);
+    });
+
+    // Verify the SAS token was requested and photo was registered
+    expect(mockGetUploadSas).toHaveBeenCalledWith('pic.jpg', 'image/jpeg');
+    expect(mockUploadData).toHaveBeenCalled();
+    expect(mockRegisterPhoto).toHaveBeenCalledWith(
+      'https://storage.blob.core.windows.net/photos/blob',
+      'pic.jpg',
+      'image/jpeg'
+    );
+    expect(blobUrl).toBe('https://storage.blob.core.windows.net/photos/blob');
+    expect(result.current.error).toBeNull();
+  });
+
+  it('should set error on SAS token failure', async () => {
+    mockGetUploadSas.mockRejectedValue(new Error('Failed to get upload URL'));
+
+    const { result } = renderHook(() => usePhotoUpload());
+
+    const imageFile = createMockFile('pic.jpg', 'image/jpeg');
+
+    let blobUrl: string | null = null;
+    await act(async () => {
+      blobUrl = await result.current.upload(imageFile);
+    });
+
+    expect(blobUrl).toBeNull();
+    expect(result.current.error).toBe('Failed to get upload URL');
+    expect(result.current.isUploading).toBe(false);
+  });
+
+  it('should reset state on reset()', async () => {
+    mockGetUploadSas.mockRejectedValue(new Error('Upload error'));
+
+    const { result } = renderHook(() => usePhotoUpload());
+
+    const imageFile = createMockFile('pic.jpg', 'image/jpeg');
+
+    await act(async () => {
+      await result.current.upload(imageFile);
+    });
+
+    expect(result.current.error).toBe('Upload error');
+
+    act(() => {
+      result.current.reset();
+    });
+
+    expect(result.current.isUploading).toBe(false);
+    expect(result.current.progress).toBe(0);
+    expect(result.current.error).toBeNull();
+  });
+});

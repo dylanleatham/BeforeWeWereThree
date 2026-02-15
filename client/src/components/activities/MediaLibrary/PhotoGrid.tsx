@@ -1,4 +1,5 @@
 import type { Photo } from 'shared';
+import { STRINGS } from '../../../constants/strings';
 import './PhotoGrid.css';
 
 interface PhotoGridProps {
@@ -31,7 +32,7 @@ export function PhotoGrid({
   if (photos.length === 0) {
     return (
       <div className="photo-grid photo-grid--empty">
-        <p className="photo-grid__empty-message">No photos yet</p>
+        <p className="photo-grid__empty-message">{STRINGS.MEDIA_EMPTY}</p>
       </div>
     );
   }
@@ -48,7 +49,7 @@ export function PhotoGrid({
           key={photo.id}
           className="photo-grid__item"
           onClick={() => onPhotoClick(index)}
-          aria-label={`View photo ${index + 1}`}
+          aria-label={STRINGS.MEDIA_VIEW_PHOTO_ARIA(index + 1)}
         >
           <img
             src={photo.blobUrl}
@@ -60,7 +61,7 @@ export function PhotoGrid({
             <button
               className="photo-grid__delete"
               onClick={(e) => handleDelete(e, photo.id)}
-              aria-label={`Delete photo ${index + 1}`}
+              aria-label={STRINGS.MEDIA_DELETE_PHOTO_ARIA(index + 1)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

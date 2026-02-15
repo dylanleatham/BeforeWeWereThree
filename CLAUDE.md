@@ -214,3 +214,27 @@ Each phase results in a working, deployed checkpoint in production. New complexi
 - **Match gesture direction to layout:** If options are arranged vertically (top/bottom), use vertical gestures or tap. Horizontal swipe for vertically-stacked options is unintuitive.
 - **Prefer tap over swipe for selection:** Direct tap on the desired option is more intuitive than swipe gestures, especially when both options are visible. Swipe is better for navigation (next/previous) than selection.
 - **Always include a completion screen:** Activities should show a warm "All done!" screen before returning to the main view. This gives users a moment to reflect and provides closure. Include contextual messaging (e.g., different text for matched vs. different choices).
+
+### Reset Capability Gotchas
+
+- **FK ordering matters:** Deletions must follow foreign key dependency order. Tables with FK references to `Participant` (letters, votes, photos) must be deleted *before* participants. Adding a new table with an `uploadedById` or `participantId` FK and forgetting to add it to `resetSession()` will cause FK constraint violations that crash the reset.
+- **Update `ResetSessionResult` in both places:** The interface exists in `server/src/services/admin.ts` AND `shared/types/api.ts` (`ResetSessionResponse`). Both must be updated when adding new reset fields.
+- **Photos are user-generated content:** Despite being stored in Azure Blob Storage, the database `Photo` records must be deleted during reset. The blob files themselves persist (Azure cleanup is separate), but the DB records must go to avoid orphaned FK references.
+
+### React Hooks
+
+- **Never use `useState` for cleanup logic:** `useState(() => { return () => cleanup() })` does NOT work as a cleanup function. The return value of the initializer is stored as state, not registered as a cleanup. Always use `useEffect` with a return function for unmount cleanup.
+- **Pass current values to submit functions:** When a hook holds state (`myLetter`) that a component also holds locally (`content` in textarea), the hook's state may be stale if auto-save hasn't flushed. Thread the current value from the component through to the API call rather than reading from hook state. Pattern: `submit(content, photoUrl)` not `submit()` reading from internal state.
+- **Capture values before async calls:** When using state values (like `myLetter.id`) to match results after an async API call, capture the value *before* the `await`. State may change between the call and the response.
+
+### Database Transactions
+
+- **Use Serializable isolation for count-then-create patterns:** The default `READ COMMITTED` isolation level allows two concurrent transactions to both read the same count and make conflicting decisions. Any pattern that does `count → decide → create` based on the count needs `{ isolationLevel: 'Serializable' }` to prevent duplicates.
+
+### CSP and External Resources
+
+- **CSP must allow all external resource origins:** When adding features that load external resources (Azure Blob images, CDN scripts, etc.), update the `helmet` CSP directives in `server/src/index.ts`. The `imgSrc` directive must include `https://*.blob.core.windows.net` for Azure-hosted photos to display.
+
+### API Response Consistency
+
+- **Always wrap response data to match client expectations:** If the client calls `apiFetch<{ photo: Photo }>()` and accesses `response.data.photo`, the server must send `successResponse({ photo })` not `successResponse(photo)`. Mismatches between wrapper shape and client destructuring cause silent `undefined` errors. Check both sides when adding new endpoints.

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getConfig, AppConfig } from '../services/api';
+import type { AppConfig } from 'shared';
+import { getConfig } from '../services/api';
 
 /**
  * Hook for fetching app config

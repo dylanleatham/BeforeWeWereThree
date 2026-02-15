@@ -1,3 +1,4 @@
+import type { PrismaClient } from '@prisma/client';
 import { db } from '../db/connection.js';
 
 /**
@@ -10,6 +11,7 @@ export interface ResetSessionResult {
   envelopesReset: number;
   votesDeleted: number;
   lettersDeleted: number;
+  photosDeleted: number;
 }
 
 /**
@@ -24,33 +26,35 @@ export interface ResetSessionResult {
  * Reset order matters due to foreign key constraints:
  * 1. Letters (FK to participants and prompts)
  * 2. WYR votes (FK to participants)
- * 3. Participants (FK target for letters and votes)
- * 4. Envelopes (just status reset, no FK issues)
+ * 3. Photos (FK to participants)
+ * 4. Participants (FK target for letters, votes, and photos)
+ * 5. Envelopes (just status reset, no FK issues)
  *
  * NOT reset (by design):
  * - LetterPrompts (admin-created content, preserved)
  * - WyrPrompts (admin-created content, preserved)
- * - Photos in Azure Blob Storage (persist across sessions)
  *
  * IMPORTANT: When adding new features, include reset logic here.
  * See CLAUDE.md "Reset Capability" section.
  */
 export async function resetSession(): Promise<ResetSessionResult> {
   // Use transaction to ensure atomic reset
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = await db.$transaction(async (tx: any) => {
+  const result = await db.$transaction(async (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>) => {
     // 1. Delete all letters first (has FK to participants and prompts)
     const lettersDeleted = await tx.letter.deleteMany({});
 
     // 2. Delete all WYR votes (has FK to participants)
     const votesDeleted = await tx.wyrVote.deleteMany({});
 
-    // 3. Delete all guest participants
+    // 3. Delete all photos (has FK to participants)
+    const photosDeleted = await tx.photo.deleteMany({});
+
+    // 4. Delete all guest participants
     const participantsDeleted = await tx.participant.deleteMany({
       where: { role: 'guest' },
     });
 
-    // 4. Reset all envelopes to 'sealed' status
+    // 5. Reset all envelopes to 'sealed' status
     const envelopesReset = await tx.envelope.updateMany({
       data: { status: 'sealed' },
     });
@@ -60,6 +64,7 @@ export async function resetSession(): Promise<ResetSessionResult> {
       envelopesReset: envelopesReset.count,
       votesDeleted: votesDeleted.count,
       lettersDeleted: lettersDeleted.count,
+      photosDeleted: photosDeleted.count,
     };
   });
 

@@ -13,8 +13,8 @@ interface WritingPhaseProps {
   initialPhotoUrl: string | null;
   /** Callback to save letter content */
   onSave: (content: string, photoUrl: string | null) => Promise<void>;
-  /** Callback when user submits the letter */
-  onSubmit: () => void;
+  /** Callback when user submits the letter with current content */
+  onSubmit: (content: string, photoUrl: string | null) => void;
   /** Whether submit is currently in progress */
   isSubmitting?: boolean;
 }
@@ -86,8 +86,8 @@ export function WritingPhase({
   const handleSubmit = useCallback(async () => {
     // Flush any pending save before submitting
     await flush();
-    onSubmit();
-  }, [flush, onSubmit]);
+    onSubmit(content, photoUrl);
+  }, [flush, onSubmit, content, photoUrl]);
 
   // Determine if submit should be disabled
   const isSubmitDisabled = isSubmitting || isPending || isSaving || !content.trim();

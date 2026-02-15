@@ -161,6 +161,21 @@ export const STRINGS = {
   LETTER_ERROR_SAVING: 'Failed to save letter',
   LETTER_ERROR_SUBMITTING: 'Failed to submit letter',
   LETTER_OFFLINE_NOTICE: 'Offline mode - your letter will sync when connected',
+
+  // Media Library
+  MEDIA_TITLE: 'Our Photos',
+  MEDIA_SHUFFLE: 'Shuffle',
+  MEDIA_UPLOAD_PROGRESS: (progress: number) => `Uploading... ${progress}%`,
+  MEDIA_ADD_PHOTO: 'Add Photo',
+  MEDIA_LOADING_ARIA: 'Loading photos',
+  MEDIA_EMPTY: 'No photos yet',
+  MEDIA_VIEW_PHOTO_ARIA: (n: number) => `View photo ${n}`,
+  MEDIA_DELETE_PHOTO_ARIA: (n: number) => `Delete photo ${n}`,
+
+  // Photo Attachment (Letter)
+  PHOTO_ALT_ATTACHED: 'Attached photo',
+  PHOTO_REMOVE_ARIA: 'Remove photo',
+  PHOTO_SELECT_ARIA: 'Select photo to upload',
 } as const;
 
 /**

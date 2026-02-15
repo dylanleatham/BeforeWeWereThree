@@ -22,6 +22,10 @@ export type ErrorCode =
   | 'SIGNALR_NOT_CONFIGURED'
   | 'SIGNALR_CONFIG_ERROR'
   | 'SIGNALR_TOKEN_ERROR'
+  | 'ALREADY_SUBMITTED'
+  | 'PHOTO_NOT_FOUND'
+  | 'PHOTO_EXISTS'
+  | 'SERVICE_UNAVAILABLE'
   | `HTTP_${number}`; // For HTTP status code errors
 
 /**
@@ -81,4 +85,5 @@ export interface ResetSessionResponse {
   envelopesReset: number;
   votesDeleted: number;
   lettersDeleted: number;
+  photosDeleted: number;
 }

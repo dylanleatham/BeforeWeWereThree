@@ -65,10 +65,10 @@ export function LetterActivity({
   /**
    * Handle submit from WritingPhase
    */
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (content: string, photoUrl: string | null) => {
     setIsSubmitting(true);
     try {
-      await submit();
+      await submit(content, photoUrl);
     } finally {
       setIsSubmitting(false);
     }

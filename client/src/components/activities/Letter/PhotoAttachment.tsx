@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { usePhotoUpload } from '../../../hooks/usePhotoUpload';
+import { STRINGS } from '../../../constants/strings';
 import './PhotoAttachment.css';
 
 interface PhotoAttachmentProps {
@@ -59,7 +60,7 @@ export function PhotoAttachment({
         <div className="photo-attachment__image-container">
           <img
             src={photoUrl}
-            alt="Attached photo"
+            alt={STRINGS.PHOTO_ALT_ATTACHED}
             className="photo-attachment__image"
           />
           {!disabled && (
@@ -67,7 +68,7 @@ export function PhotoAttachment({
               type="button"
               className="photo-attachment__remove"
               onClick={handleRemove}
-              aria-label="Remove photo"
+              aria-label={STRINGS.PHOTO_REMOVE_ARIA}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -97,7 +98,7 @@ export function PhotoAttachment({
             />
           </div>
           <span className="photo-attachment__progress-text">
-            Uploading... {progress}%
+            {STRINGS.MEDIA_UPLOAD_PROGRESS(progress)}
           </span>
         </div>
       </div>
@@ -114,7 +115,7 @@ export function PhotoAttachment({
         onChange={handleFileChange}
         className="photo-attachment__input"
         disabled={disabled}
-        aria-label="Select photo to upload"
+        aria-label={STRINGS.PHOTO_SELECT_ARIA}
       />
       <button
         type="button"
@@ -131,7 +132,7 @@ export function PhotoAttachment({
         >
           <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
         </svg>
-        Add Photo
+        {STRINGS.MEDIA_ADD_PHOTO}
       </button>
       {error && <p className="photo-attachment__error">{error}</p>}
     </div>

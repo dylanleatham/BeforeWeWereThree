@@ -95,7 +95,7 @@ export async function getOrCreateParticipant(
           role: 'guest',
         },
       });
-    });
+    }, { isolationLevel: 'Serializable' });
 
     return {
       participantId: updatedParticipant.id,
@@ -103,7 +103,8 @@ export async function getOrCreateParticipant(
     };
   }
 
-  // Use transaction to prevent race condition when two devices login simultaneously
+  // Use Serializable isolation to prevent race condition when two devices login simultaneously.
+  // Without it, two concurrent transactions can both read guestCount === 0 and both assign 'A'.
   const newParticipant = await db.$transaction(async (tx) => {
     // Count existing guest participants to determine designation
     const guestCount = await tx.participant.count({
@@ -128,7 +129,7 @@ export async function getOrCreateParticipant(
         role: 'guest',
       },
     });
-  });
+  }, { isolationLevel: 'Serializable' });
 
   return {
     participantId: newParticipant.id,

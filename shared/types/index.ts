@@ -101,6 +101,9 @@ export type {
 } from './media.js';
 export { generateSasSchema, registerPhotoSchema } from './media.js';
 
+// Re-export Config types
+export type { AppConfig } from './config.js';
+
 /**
  * Health check response data
  */

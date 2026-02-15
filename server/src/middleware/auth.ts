@@ -99,6 +99,17 @@ export async function adminMiddleware(
 
   try {
     const session = await verifySession(sessionCookie);
+
+    // Verify participant still exists (handles stale sessions after admin reset)
+    const participant = await db.participant.findUnique({
+      where: { id: session.participantId },
+      select: { id: true },
+    });
+    if (!participant) {
+      res.status(401).json(errorResponse('SESSION_EXPIRED', 'Your session has expired. Please re-enter your PIN.'));
+      return;
+    }
+
     req.session = session;
 
     if (session.role !== 'admin') {

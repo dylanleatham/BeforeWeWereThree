@@ -5,7 +5,7 @@ import {
   LogLevel,
 } from '@microsoft/signalr';
 import { io, Socket } from 'socket.io-client';
-import { negotiateRealtime } from '../services/api';
+import { negotiateRealtime, joinRealtimeGroup, leaveRealtimeGroup } from '../services/api';
 import type { RealtimeTransport } from 'shared';
 
 /**
@@ -70,6 +70,8 @@ function createSocketIOConnection(socket: Socket): RealtimeConnection {
 
 /**
  * Wrapper for SignalR HubConnection to match our unified interface
+ * Groups are managed server-side via REST API (Azure SignalR does not
+ * support client-initiated group joins via hub methods)
  */
 function createSignalRConnection(hub: HubConnection): RealtimeConnection {
   return {
@@ -80,13 +82,10 @@ function createSignalRConnection(hub: HubConnection): RealtimeConnection {
       hub.off(event, callback);
     },
     joinGroup(groupName: string): void {
-      // Azure SignalR uses server-side group management
-      // Groups are joined via REST API, not client-side
-      // For now, we'll invoke a method if the hub supports it
-      hub.invoke('JoinGroup', groupName).catch(console.error);
+      joinRealtimeGroup(groupName).catch(console.error);
     },
     leaveGroup(groupName: string): void {
-      hub.invoke('LeaveGroup', groupName).catch(console.error);
+      leaveRealtimeGroup(groupName).catch(console.error);
     },
   };
 }
@@ -137,29 +136,24 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
             reconnectionDelayMax: 30000,
           });
 
-          socket.on('connect', () => {
-            if (mounted) {
-              setConnectionState('Connected');
-            }
-          });
+          // Named handlers so they can be removed in cleanup
+          const onConnect = () => {
+            if (mounted) setConnectionState('Connected');
+          };
+          const onDisconnect = () => {
+            if (mounted) setConnectionState('Disconnected');
+          };
+          const onReconnecting = () => {
+            if (mounted) setConnectionState('Reconnecting');
+          };
+          const onReconnect = () => {
+            if (mounted) setConnectionState('Connected');
+          };
 
-          socket.on('disconnect', () => {
-            if (mounted) {
-              setConnectionState('Disconnected');
-            }
-          });
-
-          socket.on('reconnecting', () => {
-            if (mounted) {
-              setConnectionState('Reconnecting');
-            }
-          });
-
-          socket.on('reconnect', () => {
-            if (mounted) {
-              setConnectionState('Connected');
-            }
-          });
+          socket.on('connect', onConnect);
+          socket.on('disconnect', onDisconnect);
+          socket.on('reconnecting', onReconnecting);
+          socket.on('reconnect', onReconnect);
 
           socketRef.current = socket;
           setConnection(createSocketIOConnection(socket));
@@ -217,7 +211,10 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
 
     return () => {
       mounted = false;
-      socketRef.current?.disconnect();
+      if (socketRef.current) {
+        socketRef.current.removeAllListeners();
+        socketRef.current.disconnect();
+      }
       hubRef.current?.stop();
     };
   }, []);

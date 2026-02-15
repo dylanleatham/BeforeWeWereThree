@@ -92,6 +92,9 @@ describe('useAutoSave', () => {
       useAutoSave({ saveFn, delay: 500 })
     );
 
+    // Silence expected console.error from the hook's error handler
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     act(() => {
       result.current.save('content');
     });
@@ -101,6 +104,8 @@ describe('useAutoSave', () => {
     });
 
     expect(result.current.error).toBe('Save failed');
+
+    spy.mockRestore();
   });
 
   it('should flush pending save immediately', async () => {

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 
 // Mock api module
 vi.mock('../../services/api', () => ({
@@ -60,6 +60,9 @@ describe('useConfig', () => {
   it('should set error on fetch failure', async () => {
     mockGetConfig.mockRejectedValue(new Error('Network error'));
 
+    // Silence expected console.error from the hook's error handler
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     const { result } = renderHook(() => useConfig());
 
     await waitFor(() => {
@@ -68,6 +71,8 @@ describe('useConfig', () => {
 
     expect(result.current.error).toBe('Network error');
     expect(result.current.spotifyUrl).toBeNull();
+
+    spy.mockRestore();
   });
 
   it('should refetch when refetch is called', async () => {
@@ -85,7 +90,9 @@ describe('useConfig', () => {
       spotifyUrl: 'https://open.spotify.com/playlist/new',
     });
 
-    await result.current.refetch();
+    await act(async () => {
+      await result.current.refetch();
+    });
 
     await waitFor(() => {
       expect(result.current.spotifyUrl).toBe('https://open.spotify.com/playlist/new');

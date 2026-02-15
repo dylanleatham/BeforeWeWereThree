@@ -159,6 +159,9 @@ describe('Admin Routes', () => {
       mockParticipant.findUnique.mockResolvedValue(mockAdminParticipant);
       mockTransaction.mockRejectedValue(new Error('DB connection lost'));
 
+      // Silence expected console.error from the route handler
+      const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
       const response = await request(app)
         .post('/api/admin/reset-session')
         .set('Cookie', cookies);
@@ -166,6 +169,8 @@ describe('Admin Routes', () => {
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
+
+      spy.mockRestore();
     });
   });
 });

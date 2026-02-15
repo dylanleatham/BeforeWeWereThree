@@ -18,6 +18,16 @@ vi.mock('../hooks/useEnvelopes', () => ({
   useEnvelopes: vi.fn(),
 }));
 
+// Mock useConfig to prevent fetch attempts during tests
+vi.mock('../hooks/useConfig', () => ({
+  useConfig: () => ({
+    spotifyUrl: null,
+    isLoading: false,
+    error: null,
+    refetch: vi.fn(),
+  }),
+}));
+
 // Mock SignalRContext to prevent connection attempts during tests
 vi.mock('../context/SignalRContext', () => ({
   SignalRProvider: ({ children }: { children: React.ReactNode }) => children,

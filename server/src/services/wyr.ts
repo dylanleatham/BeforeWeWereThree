@@ -1,7 +1,7 @@
 import { db } from '../db/connection.js';
 import { getRealtimeService } from './realtime.js';
 import {
-  getPromptByEnvelopeId,
+  getPromptsByEnvelopeId,
   getPromptById,
   getVoteForParticipant,
   getVotesForPrompt,
@@ -10,7 +10,8 @@ import {
 import { updateEnvelopeStatus } from '../db/queries/envelopes.js';
 import type {
   WYRChoice,
-  WYRPromptResponse,
+  WYREnvelopeResponse,
+  WYRPromptState,
   WYRResults,
   WYRVoteResponse,
   WYRVoteSubmittedMessage,
@@ -20,47 +21,65 @@ import type {
 /**
  * Would You Rather service
  * Business logic for WYR activities with SignalR integration
+ * Supports multiple prompts per envelope with per-prompt gating
  */
 
 /**
- * Get current state of a WYR prompt for a participant
- * Returns prompt, voting status, and results if both have voted
+ * Get current state of all WYR prompts for an envelope
+ * Returns per-prompt state, current prompt index, and overall completion
  */
-export async function getPromptState(
+export async function getEnvelopeState(
   envelopeId: string,
   participantId: string
-): Promise<WYRPromptResponse | null> {
-  const prompt = await getPromptByEnvelopeId(envelopeId);
-  if (!prompt) {
+): Promise<WYREnvelopeResponse | null> {
+  const prompts = await getPromptsByEnvelopeId(envelopeId);
+  if (prompts.length === 0) {
     return null;
   }
 
-  // Get current participant's vote
-  const myVoteRecord = await getVoteForParticipant(prompt.id, participantId);
-  const myVote = myVoteRecord?.choice ?? null;
+  const promptStates: WYRPromptState[] = [];
+  let currentPromptIndex = prompts.length - 1; // Default to last if all done
+  let foundIncomplete = false;
 
-  // Get all votes to check if partner voted
-  const votes = await getVotesForPrompt(prompt.id);
-  const partnerVoted = votes.some((v) => v.participantId !== participantId);
+  for (let i = 0; i < prompts.length; i++) {
+    const prompt = prompts[i]!;
 
-  // Build results if both have voted
-  let results: WYRResults | null = null;
-  if (myVote && partnerVoted) {
-    const partnerVote = votes.find((v) => v.participantId !== participantId);
-    if (partnerVote) {
-      results = {
-        myChoice: myVote,
-        partnerChoice: partnerVote.choice,
-        isMatch: myVote === partnerVote.choice,
-      };
+    // Get current participant's vote
+    const myVoteRecord = await getVoteForParticipant(prompt.id, participantId);
+    const myVote = myVoteRecord?.choice ?? null;
+
+    // Get all votes to check if partner voted
+    const votes = await getVotesForPrompt(prompt.id);
+    const partnerVoted = votes.some((v) => v.participantId !== participantId);
+
+    // Build results if both have voted
+    let results: WYRResults | null = null;
+    if (myVote && partnerVoted) {
+      const partnerVote = votes.find((v) => v.participantId !== participantId);
+      if (partnerVote) {
+        results = {
+          myChoice: myVote,
+          partnerChoice: partnerVote.choice,
+          isMatch: myVote === partnerVote.choice,
+        };
+      }
+    }
+
+    promptStates.push({ prompt, myVote, partnerVoted, results });
+
+    // First prompt without both votes is the current one
+    if (!foundIncomplete && !results) {
+      currentPromptIndex = i;
+      foundIncomplete = true;
     }
   }
 
+  const allComplete = !foundIncomplete;
+
   return {
-    prompt,
-    myVote,
-    partnerVoted,
-    results,
+    prompts: promptStates,
+    currentPromptIndex,
+    allComplete,
   };
 }
 
@@ -68,6 +87,7 @@ export async function getPromptState(
  * Submit a vote for a WYR prompt
  * Uses transaction for race condition safety
  * Broadcasts via SignalR when vote is submitted or reveal is ready
+ * Only marks envelope as completed when ALL prompts have both votes
  */
 export async function submitVote(
   promptId: string,
@@ -75,7 +95,6 @@ export async function submitVote(
   choice: WYRChoice
 ): Promise<WYRVoteResponse> {
   // Use transaction to prevent race conditions
-  // If two votes come in simultaneously, unique constraint ensures only one succeeds per participant
   const result = await db.$transaction(async (tx) => {
     // Check if prompt exists
     const prompt = await tx.wyrPrompt.findUnique({
@@ -107,7 +126,7 @@ export async function submitVote(
       },
     });
 
-    // Count votes after creation
+    // Count votes after creation for THIS prompt
     const voteCount = await tx.wyrVote.count({
       where: { promptId },
     });
@@ -124,14 +143,13 @@ export async function submitVote(
   };
 
   if (realtime) {
-    // Use envelope ID as group name for activity-specific messaging
     await realtime.sendToGroup(`activity:${result.prompt.envelopeId}`, {
       target: 'wyrVoteSubmitted',
       arguments: [voteSubmittedMessage],
     });
   }
 
-  // Check if both participants have voted
+  // Check if both participants have voted on THIS prompt
   if (result.voteCount >= 2) {
     // Get all votes to build results
     const votes = await getVotesForPrompt(promptId);
@@ -147,8 +165,31 @@ export async function submitVote(
         isMatch: myVote.choice === partnerVote.choice,
       };
 
-      // Update envelope status to completed
-      await updateEnvelopeStatus(result.prompt.envelopeId, 'completed');
+      // Check if ALL prompts for this envelope now have both votes
+      const allPrompts = await getPromptsByEnvelopeId(result.prompt.envelopeId);
+      const isLastPrompt = allPrompts.length <= 1 ||
+        allPrompts[allPrompts.length - 1]!.id === promptId;
+
+      let envelopeComplete = false;
+      if (isLastPrompt && allPrompts.length <= 1) {
+        // Single prompt or this is the last one by sort order — check all
+        envelopeComplete = true;
+      } else {
+        // Check every prompt for 2+ votes
+        let allHaveBothVotes = true;
+        for (const p of allPrompts) {
+          const count = await countVotesForPrompt(p.id);
+          if (count < 2) {
+            allHaveBothVotes = false;
+            break;
+          }
+        }
+        envelopeComplete = allHaveBothVotes;
+      }
+
+      if (envelopeComplete) {
+        await updateEnvelopeStatus(result.prompt.envelopeId, 'completed');
+      }
 
       // Broadcast reveal ready via SignalR
       if (realtime) {
@@ -156,6 +197,8 @@ export async function submitVote(
           type: 'wyr_reveal_ready',
           promptId,
           results,
+          isLastPrompt,
+          envelopeComplete,
         };
         await realtime.sendToGroup(`activity:${result.prompt.envelopeId}`, {
           target: 'wyrRevealReady',
@@ -163,11 +206,11 @@ export async function submitVote(
         });
       }
 
-      return { revealed: true, results };
+      return { revealed: true, results, isLastPrompt, envelopeComplete };
     }
   }
 
-  return { revealed: false };
+  return { revealed: false, isLastPrompt: false, envelopeComplete: false };
 }
 
 /**

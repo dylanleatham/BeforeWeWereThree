@@ -15,8 +15,10 @@ interface RevealPhaseProps {
   optionB: string;
   /** Voting results */
   results: WYRResults;
-  /** Called when user wants to advance to next activity */
+  /** Called when user wants to advance to next prompt or finish */
   onAdvance: () => void;
+  /** Whether this is the last prompt in a multi-prompt envelope */
+  isLastPrompt?: boolean;
 }
 
 /**
@@ -40,6 +42,7 @@ export function RevealPhase({
   optionB,
   results,
   onAdvance,
+  isLastPrompt = false,
 }: RevealPhaseProps) {
   const myChoiceText = getChoiceText(results.myChoice, optionA, optionB);
   const partnerChoiceText = getChoiceText(results.partnerChoice, optionA, optionB);
@@ -119,7 +122,7 @@ export function RevealPhase({
           delay: (WYR_REVEAL_STAGGER_MS + WYR_REVEAL_DURATION_MS + 200) / 1000,
         }}
       >
-        {STRINGS.WYR_NEXT}
+        {isLastPrompt ? STRINGS.WYR_FINISH : STRINGS.WYR_NEXT}
       </motion.button>
     </div>
   );

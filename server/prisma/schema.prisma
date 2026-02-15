@@ -46,24 +46,26 @@ model Envelope {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  wyrPrompt    WyrPrompt?
+  wyrPrompts   WyrPrompt[]
   letterPrompt LetterPrompt?
 
   @@map("envelopes")
 }
 
 // Would You Rather prompt
-// One prompt per envelope, presents two options for participants to choose between
+// Multiple prompts per envelope, ordered by sortOrder
 model WyrPrompt {
   id         String   @id @default(uuid())
-  envelopeId String   @unique @map("envelope_id")
+  envelopeId String   @map("envelope_id")
   optionA    String   @map("option_a")
   optionB    String   @map("option_b")
+  sortOrder  Int      @default(0) @map("sort_order")
   createdAt  DateTime @default(now()) @map("created_at")
 
   envelope Envelope  @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
   votes    WyrVote[]
 
+  @@unique([envelopeId, sortOrder])
   @@map("wyr_prompts")
 }
 

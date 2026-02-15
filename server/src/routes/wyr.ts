@@ -4,15 +4,18 @@ import {
   errorResponse,
   wyrVoteRequestSchema,
   createWyrPromptSchema,
+  createWyrPromptsBulkSchema,
   updateWyrPromptSchema,
 } from 'shared';
 import {
   createPrompt,
+  createPromptsBulk,
   updatePrompt,
   deletePrompt,
   getPromptById,
+  getPromptsByEnvelopeId,
 } from '../db/queries/wyr.js';
-import { getPromptState, submitVote } from '../services/wyr.js';
+import { getEnvelopeState, submitVote } from '../services/wyr.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
 /**
@@ -21,6 +24,8 @@ import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
  * GET /wyr/:envelopeId - Get prompt state for envelope (requires auth)
  * POST /wyr/:promptId/vote - Submit vote (requires auth)
  * POST /wyr - Create prompt (admin only)
+ * POST /wyr/bulk - Bulk create prompts (admin only)
+ * GET /wyr/envelope/:envelopeId/prompts - List prompts for envelope (admin only)
  * PATCH /wyr/:id - Update prompt (admin only)
  * DELETE /wyr/:id - Delete prompt (admin only)
  */
@@ -29,8 +34,8 @@ const router = Router();
 
 /**
  * GET /wyr/:envelopeId
- * Get WYR prompt state for an envelope
- * Returns prompt with current voting state for authenticated participant
+ * Get WYR envelope state (all prompts with voting state)
+ * Returns prompts array with current voting state for authenticated participant
  */
 router.get(
   '/:envelopeId',
@@ -45,16 +50,16 @@ router.get(
         return;
       }
 
-      const state = await getPromptState(envelopeId, participantId);
+      const state = await getEnvelopeState(envelopeId, participantId);
       if (!state) {
-        res.status(404).json(errorResponse('PROMPT_NOT_FOUND', 'No WYR prompt found for this envelope'));
+        res.status(404).json(errorResponse('PROMPT_NOT_FOUND', 'No WYR prompts found for this envelope'));
         return;
       }
 
       res.json(successResponse(state));
     } catch (error) {
-      console.error('Failed to get WYR prompt state:', error);
-      res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to get WYR prompt state'));
+      console.error('Failed to get WYR envelope state:', error);
+      res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to get WYR envelope state'));
     }
   }
 );
@@ -127,10 +132,10 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
     const prompt = await createPrompt(parsed.data);
     res.status(201).json(successResponse({ prompt }));
   } catch (error) {
-    // Check for unique constraint violation (envelope already has prompt)
+    // Check for unique constraint violation (sort order conflict)
     if (error instanceof Error && error.message.includes('Unique constraint')) {
       res.status(409).json(
-        errorResponse('PROMPT_EXISTS', 'This envelope already has a WYR prompt')
+        errorResponse('SORT_ORDER_CONFLICT', 'A prompt with this sort order already exists for this envelope')
       );
       return;
     }
@@ -138,6 +143,49 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create WYR prompt'));
   }
 });
+
+/**
+ * POST /wyr/bulk
+ * Bulk create WYR prompts for an envelope (admin only)
+ */
+router.post('/bulk', adminMiddleware, async (req: Request, res: Response) => {
+  try {
+    const parsed = createWyrPromptsBulkSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json(
+        errorResponse('VALIDATION_ERROR', 'Invalid bulk prompt data', {
+          issues: parsed.error.issues,
+        })
+      );
+      return;
+    }
+
+    const prompts = await createPromptsBulk(parsed.data.envelopeId, parsed.data.prompts);
+    res.status(201).json(successResponse({ prompts }));
+  } catch (error) {
+    console.error('Failed to bulk create WYR prompts:', error);
+    res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to bulk create WYR prompts'));
+  }
+});
+
+/**
+ * GET /wyr/envelope/:envelopeId/prompts
+ * List all prompts for an envelope (admin only)
+ */
+router.get(
+  '/envelope/:envelopeId/prompts',
+  adminMiddleware,
+  async (req: Request<{ envelopeId: string }>, res: Response) => {
+    try {
+      const { envelopeId } = req.params;
+      const prompts = await getPromptsByEnvelopeId(envelopeId);
+      res.json(successResponse({ prompts }));
+    } catch (error) {
+      console.error('Failed to list WYR prompts:', error);
+      res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to list WYR prompts'));
+    }
+  }
+);
 
 /**
  * PATCH /wyr/:id

@@ -22,6 +22,7 @@ function toApiPrompt(prompt: PrismaWyrPrompt): WYRPrompt {
     envelopeId: prompt.envelopeId,
     optionA: prompt.optionA,
     optionB: prompt.optionB,
+    sortOrder: prompt.sortOrder,
     createdAt: prompt.createdAt.toISOString(),
   };
 }
@@ -55,13 +56,14 @@ function toApiVote(vote: PrismaWyrVote): WYRVote {
 // ============================================================
 
 /**
- * Get WYR prompt by envelope ID
+ * Get all WYR prompts for an envelope, ordered by sortOrder
  */
-export async function getPromptByEnvelopeId(envelopeId: string): Promise<WYRPrompt | null> {
-  const prompt = await db.wyrPrompt.findUnique({
+export async function getPromptsByEnvelopeId(envelopeId: string): Promise<WYRPrompt[]> {
+  const prompts = await db.wyrPrompt.findMany({
     where: { envelopeId },
+    orderBy: { sortOrder: 'asc' },
   });
-  return prompt ? toApiPrompt(prompt) : null;
+  return prompts.map(toApiPrompt);
 }
 
 /**
@@ -75,17 +77,57 @@ export async function getPromptById(promptId: string): Promise<WYRPrompt | null>
 }
 
 /**
+ * Get the next available sort order for an envelope
+ */
+export async function getNextSortOrder(envelopeId: string): Promise<number> {
+  const lastPrompt = await db.wyrPrompt.findFirst({
+    where: { envelopeId },
+    orderBy: { sortOrder: 'desc' },
+    select: { sortOrder: true },
+  });
+  return lastPrompt ? lastPrompt.sortOrder + 1 : 0;
+}
+
+/**
  * Create new WYR prompt (admin only)
  */
 export async function createPrompt(data: CreateWYRPromptRequest): Promise<WYRPrompt> {
+  const sortOrder = data.sortOrder ?? await getNextSortOrder(data.envelopeId);
   const prompt = await db.wyrPrompt.create({
     data: {
       envelopeId: data.envelopeId,
       optionA: data.optionA,
       optionB: data.optionB,
+      sortOrder,
     },
   });
   return toApiPrompt(prompt);
+}
+
+/**
+ * Bulk create WYR prompts for an envelope (admin only)
+ * Auto-assigns sortOrder starting from next available
+ */
+export async function createPromptsBulk(
+  envelopeId: string,
+  prompts: Array<{ optionA: string; optionB: string }>
+): Promise<WYRPrompt[]> {
+  const startOrder = await getNextSortOrder(envelopeId);
+
+  const created = await db.$transaction(
+    prompts.map((p, i) =>
+      db.wyrPrompt.create({
+        data: {
+          envelopeId,
+          optionA: p.optionA,
+          optionB: p.optionB,
+          sortOrder: startOrder + i,
+        },
+      })
+    )
+  );
+
+  return created.map(toApiPrompt);
 }
 
 /**

@@ -8,7 +8,7 @@ import type {
   CreateEnvelopeRequest,
   UpdateEnvelopeRequest,
   RealtimeNegotiateResponse,
-  WYRPromptResponse,
+  WYREnvelopeResponse,
   WYRVoteResponse,
   WYRPrompt,
   ResetSessionResponse,
@@ -291,12 +291,12 @@ export async function leaveRealtimeGroup(groupName: string): Promise<void> {
 // ============================================================================
 
 /**
- * Get WYR prompt state for an envelope
+ * Get WYR envelope state (all prompts with voting state)
  */
-export async function getWyrPrompt(envelopeId: string): Promise<WYRPromptResponse> {
-  const response = await apiFetch<WYRPromptResponse>(`/wyr/${envelopeId}`);
+export async function getWyrState(envelopeId: string): Promise<WYREnvelopeResponse> {
+  const response = await apiFetch<WYREnvelopeResponse>(`/wyr/${envelopeId}`);
   if (!response.success) {
-    throw new Error(response.error?.message || 'Failed to fetch WYR prompt');
+    throw new Error(response.error?.message || 'Failed to fetch WYR state');
   }
   return response.data;
 }
@@ -325,6 +325,7 @@ export async function createWyrPrompt(data: {
   envelopeId: string;
   optionA: string;
   optionB: string;
+  sortOrder?: number;
 }): Promise<WYRPrompt> {
   const response = await apiFetch<{ prompt: WYRPrompt }>('/wyr', {
     method: 'POST',
@@ -334,6 +335,23 @@ export async function createWyrPrompt(data: {
     throw new Error(response.error?.message || 'Failed to create WYR prompt');
   }
   return response.data.prompt;
+}
+
+/**
+ * Bulk create WYR prompts for an envelope (admin only)
+ */
+export async function createWyrPromptsBulk(data: {
+  envelopeId: string;
+  prompts: Array<{ optionA: string; optionB: string }>;
+}): Promise<WYRPrompt[]> {
+  const response = await apiFetch<{ prompts: WYRPrompt[] }>('/wyr/bulk', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to bulk create WYR prompts');
+  }
+  return response.data.prompts;
 }
 
 /**

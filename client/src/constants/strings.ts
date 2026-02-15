@@ -124,9 +124,19 @@ export const STRINGS = {
   WYR_COMPLETE_TITLE: 'All done!',
   WYR_COMPLETE_MESSAGE: 'Great choices, both of you.',
   WYR_COMPLETE_MESSAGE_MATCH: 'You two really are on the same wavelength!',
+  WYR_COMPLETE_MULTI_MESSAGE: (matches: number, total: number) => {
+    if (matches === total) return 'Perfect harmony! You matched on every single one.';
+    if (matches === 0) return 'Opposites attract! You had different tastes on all of them.';
+    return `You matched on ${matches} of ${total} — a beautiful mix of alike and different.`;
+  },
   WYR_COMPLETE_ICON: '\u2728', // ✨
   WYR_COMPLETE_ICON_MATCH: '\uD83D\uDC95', // 💕
   WYR_COMPLETE_CLOSE: 'Back to envelopes',
+
+  // Would You Rather - Multi-prompt
+  WYR_PROGRESS: (current: number, total: number) => `${current} of ${total}`,
+  WYR_FINISH: 'See results',
+  WYR_SUMMARY_TITLE: 'Your answers',
 
   // Would You Rather - useWouldYouRather hook
   WYR_ERROR_LOADING: 'Failed to load activity',

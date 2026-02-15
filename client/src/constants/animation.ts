@@ -139,3 +139,10 @@ export const CELEBRATION_ENTER_SCALE = 0.8;
 
 /** Opacity range for pulse animation [min, max, min] */
 export const PULSE_OPACITY_RANGE = [0.6, 1, 0.6] as const;
+
+// =============================================================================
+// Would You Rather - Summary
+// =============================================================================
+
+/** Stagger delay between summary items in seconds */
+export const WYR_SUMMARY_ITEM_STAGGER_S = 0.1;

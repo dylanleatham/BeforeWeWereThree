@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * Would You Rather types for Before We Were Three
- * Defines the data model for WYR activities
+ * Defines the data model for WYR activities (supports multiple prompts per envelope)
  */
 
 /**
@@ -16,8 +16,9 @@ export type WYRChoice = 'option_a' | 'option_b';
  * - waiting: Current participant voted, waiting for partner
  * - revealing: Both voted, showing reveal animation
  * - complete: Results displayed
+ * - summary: Reopened completed envelope, scrollable read-only view
  */
-export type WYRPhase = 'voting' | 'waiting' | 'revealing' | 'complete';
+export type WYRPhase = 'voting' | 'waiting' | 'revealing' | 'complete' | 'summary';
 
 /**
  * WYR prompt data (API response format)
@@ -27,6 +28,7 @@ export interface WYRPrompt {
   envelopeId: string;
   optionA: string;
   optionB: string;
+  sortOrder: number;
   createdAt: string;
 }
 
@@ -40,7 +42,27 @@ export interface WYRResults {
 }
 
 /**
+ * State of a single prompt within a multi-prompt envelope
+ */
+export interface WYRPromptState {
+  prompt: WYRPrompt;
+  myVote: WYRChoice | null;
+  partnerVoted: boolean;
+  results: WYRResults | null;
+}
+
+/**
+ * GET /api/wyr/:envelopeId response (multi-prompt)
+ */
+export interface WYREnvelopeResponse {
+  prompts: WYRPromptState[];
+  currentPromptIndex: number;
+  allComplete: boolean;
+}
+
+/**
  * Full WYR activity state (for client state management)
+ * @deprecated Use WYRPromptState[] with currentPromptIndex for multi-prompt
  */
 export interface WYRState {
   prompt: WYRPrompt;
@@ -51,7 +73,8 @@ export interface WYRState {
 }
 
 /**
- * GET /api/wyr/:envelopeId response
+ * GET /api/wyr/:envelopeId response (single prompt - deprecated)
+ * @deprecated Use WYREnvelopeResponse instead
  */
 export interface WYRPromptResponse {
   prompt: WYRPrompt;
@@ -73,6 +96,8 @@ export interface WYRVoteRequest {
 export interface WYRVoteResponse {
   revealed: boolean;
   results?: WYRResults;
+  isLastPrompt: boolean;
+  envelopeComplete: boolean;
 }
 
 /**
@@ -91,6 +116,8 @@ export interface WYRRevealReadyMessage {
   type: 'wyr_reveal_ready';
   promptId: string;
   results: WYRResults;
+  isLastPrompt: boolean;
+  envelopeComplete: boolean;
 }
 
 // ============================================================
@@ -116,9 +143,23 @@ export const createWyrPromptSchema = z.object({
   envelopeId: z.string().uuid(),
   optionA: z.string().min(1, 'Option A is required').max(500, 'Option A too long'),
   optionB: z.string().min(1, 'Option B is required').max(500, 'Option B too long'),
+  sortOrder: z.number().int().min(0).optional(),
 });
 
 export type CreateWYRPromptRequest = z.infer<typeof createWyrPromptSchema>;
+
+/**
+ * Bulk create prompts request validation (admin only)
+ */
+export const createWyrPromptsBulkSchema = z.object({
+  envelopeId: z.string().uuid(),
+  prompts: z.array(z.object({
+    optionA: z.string().min(1).max(500),
+    optionB: z.string().min(1).max(500),
+  })).min(1),
+});
+
+export type CreateWYRPromptsBulkRequest = z.infer<typeof createWyrPromptsBulkSchema>;
 
 /**
  * Update prompt request validation (admin only)

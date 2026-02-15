@@ -53,6 +53,8 @@ export type {
   WYRPhase,
   WYRPrompt,
   WYRResults,
+  WYRPromptState,
+  WYREnvelopeResponse,
   WYRState,
   WYRPromptResponse,
   WYRVoteRequest,
@@ -60,12 +62,14 @@ export type {
   WYRVoteSubmittedMessage,
   WYRRevealReadyMessage,
   CreateWYRPromptRequest,
+  CreateWYRPromptsBulkRequest,
   UpdateWYRPromptRequest,
 } from './wyr.js';
 export {
   wyrChoiceSchema,
   wyrVoteRequestSchema,
   createWyrPromptSchema,
+  createWyrPromptsBulkSchema,
   updateWyrPromptSchema,
 } from './wyr.js';
 

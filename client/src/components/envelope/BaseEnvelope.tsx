@@ -76,7 +76,8 @@ export function BaseEnvelope({
    */
   const renderActivityContent = () => {
     // Only render activities for opened envelopes (not sealed, not completed)
-    if (envelope.status !== 'opened') {
+    // Exception: completed WYR envelopes can reopen into summary view
+    if (envelope.status !== 'opened' && !(envelope.type === 'would-you-rather' && envelope.status === 'completed')) {
       return children || (
         <p className="base-envelope__placeholder">
           {STRINGS.ENVELOPE_PLACEHOLDER}

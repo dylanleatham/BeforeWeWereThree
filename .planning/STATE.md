@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 5 of 7 (Baby Name Game & AI)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-15 - Completed 05-02-PLAN.md
+Last activity: 2026-02-15 - Completed 05-03-PLAN.md
 
-Progress: [██████████░░░░░░░░░░] 50% (Phase 5)
-Overall:  [████████████████████████████████████░░░░░] 90% (19/21 plans)
+Progress: [███████████████░░░░░] 75% (Phase 5)
+Overall:  [█████████████████████████████████████░░░░] 95% (20/21 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
-- Average duration: ~21 min (including manual debugging)
-- Total execution time: ~6.2 hours
+- Total plans completed: 20
+- Average duration: ~20 min (including manual debugging)
+- Total execution time: ~6.3 hours
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Overall:  [███████████████████████
 | 02 | 4/4 | ~18 min | ~5 min |
 | 03 | 4/4 | ~238 min | ~60 min |
 | 04 | 5/5 | ~41 min | ~8 min |
-| 05 | 2/4 | ~11 min | ~6 min |
+| 05 | 3/4 | ~18 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-03 (~4 min), 04-04 (~7 min), 04-05 (~10 min), 05-01 (~6 min), 05-02 (~5 min)
+- Last 5 plans: 04-04 (~7 min), 04-05 (~10 min), 05-01 (~6 min), 05-02 (~5 min), 05-03 (~7 min)
 - Trend: Consistent ~5-10 min per plan
 
 *Updated after each plan completion*
@@ -99,6 +99,8 @@ Recent decisions affecting current work:
 | 05-02 | EnvelopeId lookup via FK chain for vote | name -> round -> envelope FK chain used to resolve SignalR group name |
 | 05-02 | Vote progress broadcast with counts | namesVotedCount/totalNames enables client progress UI |
 | 05-02 | Three-tier results categorization | matches (both love), nearMisses (love+maybe), worthDiscussing (both maybe) |
+| 05-03 | Directional overlay feedback via radial gradients | Opacity tied to drag distance for visual Love/Nope/Maybe hints |
+| 05-03 | ResultSection internal sub-component | DRY rendering for match/near-miss/worth-discussing categories |
 
 ### Pending Todos
 
@@ -169,13 +171,13 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 05-02-PLAN.md
+Stopped at: Completed 05-03-PLAN.md
 Resume file: None
 
 **Phase 5 Progress:**
 - [x] 05-01: Name Game Foundation (complete, 2026-02-15)
 - [x] 05-02: Backend service, routes, and queries (complete, 2026-02-15)
-- [ ] 05-03: Client hooks and UI components
+- [x] 05-03: Client UI components (complete, 2026-02-15)
 - [ ] 05-04: Integration and polish
 
 **Phase 5 Accomplishments (so far):**
@@ -187,5 +189,8 @@ Resume file: None
 - Typed Prisma query functions for all name game DB operations
 - Business logic service with Anthropic integration, Serializable transactions, SignalR broadcasts
 - Four REST API endpoints at /api/name-game (state, generate, vote, matches)
+- Six React UI components: NameCard, VotingPhase, WaitingPhase, ResultsPhase, NewRoundPhase, GeneratingPhase
+- Swipe gesture voting (Love/Maybe/Nope) with directional overlay feedback
+- NAME_GAME_* string constants and animation constants
 
-**Ready for 05-03:** Client hooks (useNameGame) and UI components (NameCard, VotingPhase, ResultsPhase, etc.)
+**Ready for 05-04:** useNameGame hook, NameGameActivity orchestrator, BaseEnvelope integration, reset logic

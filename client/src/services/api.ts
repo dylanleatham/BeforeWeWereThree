@@ -21,7 +21,7 @@ import type {
   SubmitLetterResponse,
   AppConfig,
   NameGameStateResponse,
-  NameGameRoundResponse,
+  SubmitGuidanceResponse,
   NameVoteChoice,
   NameGameMatchList,
   NameGameResults,
@@ -608,18 +608,22 @@ export async function getNameGameState(envelopeId: string): Promise<NameGameStat
 }
 
 /**
- * Generate a new round of AI-powered baby names
+ * Submit guidance/readiness for the next round of name generation
+ *
+ * Returns either:
+ * - waiting_for_partner: guidance recorded, waiting for partner
+ * - round_generated: names are ready for voting
  */
-export async function generateNameGameRound(
+export async function submitNameGameGuidance(
   envelopeId: string,
   guidance?: string
-): Promise<NameGameRoundResponse> {
-  const response = await apiFetch<NameGameRoundResponse>(`/name-game/${envelopeId}/generate`, {
+): Promise<SubmitGuidanceResponse> {
+  const response = await apiFetch<SubmitGuidanceResponse>(`/name-game/${envelopeId}/guidance`, {
     method: 'POST',
     body: JSON.stringify({ guidance }),
   });
   if (!response.success) {
-    throw new Error(response.error?.message || 'Failed to generate names');
+    throw new Error(response.error?.message || 'Failed to submit guidance');
   }
   return response.data;
 }

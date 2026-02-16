@@ -54,18 +54,34 @@ export async function getNextRoundNumber(envelopeId: string): Promise<number> {
 
 /**
  * Create a new NameGameRound
+ * @param status - 'generating' while AI call is in progress, 'ready' when names are saved
  */
 export async function createRound(
   envelopeId: string,
   roundNumber: number,
-  guidance?: string
+  guidance?: string,
+  status: string = 'ready'
 ): Promise<PrismaNameGameRound> {
   return db.nameGameRound.create({
     data: {
       envelopeId,
       roundNumber,
       guidance: guidance ?? null,
+      status,
     },
+  });
+}
+
+/**
+ * Update a round's status (e.g., from 'generating' to 'ready')
+ */
+export async function updateRoundStatus(
+  roundId: string,
+  status: string
+): Promise<void> {
+  await db.nameGameRound.update({
+    where: { id: roundId },
+    data: { status },
   });
 }
 
@@ -181,15 +197,15 @@ export async function getParticipantVoteCount(
 
 /**
  * Get current round with names and vote states for a participant
- * Returns null if no rounds exist
+ * Returns null if no rounds exist or latest round is still generating
  */
 export async function getNameGameState(
   envelopeId: string,
   participantId: string
 ): Promise<NameGameRoundResponse | null> {
-  // Get the latest round
+  // Get the latest ready round (skip rounds still being generated)
   const round = await db.nameGameRound.findFirst({
-    where: { envelopeId },
+    where: { envelopeId, status: 'ready' },
     orderBy: { roundNumber: 'desc' },
     include: {
       names: {
@@ -286,11 +302,11 @@ export async function getAccumulatedMatches(envelopeId: string): Promise<Generat
 }
 
 /**
- * Get the total number of rounds for an envelope
+ * Get the total number of ready rounds for an envelope
  */
 export async function getRoundCount(envelopeId: string): Promise<number> {
   return db.nameGameRound.count({
-    where: { envelopeId },
+    where: { envelopeId, status: 'ready' },
   });
 }
 
@@ -327,4 +343,124 @@ export async function getRoundIdForName(nameId: string): Promise<string | null> 
     select: { roundId: true },
   });
   return name?.roundId ?? null;
+}
+
+// ============================================================
+// Guidance Queries
+// ============================================================
+
+/**
+ * Count guidance submissions for a specific round
+ */
+export async function getGuidanceCount(
+  envelopeId: string,
+  roundNumber: number
+): Promise<number> {
+  return db.nameGameGuidance.count({
+    where: { envelopeId, roundNumber },
+  });
+}
+
+/**
+ * Check if a participant has already submitted guidance for a round
+ */
+export async function hasSubmittedGuidance(
+  envelopeId: string,
+  roundNumber: number,
+  participantId: string
+): Promise<boolean> {
+  const record = await db.nameGameGuidance.findUnique({
+    where: {
+      envelopeId_roundNumber_participantId: {
+        envelopeId,
+        roundNumber,
+        participantId,
+      },
+    },
+  });
+  return record !== null;
+}
+
+/**
+ * Create a guidance submission record
+ */
+export async function createGuidance(
+  envelopeId: string,
+  roundNumber: number,
+  participantId: string,
+  guidance?: string
+): Promise<void> {
+  await db.nameGameGuidance.create({
+    data: {
+      envelopeId,
+      roundNumber,
+      participantId,
+      guidance: guidance ?? null,
+    },
+  });
+}
+
+/**
+ * Get all guidance texts for a round (for building the Anthropic prompt)
+ */
+export async function getGuidanceForRound(
+  envelopeId: string,
+  roundNumber: number
+): Promise<Array<{ guidance: string | null; participantId: string }>> {
+  return db.nameGameGuidance.findMany({
+    where: { envelopeId, roundNumber },
+    select: { guidance: true, participantId: true },
+  });
+}
+
+/**
+ * Get pending guidance state for an envelope
+ * Checks if there's a round being coordinated (guidance exists but no ready round)
+ */
+export async function getPendingGuidanceState(
+  envelopeId: string,
+  participantId: string
+): Promise<{ roundNumber: number; myGuidanceSubmitted: boolean; partnerGuidanceSubmitted: boolean } | null> {
+  // Get the next round number (after the latest ready round)
+  const latestReady = await db.nameGameRound.findFirst({
+    where: { envelopeId, status: 'ready' },
+    orderBy: { roundNumber: 'desc' },
+    select: { roundNumber: true },
+  });
+
+  const nextRound = latestReady ? latestReady.roundNumber + 1 : 1;
+
+  // Check if a generating round exists for this number
+  const generatingRound = await db.nameGameRound.findFirst({
+    where: { envelopeId, roundNumber: nextRound, status: 'generating' },
+  });
+
+  // Check for guidance submissions
+  const guidanceRecords = await db.nameGameGuidance.findMany({
+    where: { envelopeId, roundNumber: nextRound },
+    select: { participantId: true },
+  });
+
+  if (guidanceRecords.length === 0 && !generatingRound) return null;
+
+  const myGuidanceSubmitted = guidanceRecords.some((g) => g.participantId === participantId);
+  const partnerGuidanceSubmitted = guidanceRecords.some((g) => g.participantId !== participantId);
+
+  return {
+    roundNumber: nextRound,
+    myGuidanceSubmitted,
+    partnerGuidanceSubmitted,
+  };
+}
+
+/**
+ * Check if a ready round already exists for a given round number
+ */
+export async function getReadyRound(
+  envelopeId: string,
+  roundNumber: number
+): Promise<PrismaNameGameRound | null> {
+  return db.nameGameRound.findFirst({
+    where: { envelopeId, roundNumber, status: 'ready' },
+  });
 }

@@ -31,7 +31,7 @@ export type AINameResponse = z.infer<typeof nameResponseSchema>;
 export interface GenerateNamesParams {
   count: number;
   excludeNames: string[];       // Names already shown in any round
-  userGuidance?: string;        // Free-text from user for subsequent rounds
+  participantGuidance?: Array<{ guidance: string }>; // Free-text from participants for subsequent rounds
 }
 
 // ============================================================
@@ -80,9 +80,20 @@ function buildUserPrompt(params: GenerateNamesParams): string {
     );
   }
 
-  // D. Round tweaks — user guidance
-  if (params.userGuidance) {
-    parts.push(`Additional guidance for this round: ${params.userGuidance}`);
+  // D. Round tweaks — participant guidance
+  if (params.participantGuidance && params.participantGuidance.length === 1) {
+    parts.push(`Additional guidance for this round: ${params.participantGuidance[0]!.guidance}`);
+  } else if (params.participantGuidance && params.participantGuidance.length >= 2) {
+    const half = Math.ceil(params.count / 2);
+    const otherHalf = params.count - half;
+    parts.push(
+      `Two participants have each provided their own preferences for this round.\n\n` +
+      `Participant A's preferences: ${params.participantGuidance[0]!.guidance}\n` +
+      `Participant B's preferences: ${params.participantGuidance[1]!.guidance}\n\n` +
+      `Generate ${half} names inspired by Participant A's preferences and ${otherHalf} names inspired by Participant B's preferences. ` +
+      `Each name should clearly reflect the preference it was generated for. ` +
+      `Interleave the names in the output — do not group them by participant.`
+    );
   }
 
   return parts.join('\n\n');
@@ -149,7 +160,7 @@ export async function generateNames(params: GenerateNamesParams): Promise<AIName
 
   logger.info(`Generating ${params.count} names with model ${model}`, {
     excludeCount: params.excludeNames.length,
-    hasGuidance: !!params.userGuidance,
+    guidanceCount: params.participantGuidance?.length ?? 0,
   });
 
   const response = await client.messages.create({

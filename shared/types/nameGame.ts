@@ -61,12 +61,22 @@ export interface NameGameMatchList {
 }
 
 /**
+ * Pending guidance state — tracks submissions for a round not yet generated
+ */
+export interface PendingGuidanceState {
+  roundNumber: number;
+  myGuidanceSubmitted: boolean;
+  partnerGuidanceSubmitted: boolean;
+}
+
+/**
  * Full state response for the name game activity
  */
 export interface NameGameStateResponse {
   currentRound: NameGameRoundResponse | null;
   allMatches: GeneratedName[];
   roundCount: number;
+  pendingGuidance?: PendingGuidanceState;
 }
 
 // ============================================================
@@ -75,12 +85,33 @@ export interface NameGameStateResponse {
 
 /**
  * POST /api/name-game/:envelopeId/generate request body
+ * @deprecated Use submitGuidanceRequestSchema instead
  */
 export const generateNamesRequestSchema = z.object({
   guidance: z.string().max(500).optional(),
 });
 
 export type GenerateNamesRequest = z.infer<typeof generateNamesRequestSchema>;
+
+/**
+ * POST /api/name-game/:envelopeId/guidance request body
+ * Same shape as generateNamesRequestSchema — records readiness with optional preferences
+ */
+export const submitGuidanceRequestSchema = z.object({
+  guidance: z.string().max(500).optional(),
+});
+
+export type SubmitGuidanceRequest = z.infer<typeof submitGuidanceRequestSchema>;
+
+/**
+ * Response from POST /api/name-game/:envelopeId/guidance
+ * Discriminated union based on `status`:
+ * - waiting_for_partner: guidance recorded, waiting for partner
+ * - round_generated: generation happened, round is ready
+ */
+export type SubmitGuidanceResponse =
+  | { status: 'waiting_for_partner'; roundNumber: number }
+  | { status: 'round_generated'; round: NameGameRoundResponse };
 
 /**
  * POST /api/name-game/:nameId/vote request body
@@ -113,4 +144,23 @@ export interface NameRoundCompleteMessage {
   type: 'name_round_complete';
   roundId: string;
   results: NameGameResults;
+}
+
+/**
+ * SignalR message: A new round of names was generated
+ * Broadcast to the partner who didn't trigger generation
+ */
+export interface NameRoundGeneratedMessage {
+  type: 'name_round_generated';
+  round: NameGameRoundResponse;
+}
+
+/**
+ * SignalR message: Partner submitted guidance for the next round
+ * Broadcast so the other participant's UI can show an indicator
+ */
+export interface NameGuidanceSubmittedMessage {
+  type: 'name_guidance_submitted';
+  roundNumber: number;
+  participantId: string;
 }

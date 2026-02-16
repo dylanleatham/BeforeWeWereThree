@@ -7,12 +7,14 @@ import type {
   GeneratedName,
   NameVoteSubmittedMessage,
   NameRoundCompleteMessage,
+  NameRoundGeneratedMessage,
+  NameGuidanceSubmittedMessage,
 } from 'shared';
 import { useSignalRConnection } from '../context/SignalRContext';
 import { useSignalREvent } from './useSignalREvent';
 import {
   getNameGameState,
-  generateNameGameRound,
+  submitNameGameGuidance,
   submitNameVote,
 } from '../services/api';
 import { useSession } from './useSession';
@@ -20,17 +22,19 @@ import { useSession } from './useSession';
 /**
  * Phase state machine for the Name Game activity
  *
- * loading     -> Initial load from API
- * new-round   -> Ready to start a round (first or subsequent)
- * generating  -> AI is generating names
- * voting      -> Swiping through names to vote
- * waiting     -> Current user finished, waiting for partner
- * results     -> Both voted, showing match results
+ * loading              -> Initial load from API
+ * new-round            -> Ready to start a round (first or subsequent)
+ * generating           -> AI is generating names
+ * waiting-for-guidance -> Submitted guidance, waiting for partner to submit theirs
+ * voting               -> Swiping through names to vote
+ * waiting              -> Current user finished, waiting for partner
+ * results              -> Both voted, showing match results
  */
 export type NameGamePhase =
   | 'loading'
   | 'new-round'
   | 'generating'
+  | 'waiting-for-guidance'
   | 'voting'
   | 'waiting'
   | 'results';
@@ -52,7 +56,9 @@ interface UseNameGameReturn {
   error: string | null;
   /** Whether SignalR connection is active */
   isConnected: boolean;
-  /** Start a new round with optional guidance text */
+  /** Whether the partner has already submitted guidance for the next round */
+  partnerGuidanceSubmitted: boolean;
+  /** Submit guidance/readiness for the next round */
   startRound: (guidance?: string) => Promise<void>;
   /** Submit a vote on the current name */
   vote: (choice: NameVoteChoice) => Promise<void>;
@@ -134,6 +140,7 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
   const [results, setResults] = useState<NameGameResults | null>(null);
   const [roundCount, setRoundCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [partnerGuidanceSubmitted, setPartnerGuidanceSubmitted] = useState(false);
 
   // Connection state
   const { connection, isConnected } = useSignalRConnection();
@@ -143,6 +150,9 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
 
   // Track loaded state for retry
   const loadedRef = useRef(false);
+
+  // Guard against double-vote submissions (e.g., rapid taps or gesture double-fire)
+  const votingInFlightRef = useRef<string | null>(null);
 
   /**
    * Join the activity group for real-time updates
@@ -170,6 +180,17 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
 
       setRoundCount(data.roundCount);
       setAllMatches(data.allMatches);
+
+      // Check for pending guidance state (guidance submitted but round not yet generated)
+      if (data.pendingGuidance) {
+        setPartnerGuidanceSubmitted(data.pendingGuidance.partnerGuidanceSubmitted);
+        if (data.pendingGuidance.myGuidanceSubmitted) {
+          // We already submitted — resume waiting for partner
+          setPhase('waiting-for-guidance');
+          loadedRef.current = true;
+          return;
+        }
+      }
 
       if (data.currentRound) {
         // Shuffle names for this participant
@@ -211,7 +232,7 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
 
   // Load on mount
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- async load sets state after await
+     
     void loadState();
   }, [loadState]);
 
@@ -229,16 +250,53 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
   useSignalREvent<NameRoundCompleteMessage>('nameRoundComplete', (data) => {
     if (currentRound && data.roundId === currentRound.roundId) {
       setResults(data.results);
-      // Merge new matches into allMatches
+      // Merge new matches into allMatches (deduplicate by ID to avoid double-append
+      // when both the vote response and SignalR event fire for the same round)
       if (data.results.matches.length > 0) {
-        setAllMatches((prev) => [...prev, ...data.results.matches]);
+        setAllMatches((prev) => {
+          const existingIds = new Set(prev.map((m) => m.id));
+          const newMatches = data.results.matches.filter((m) => !existingIds.has(m.id));
+          return newMatches.length > 0 ? [...prev, ...newMatches] : prev;
+        });
       }
       setPhase('results');
     }
   });
 
   /**
-   * Start a new round of name generation
+   * Handle round generated event (partner triggered generation, names are ready)
+   * Received by the participant who didn't trigger generation
+   */
+  useSignalREvent<NameRoundGeneratedMessage>('nameRoundGenerated', (data) => {
+    // Only process if we're in a state where we'd expect new names
+    if (phase === 'waiting-for-guidance' || phase === 'generating' || phase === 'new-round') {
+      const shuffledRound: NameGameRoundResponse = {
+        ...data.round,
+        names: shuffleNames(data.round.names, participantId),
+      };
+      setCurrentRound(shuffledRound);
+      setCurrentNameIndex(0);
+      setResults(null);
+      setRoundCount((prev) => prev + 1);
+      setPartnerGuidanceSubmitted(false);
+      setPhase('voting');
+    }
+  });
+
+  /**
+   * Handle partner guidance submitted event
+   * Updates the UI to show the partner has submitted their preferences
+   */
+  useSignalREvent<NameGuidanceSubmittedMessage>('nameGuidanceSubmitted', (_data) => {
+    setPartnerGuidanceSubmitted(true);
+  });
+
+  /**
+   * Submit guidance/readiness for the next round
+   *
+   * Sends guidance to server. Response is either:
+   * - waiting_for_partner: we're first, show waiting UI
+   * - round_generated: both ready, names generated, go to voting
    */
   const startRound = useCallback(
     async (guidance?: string) => {
@@ -246,22 +304,27 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
       setError(null);
 
       try {
-        const round = await generateNameGameRound(envelopeId, guidance);
+        const result = await submitNameGameGuidance(envelopeId, guidance);
 
-        // Shuffle names for this participant
-        const shuffledRound: NameGameRoundResponse = {
-          ...round,
-          names: shuffleNames(round.names, participantId),
-        };
+        if (result.status === 'waiting_for_partner') {
+          setPhase('waiting-for-guidance');
+        } else {
+          // round_generated — shuffle and go to voting
+          const shuffledRound: NameGameRoundResponse = {
+            ...result.round,
+            names: shuffleNames(result.round.names, participantId),
+          };
 
-        setCurrentRound(shuffledRound);
-        setCurrentNameIndex(0);
-        setResults(null);
-        setRoundCount((prev) => prev + 1);
-        setPhase('voting');
+          setCurrentRound(shuffledRound);
+          setCurrentNameIndex(0);
+          setResults(null);
+          setRoundCount((prev) => prev + 1);
+          setPartnerGuidanceSubmitted(false);
+          setPhase('voting');
+        }
       } catch (err) {
-        console.error('Failed to generate names:', err);
-        setError(err instanceof Error ? err.message : 'Failed to generate names');
+        console.error('Failed to submit guidance:', err);
+        setError(err instanceof Error ? err.message : 'Failed to submit guidance');
         setPhase('new-round');
       }
     },
@@ -284,6 +347,10 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
       const totalNames = currentRound.names.length;
       const isLastName = votingIndex >= totalNames - 1;
 
+      // Guard against double-submission for the same name
+      if (votingInFlightRef.current === nameId) return;
+      votingInFlightRef.current = nameId;
+
       try {
         // Optimistic: advance to next name or waiting
         if (isLastName) {
@@ -299,9 +366,14 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
         // If both partners finished, show results immediately
         if (response.allVoted && response.results) {
           setResults(response.results);
-          // Merge new matches into allMatches
+          // Merge new matches into allMatches (deduplicate by ID to avoid double-append
+          // when both the vote response and SignalR event fire for the same round)
           if (response.results.matches.length > 0) {
-            setAllMatches((prev) => [...prev, ...response.results!.matches]);
+            setAllMatches((prev) => {
+              const existingIds = new Set(prev.map((m) => m.id));
+              const newMatches = response.results!.matches.filter((m) => !existingIds.has(m.id));
+              return newMatches.length > 0 ? [...prev, ...newMatches] : prev;
+            });
           }
           setPhase('results');
         }
@@ -313,6 +385,8 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
           setPhase('voting');
         }
         setError(err instanceof Error ? err.message : 'Failed to submit vote');
+      } finally {
+        votingInFlightRef.current = null;
       }
     },
     [currentRound, currentNameIndex]
@@ -326,6 +400,7 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
     setResults(null);
     setCurrentRound(null);
     setCurrentNameIndex(0);
+    setPartnerGuidanceSubmitted(false);
   }, []);
 
   /**
@@ -344,6 +419,7 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
     roundCount,
     error,
     isConnected,
+    partnerGuidanceSubmitted,
     startRound,
     vote,
     startNewRound,

@@ -2,12 +2,12 @@ import { Router, Request, Response } from 'express';
 import {
   successResponse,
   errorResponse,
-  generateNamesRequestSchema,
+  submitGuidanceRequestSchema,
   submitVoteRequestSchema,
 } from 'shared';
 import {
   getNameGameState,
-  generateRound,
+  submitGuidance,
   submitVote,
   getAccumulatedMatches,
 } from '../services/nameGame.js';
@@ -19,7 +19,7 @@ import { logger } from '../utils/logger.js';
  * Baby Name Game routes for Before We Were Three
  *
  * GET    /name-game/:envelopeId          - Get current round state + matches (requires auth)
- * POST   /name-game/:envelopeId/generate - Generate a new round of names (requires auth)
+ * POST   /name-game/:envelopeId/guidance - Submit guidance/readiness for next round (requires auth)
  * POST   /name-game/:nameId/vote         - Submit vote on a name (requires auth)
  * GET    /name-game/:envelopeId/matches  - Get accumulated matches (requires auth)
  */
@@ -53,12 +53,16 @@ router.get(
 );
 
 /**
- * POST /name-game/:envelopeId/generate
- * Generate a new round of baby names using AI
+ * POST /name-game/:envelopeId/guidance
+ * Submit guidance/readiness for the next round of name generation
  * Body: { guidance?: string }
+ *
+ * Coordinates between two participants:
+ * - Round 1: First submission triggers generation immediately
+ * - Round 2+: Both must submit; generation triggers on the second submission
  */
 router.post(
-  '/:envelopeId/generate',
+  '/:envelopeId/guidance',
   authMiddleware,
   async (req: Request<{ envelopeId: string }>, res: Response) => {
     try {
@@ -71,7 +75,7 @@ router.post(
       }
 
       // Validate request body
-      const parsed = generateNamesRequestSchema.safeParse(req.body);
+      const parsed = submitGuidanceRequestSchema.safeParse(req.body);
       if (!parsed.success) {
         res.status(400).json(
           errorResponse('VALIDATION_ERROR', 'Invalid request data', {
@@ -81,8 +85,8 @@ router.post(
         return;
       }
 
-      const round = await generateRound(envelopeId, participantId, parsed.data.guidance);
-      res.json(successResponse(round));
+      const result = await submitGuidance(envelopeId, participantId, parsed.data.guidance);
+      res.json(successResponse(result));
     } catch (error) {
       // Handle Anthropic API key missing
       if (error instanceof Error && error.message.includes('ANTHROPIC_API_KEY')) {
@@ -91,8 +95,8 @@ router.post(
         );
         return;
       }
-      logger.error('Failed to generate name game round', { error });
-      res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to generate names'));
+      logger.error('Failed to submit name game guidance', { error });
+      res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to process guidance'));
     }
   }
 );
@@ -146,6 +150,19 @@ router.post(
           res.status(409).json(errorResponse('ALREADY_VOTED', 'You have already voted on this name'));
           return;
         }
+      }
+      // Handle Prisma unique constraint violation (P2002) — double-tap race condition
+      const prismaCode = typeof error === 'object' && error !== null && 'code' in error
+        ? (error as { code: string }).code
+        : undefined;
+      if (prismaCode === 'P2002') {
+        res.status(409).json(errorResponse('ALREADY_VOTED', 'You have already voted on this name'));
+        return;
+      }
+      // Handle Prisma serialization failure (P2034) — concurrent transaction retry
+      if (prismaCode === 'P2034') {
+        res.status(409).json(errorResponse('TOO_MANY_REQUESTS', 'Please try again'));
+        return;
       }
       logger.error('Failed to submit name vote', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to submit vote'));

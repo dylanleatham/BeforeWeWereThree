@@ -91,4 +91,5 @@ export interface ResetSessionResponse {
   nameVotesDeleted: number;
   nameNamesDeleted: number;
   nameRoundsDeleted: number;
+  nameGuidanceDeleted: number;
 }

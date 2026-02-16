@@ -15,6 +15,7 @@ export interface ResetSessionResult {
   nameVotesDeleted: number;
   nameNamesDeleted: number;
   nameRoundsDeleted: number;
+  nameGuidanceDeleted: number;
 }
 
 /**
@@ -55,10 +56,11 @@ export async function resetSession(): Promise<ResetSessionResult> {
     // 3. Delete all photos (has FK to participants)
     const photosDeleted = await tx.photo.deleteMany({});
 
-    // 4. Delete name game data (FK order: votes -> names -> rounds)
+    // 4. Delete name game data (FK order: votes -> names -> rounds, guidance -> participants)
     const nameVotesDeleted = await tx.nameGameVote.deleteMany({});
     const nameNamesDeleted = await tx.nameGameName.deleteMany({});
     const nameRoundsDeleted = await tx.nameGameRound.deleteMany({});
+    const nameGuidanceDeleted = await tx.nameGameGuidance.deleteMany({});
 
     // 6. Delete all guest participants
     const participantsDeleted = await tx.participant.deleteMany({
@@ -79,6 +81,7 @@ export async function resetSession(): Promise<ResetSessionResult> {
       nameVotesDeleted: nameVotesDeleted.count,
       nameNamesDeleted: nameNamesDeleted.count,
       nameRoundsDeleted: nameRoundsDeleted.count,
+      nameGuidanceDeleted: nameGuidanceDeleted.count,
     };
   });
 

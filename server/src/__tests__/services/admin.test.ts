@@ -35,6 +35,10 @@ const mockNameGameRound = {
   deleteMany: jest.fn() as AnyMock,
 };
 
+const mockNameGameGuidance = {
+  deleteMany: jest.fn() as AnyMock,
+};
+
 const mockEnvelope = {
   updateMany: jest.fn() as AnyMock,
 };
@@ -49,6 +53,7 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
     nameGameVote: mockNameGameVote,
     nameGameName: mockNameGameName,
     nameGameRound: mockNameGameRound,
+    nameGameGuidance: mockNameGameGuidance,
     participant: mockParticipant,
     envelope: mockEnvelope,
     $transaction: mockTransaction,
@@ -70,6 +75,7 @@ describe('Admin Service', () => {
         nameGameVote: mockNameGameVote,
         nameGameName: mockNameGameName,
         nameGameRound: mockNameGameRound,
+        nameGameGuidance: mockNameGameGuidance,
         participant: mockParticipant,
         envelope: mockEnvelope,
       });
@@ -84,6 +90,7 @@ describe('Admin Service', () => {
       mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
       mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
       mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameGuidance.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
 
@@ -100,6 +107,7 @@ describe('Admin Service', () => {
       mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
       mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
       mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameGuidance.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
 
@@ -116,6 +124,7 @@ describe('Admin Service', () => {
       mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
       mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
       mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameGuidance.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
 
@@ -183,6 +192,7 @@ describe('Admin Service', () => {
       mockNameGameVote.deleteMany.mockResolvedValue({ count: 8 });
       mockNameGameName.deleteMany.mockResolvedValue({ count: 10 });
       mockNameGameRound.deleteMany.mockResolvedValue({ count: 1 });
+      mockNameGameGuidance.deleteMany.mockResolvedValue({ count: 2 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 1 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 6 });
 
@@ -195,6 +205,7 @@ describe('Admin Service', () => {
         nameVotesDeleted: 8,
         nameNamesDeleted: 10,
         nameRoundsDeleted: 1,
+        nameGuidanceDeleted: 2,
         participantsDeleted: 1,
         envelopesReset: 6,
       });
@@ -207,6 +218,7 @@ describe('Admin Service', () => {
       mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
       mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
       mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameGuidance.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 0 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 0 });
 
@@ -219,6 +231,7 @@ describe('Admin Service', () => {
         nameVotesDeleted: 0,
         nameNamesDeleted: 0,
         nameRoundsDeleted: 0,
+        nameGuidanceDeleted: 0,
         participantsDeleted: 0,
         envelopesReset: 0,
       });

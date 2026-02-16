@@ -114,14 +114,20 @@ export type {
   NameGameRoundResponse,
   NameGameResults,
   NameGameMatchList,
+  PendingGuidanceState,
   NameGameStateResponse,
   GenerateNamesRequest,
+  SubmitGuidanceRequest,
+  SubmitGuidanceResponse,
   SubmitVoteRequest,
   NameVoteSubmittedMessage,
   NameRoundCompleteMessage,
+  NameRoundGeneratedMessage,
+  NameGuidanceSubmittedMessage,
 } from './nameGame.js';
 export {
   generateNamesRequestSchema,
+  submitGuidanceRequestSchema,
   submitVoteRequestSchema,
 } from './nameGame.js';
 

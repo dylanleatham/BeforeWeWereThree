@@ -7,10 +7,17 @@ import {
   getNextRoundNumber,
   createRound,
   createNames,
+  updateRoundStatus,
   getRoundResults,
   getAccumulatedMatches as getAccumulatedMatchesQuery,
   getRoundCount,
   getRoundIdForName,
+  getGuidanceCount,
+  hasSubmittedGuidance,
+  createGuidance,
+  getGuidanceForRound,
+  getPendingGuidanceState,
+  getReadyRound,
 } from '../db/queries/nameGame.js';
 import { logger } from '../utils/logger.js';
 import type {
@@ -21,6 +28,9 @@ import type {
   GeneratedName,
   NameVoteSubmittedMessage,
   NameRoundCompleteMessage,
+  SubmitGuidanceResponse,
+  NameRoundGeneratedMessage,
+  NameGuidanceSubmittedMessage,
 } from 'shared';
 
 /**
@@ -36,6 +46,7 @@ import type {
 /**
  * Get current name game state for a participant
  * Returns current round with vote states + accumulated matches across all rounds
+ * Includes pendingGuidance if guidance submissions exist for an ungenerated round
  */
 export async function getNameGameState(
   envelopeId: string,
@@ -44,73 +55,177 @@ export async function getNameGameState(
   const currentRound = await getNameGameStateQuery(envelopeId, participantId);
   const allMatches = await getAccumulatedMatchesQuery(envelopeId);
   const roundCount = await getRoundCount(envelopeId);
+  const pendingGuidance = await getPendingGuidanceState(envelopeId, participantId);
 
   return {
     currentRound,
     allMatches,
     roundCount,
+    pendingGuidance: pendingGuidance ?? undefined,
   };
 }
 
 // ============================================================
-// Round Generation
+// Coordinated Round Generation
 // ============================================================
 
 /**
- * Generate a new round of baby names using the Anthropic API
+ * Submit guidance/readiness for the next round.
  *
- * Flow:
- * 1. Get next round number
- * 2. Get excluded names from all previous rounds
- * 3. Call Anthropic API for name generation
- * 4. Create round record in DB
- * 5. Create name records in DB from AI response
- * 6. Return the new round state
+ * Coordinates between two participants:
+ * - Round 1: First submission triggers generation immediately (no guidance needed)
+ * - Round 2+: Both participants must submit guidance; generation triggers on the second submission
+ *
+ * Uses Serializable isolation to prevent race conditions on the count-then-create pattern.
  */
-export async function generateRound(
+export async function submitGuidance(
   envelopeId: string,
   participantId: string,
   guidance?: string
-): Promise<NameGameRoundResponse> {
-  const roundNumber = await getNextRoundNumber(envelopeId);
-  const excludeNames = await getExcludedNames(envelopeId);
+): Promise<SubmitGuidanceResponse> {
+  // Phase 1: Coordination transaction (Serializable to prevent races)
+  const txResult = await db.$transaction(async (_tx) => {
+    const nextRound = await getNextRoundNumber(envelopeId);
 
-  logger.info('Generating name game round', {
-    envelopeId,
-    roundNumber,
-    excludeCount: excludeNames.length,
-    hasGuidance: !!guidance,
-  });
+    // Idempotent: if round already exists and is ready, return it
+    const existingReady = await getReadyRound(envelopeId, nextRound);
+    if (existingReady) {
+      return { action: 'already_ready' as const, roundNumber: nextRound };
+    }
 
-  // Call Anthropic API
-  const aiResponse = await generateNames({
-    count: 10,
-    excludeNames,
-    userGuidance: guidance,
-  });
+    // Idempotent: if this participant already submitted guidance, return current state
+    const alreadySubmitted = await hasSubmittedGuidance(envelopeId, nextRound, participantId);
+    if (alreadySubmitted) {
+      return { action: 'already_submitted' as const, roundNumber: nextRound };
+    }
 
-  // Create round in DB
-  const round = await createRound(envelopeId, roundNumber, guidance);
+    // Create guidance record
+    await createGuidance(envelopeId, nextRound, participantId, guidance);
 
-  // Create name records from AI response
-  const names = await createNames(round.id, aiResponse.names);
+    // Count total guidance submissions (including the one we just created)
+    const guidanceCount = await getGuidanceCount(envelopeId, nextRound);
 
-  logger.info('Name game round created', {
-    roundId: round.id,
-    roundNumber,
-    nameCount: names.length,
-  });
+    // Determine if ready to generate:
+    // Round 1: ready after 1 submission
+    // Round 2+: ready after 2 submissions
+    const readyToGenerate = nextRound === 1 ? guidanceCount >= 1 : guidanceCount >= 2;
 
-  return {
-    roundId: round.id,
-    roundNumber: round.roundNumber,
-    names: names.map((name) => ({
-      name,
-      myVote: null,
-      partnerVoted: false,
-    })),
-    allVoted: false,
-  };
+    if (!readyToGenerate) {
+      return { action: 'waiting' as const, roundNumber: nextRound };
+    }
+
+    // Create round record with 'generating' status to claim the generation slot
+    const round = await createRound(envelopeId, nextRound, undefined, 'generating');
+
+    return {
+      action: 'generate' as const,
+      roundNumber: nextRound,
+      roundId: round.id,
+    };
+  }, { isolationLevel: 'Serializable' });
+
+  // Phase 2: Handle results outside transaction
+
+  if (txResult.action === 'already_ready') {
+    // Round already generated — load and return it
+    const state = await getNameGameStateQuery(envelopeId, participantId);
+    if (state) {
+      return { status: 'round_generated', round: state };
+    }
+    return { status: 'waiting_for_partner', roundNumber: txResult.roundNumber };
+  }
+
+  if (txResult.action === 'already_submitted' || txResult.action === 'waiting') {
+    // Broadcast to partner that we submitted guidance
+    const realtime = getRealtimeService();
+    if (realtime && txResult.action === 'waiting') {
+      const guidanceMsg: NameGuidanceSubmittedMessage = {
+        type: 'name_guidance_submitted',
+        roundNumber: txResult.roundNumber,
+        participantId,
+      };
+      await realtime.sendToGroup(`activity:${envelopeId}`, {
+        target: 'nameGuidanceSubmitted',
+        arguments: [guidanceMsg],
+      });
+    }
+    return { status: 'waiting_for_partner', roundNumber: txResult.roundNumber };
+  }
+
+  // Phase 3: Generate names (outside transaction — don't hold locks during slow API call)
+  const { roundId, roundNumber } = txResult;
+
+  try {
+    const excludeNames = await getExcludedNames(envelopeId);
+
+    // Gather guidance texts for the prompt
+    const guidanceRecords = await getGuidanceForRound(envelopeId, roundNumber);
+    const participantGuidance = guidanceRecords
+      .filter((g) => g.guidance !== null && g.guidance.trim() !== '')
+      .map((g) => ({ guidance: g.guidance! }));
+
+    logger.info('Generating name game round', {
+      envelopeId,
+      roundNumber,
+      excludeCount: excludeNames.length,
+      guidanceCount: participantGuidance.length,
+    });
+
+    const aiResponse = await generateNames({
+      count: 10,
+      excludeNames,
+      participantGuidance: participantGuidance.length > 0 ? participantGuidance : undefined,
+    });
+
+    // Save names and mark round as ready
+    const names = await createNames(roundId, aiResponse.names);
+    await updateRoundStatus(roundId, 'ready');
+
+    logger.info('Name game round created', {
+      roundId,
+      roundNumber,
+      nameCount: names.length,
+    });
+
+    const roundResponse: NameGameRoundResponse = {
+      roundId,
+      roundNumber,
+      names: names.map((name) => ({
+        name,
+        myVote: null,
+        partnerVoted: false,
+      })),
+      allVoted: false,
+    };
+
+    // Broadcast to all participants in the activity group
+    const realtime = getRealtimeService();
+    if (realtime) {
+      const generatedMessage: NameRoundGeneratedMessage = {
+        type: 'name_round_generated',
+        round: roundResponse,
+      };
+      await realtime.sendToGroup(`activity:${envelopeId}`, {
+        target: 'nameRoundGenerated',
+        arguments: [generatedMessage],
+      });
+    }
+
+    return { status: 'round_generated', round: roundResponse };
+  } catch (err) {
+    // Generation failed — clean up the 'generating' round so it can be retried
+    logger.error('Name generation failed, cleaning up round', { roundId, error: err });
+    try {
+      await db.nameGameRound.delete({ where: { id: roundId } });
+      // Also clean up guidance so participants can resubmit
+      await db.nameGameGuidance.deleteMany({
+        where: { envelopeId, roundNumber },
+      });
+    } catch (cleanupErr) {
+      logger.error('Failed to clean up after generation failure', { error: cleanupErr });
+    }
+    throw err;
+  }
 }
 
 // ============================================================

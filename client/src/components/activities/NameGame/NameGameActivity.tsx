@@ -3,6 +3,7 @@ import { useNameGame } from '../../../hooks/useNameGame';
 import { PartnerPresence } from '../WouldYouRather/PartnerPresence';
 import { VotingPhase } from './VotingPhase';
 import { WaitingPhase } from './WaitingPhase';
+import { WaitingForGuidancePhase } from './WaitingForGuidancePhase';
 import { ResultsPhase } from './ResultsPhase';
 import { NewRoundPhase } from './NewRoundPhase';
 import { GeneratingPhase } from './GeneratingPhase';
@@ -38,6 +39,7 @@ export function NameGameActivity({ envelopeId }: NameGameActivityProps) {
     roundCount,
     error,
     isConnected,
+    partnerGuidanceSubmitted,
     startRound,
     vote,
     startNewRound,
@@ -79,11 +81,15 @@ export function NameGameActivity({ envelopeId }: NameGameActivityProps) {
             onStartRound={startRound}
             isFirstRound={roundCount === 0}
             allMatches={allMatches}
+            partnerGuidanceSubmitted={partnerGuidanceSubmitted}
           />
         );
 
       case 'generating':
         return <GeneratingPhase />;
+
+      case 'waiting-for-guidance':
+        return <WaitingForGuidancePhase />;
 
       case 'voting':
         if (!currentRound) return null;

@@ -14,6 +14,8 @@ interface NewRoundPhaseProps {
   isFirstRound: boolean;
   /** Accumulated matched names across all rounds */
   allMatches?: GeneratedName[];
+  /** Whether the partner has already submitted their guidance */
+  partnerGuidanceSubmitted?: boolean;
 }
 
 /**
@@ -23,7 +25,7 @@ interface NewRoundPhaseProps {
  * - Subsequent rounds: textarea for free-text guidance + button
  * - Shows accumulated matches if any exist
  */
-export function NewRoundPhase({ onStartRound, isFirstRound, allMatches = [] }: NewRoundPhaseProps) {
+export function NewRoundPhase({ onStartRound, isFirstRound, allMatches = [], partnerGuidanceSubmitted = false }: NewRoundPhaseProps) {
   const [guidance, setGuidance] = useState('');
   const hasMatches = allMatches.length > 0;
 
@@ -58,12 +60,19 @@ export function NewRoundPhase({ onStartRound, isFirstRound, allMatches = [] }: N
           </>
         )}
 
+        {/* Partner guidance indicator (Round 2+ only) */}
+        {!isFirstRound && partnerGuidanceSubmitted && (
+          <p className="ng-new-round__partner-indicator">
+            {STRINGS.NAME_GAME_PARTNER_SUBMITTED}
+          </p>
+        )}
+
         <button
           type="button"
           className="ng-new-round__button"
           onClick={handleStart}
         >
-          {STRINGS.NAME_GAME_START_ROUND}
+          {isFirstRound ? STRINGS.NAME_GAME_START_ROUND : STRINGS.NAME_GAME_SUBMIT_GUIDANCE}
         </button>
 
         {/* Accumulated matches */}

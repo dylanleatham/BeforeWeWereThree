@@ -28,10 +28,11 @@ model Participant {
   role              String // 'guest' or 'admin'
   createdAt         DateTime @default(now()) @map("created_at")
 
-  wyrVotes      WyrVote[]
-  letters       Letter[]
-  photos        Photo[]
-  nameGameVotes NameGameVote[]
+  wyrVotes          WyrVote[]
+  letters           Letter[]
+  photos            Photo[]
+  nameGameVotes     NameGameVote[]
+  nameGameGuidance  NameGameGuidance[]
 
   @@map("participants")
 }
@@ -146,6 +147,7 @@ model NameGameRound {
   envelopeId  String   @map("envelope_id")
   roundNumber Int      @map("round_number")
   guidance    String?  // User's free-text guidance for AI (null for first round)
+  status      String   @default("ready") // 'generating' | 'ready'
   createdAt   DateTime @default(now()) @map("created_at")
 
   envelope Envelope       @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
@@ -172,6 +174,23 @@ model NameGameName {
 
   @@index([roundId])
   @@map("name_game_names")
+}
+
+// Guidance submission for coordinated round generation
+// Tracks which participants have submitted readiness/preferences for the next round
+model NameGameGuidance {
+  id            String   @id @default(uuid())
+  envelopeId    String   @map("envelope_id")
+  roundNumber   Int      @map("round_number")
+  participantId String   @map("participant_id")
+  guidance      String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  participant Participant @relation(fields: [participantId], references: [id])
+
+  @@unique([envelopeId, roundNumber, participantId])
+  @@index([envelopeId, roundNumber])
+  @@map("name_game_guidance")
 }
 
 // Vote on a name by a participant

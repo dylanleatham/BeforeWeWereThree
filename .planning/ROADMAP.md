@@ -106,13 +106,13 @@ Plans:
   3. Names both partners loved are highlighted as matches
   4. User can start a new round with optional style/tweak input
   5. Previously shown or declined names never repeat
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 05-01: Anthropic API integration and prompt contract
-- [ ] 05-02: Name display and voting UI
-- [ ] 05-03: Match detection and results view
-- [ ] 05-04: Multi-round flow with exclusion tracking
+- [ ] 05-01-PLAN.md — Database schema, shared types, Anthropic API service (Wave 1)
+- [ ] 05-02-PLAN.md — Server queries, business logic service, API routes (Wave 2)
+- [ ] 05-03-PLAN.md — Name card, voting, results, and phase UI components (Wave 2, parallel)
+- [ ] 05-04-PLAN.md — useNameGame hook, orchestrator, BaseEnvelope wiring, reset (Wave 3)
 
 ### Phase 6: Trivia Activity
 **Goal**: Users can play trivia within envelope framework

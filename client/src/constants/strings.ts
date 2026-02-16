@@ -186,6 +186,24 @@ export const STRINGS = {
   PHOTO_ALT_ATTACHED: 'Attached photo',
   PHOTO_REMOVE_ARIA: 'Remove photo',
   PHOTO_SELECT_ARIA: 'Select photo to upload',
+
+  // Name Game
+  NAME_GAME_PROGRESS: (current: number, total: number) => `${current} of ${total}`,
+  NAME_GAME_VOTE_LOVE: 'Love',
+  NAME_GAME_VOTE_MAYBE: 'Maybe',
+  NAME_GAME_VOTE_NOPE: 'Nope',
+  NAME_GAME_GENERATING: 'Discovering names for your baby...',
+  NAME_GAME_WAITING: 'Waiting for your partner to finish...',
+  NAME_GAME_MATCHES_TITLE: 'You both loved',
+  NAME_GAME_NEAR_MISSES_TITLE: 'Almost matched',
+  NAME_GAME_WORTH_DISCUSSING_TITLE: 'Worth discussing',
+  NAME_GAME_NO_MATCHES: 'No matches this round, but some close calls!',
+  NAME_GAME_NEW_ROUND_TITLE: 'Ready for more names?',
+  NAME_GAME_NEW_ROUND_PLACEHOLDER: 'Any preferences? (e.g., "More Italian names", "Something short and modern")',
+  NAME_GAME_START_ROUND: 'Generate Names',
+  NAME_GAME_ALL_MATCHES_TITLE: 'All matched names',
+  NAME_GAME_ORIGIN_LABEL: 'Origin',
+  NAME_GAME_MEANING_LABEL: 'Meaning',
 } as const;
 
 /**

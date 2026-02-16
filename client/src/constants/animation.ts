@@ -146,3 +146,25 @@ export const PULSE_OPACITY_RANGE = [0.6, 1, 0.6] as const;
 
 /** Stagger delay between summary items in seconds */
 export const WYR_SUMMARY_ITEM_STAGGER_S = 0.1;
+
+// =============================================================================
+// Name Game
+// =============================================================================
+
+/** Duration of name card exit animation (fly off) in seconds */
+export const NAME_CARD_EXIT_DURATION_S = 0.3;
+
+/** Spring stiffness for name card return-to-center */
+export const NAME_CARD_SPRING_STIFFNESS = 300;
+
+/** Spring damping for name card return-to-center */
+export const NAME_CARD_SPRING_DAMPING = 25;
+
+/** Duration of generating phase pulse animation in seconds */
+export const NAME_GAME_GENERATING_PULSE_DURATION_S = 2.5;
+
+/** Stagger delay between result items in seconds */
+export const NAME_GAME_RESULT_STAGGER_S = 0.1;
+
+/** Duration of result card enter animation in seconds */
+export const NAME_GAME_RESULT_ENTER_DURATION_S = 0.3;

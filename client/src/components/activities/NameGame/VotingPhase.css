@@ -1,0 +1,122 @@
+/**
+ * Name Game Voting Phase Styles
+ *
+ * Centered card with swipe gesture area.
+ * Progress indicator and directional hints.
+ */
+
+/* =============================================================================
+ * Container
+ * ============================================================================= */
+
+.ng-voting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4);
+  min-height: 400px;
+}
+
+/* =============================================================================
+ * Progress Indicator
+ * ============================================================================= */
+
+.ng-voting__progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 340px;
+}
+
+.ng-voting__progress-text {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.ng-voting__progress-bar {
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-warm-charcoal-8);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.ng-voting__progress-fill {
+  height: 100%;
+  background-color: var(--color-sunrise-gold);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal) var(--ease-default);
+}
+
+/* =============================================================================
+ * Card Area
+ * ============================================================================= */
+
+.ng-voting__card-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: visible;
+  position: relative;
+}
+
+.ng-voting__card-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.ng-voting__gesture-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+
+.ng-voting__gesture-target:active {
+  cursor: grabbing;
+}
+
+/* =============================================================================
+ * Vote Hints
+ * ============================================================================= */
+
+.ng-voting__hints {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 340px;
+  padding: 0 var(--space-2);
+}
+
+.ng-voting__hint {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+}
+
+.ng-voting__hint--love {
+  color: var(--color-sunrise-gold);
+}
+
+.ng-voting__hint--nope {
+  color: var(--text-muted);
+}
+
+.ng-voting__hint--maybe {
+  color: var(--color-soft-sage);
+}

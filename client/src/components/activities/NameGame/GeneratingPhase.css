@@ -1,0 +1,50 @@
+/**
+ * Name Game Generating Phase Styles
+ *
+ * Warm loading state with breathing animation.
+ * Fits "Golden Hour Intimacy" aesthetic.
+ */
+
+/* =============================================================================
+ * Container
+ * ============================================================================= */
+
+.ng-generating {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+}
+
+/* =============================================================================
+ * Content
+ * ============================================================================= */
+
+.ng-generating__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.ng-generating__message {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.ng-generating__guidance {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-style: italic;
+  max-width: 280px;
+  margin: 0;
+  line-height: 1.5;
+}

@@ -1,0 +1,138 @@
+/**
+ * Name Card Styles
+ *
+ * Warm, substantial card displaying baby name details.
+ * Includes directional overlays for drag feedback.
+ */
+
+/* =============================================================================
+ * Card Container
+ * ============================================================================= */
+
+.name-card {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  min-height: 280px;
+  background-color: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
+
+.name-card--active {
+  box-shadow: var(--shadow-elevated);
+}
+
+/* =============================================================================
+ * Directional Overlays (drag feedback)
+ * ============================================================================= */
+
+.name-card__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: var(--radius-lg);
+  transition: opacity 50ms linear;
+  z-index: 1;
+}
+
+.name-card__overlay--love {
+  background: radial-gradient(
+    ellipse at right center,
+    var(--color-sunrise-gold) 0%,
+    transparent 70%
+  );
+}
+
+.name-card__overlay--nope {
+  background: radial-gradient(
+    ellipse at left center,
+    var(--color-warm-charcoal-20) 0%,
+    transparent 70%
+  );
+}
+
+.name-card__overlay--maybe {
+  background: radial-gradient(
+    ellipse at center bottom,
+    var(--color-soft-sage) 0%,
+    transparent 70%
+  );
+}
+
+/* =============================================================================
+ * Card Content
+ * ============================================================================= */
+
+.name-card__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-6);
+}
+
+/* =============================================================================
+ * Name (Display)
+ * ============================================================================= */
+
+.name-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+/* =============================================================================
+ * Details Section
+ * ============================================================================= */
+
+.name-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.name-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  text-align: center;
+}
+
+.name-card__field--notes {
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-warm-charcoal-8);
+}
+
+.name-card__label {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.name-card__value {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.name-card__value--notes {
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}

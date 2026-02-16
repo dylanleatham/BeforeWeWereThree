@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Two people, one screen each, sharing moments that matter.
-**Current focus:** Phase 4 Complete - Ready for Phase 5 (Trivia)
+**Current focus:** Phase 5 - Baby Name Game & AI
 
 ## Current Position
 
-Phase: 4 of 7 (Letters to Baby & Media) - COMPLETE
-Plan: 5 of 5 in current phase
-Status: Phase complete
-Last activity: 2026-02-08 - Completed 04-05-PLAN.md
+Phase: 5 of 7 (Baby Name Game & AI)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-15 - Completed 05-01-PLAN.md
 
-Progress: [████████████████████] 100% (Phase 4)
-Overall:  [██████████████████████████████] 71% (17/24 plans)
+Progress: [█████░░░░░░░░░░░░░░░] 25% (Phase 5)
+Overall:  [██████████████████████████████████░░░░░░░] 86% (18/21 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
-- Average duration: ~24 min (including manual debugging)
-- Total execution time: ~6 hours
+- Total plans completed: 18
+- Average duration: ~22 min (including manual debugging)
+- Total execution time: ~6.1 hours
 
 **By Phase:**
 
@@ -32,10 +32,11 @@ Overall:  [███████████████████████
 | 02 | 4/4 | ~18 min | ~5 min |
 | 03 | 4/4 | ~238 min | ~60 min |
 | 04 | 5/5 | ~41 min | ~8 min |
+| 05 | 1/4 | ~6 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (~8 min), 04-02 (~8 min), 04-03 (~4 min), 04-04 (~7 min), 04-05 (~10 min)
-- Trend: Phase 4 completed very efficiently (~8 min avg)
+- Last 5 plans: 04-02 (~8 min), 04-03 (~4 min), 04-04 (~7 min), 04-05 (~10 min), 05-01 (~6 min)
+- Trend: Consistent ~6-10 min per plan
 
 *Updated after each plan completion*
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 | 04-05 | AppConfig key-value for spotifyUrl | Simple extensible pattern for app settings |
 | 04-05 | Reset order: letters -> votes -> participants | FK constraint order matters |
 | 04-05 | Photos persist across reset | Azure Blob not cleared during session reset |
+| 05-01 | Anthropic structured outputs (output_config.format) | Guaranteed valid JSON via constrained decoding, no retry logic needed |
+| 05-01 | Default model claude-sonnet-4-5-20250929 | Sweet spot of quality/cost, configurable via ANTHROPIC_MODEL env var |
+| 05-01 | Isolated AI service pattern | anthropic.ts wrapper never called from routes, only from nameGame service |
 
 ### Pending Todos
 
@@ -101,6 +105,7 @@ None currently
 
 - Azure SignalR Service needs to be configured before end-to-end testing (see 03-01-USER-SETUP.md)
 - Azure Storage Account needs to be configured for photo uploads (set AZURE_STORAGE_ACCOUNT, AZURE_STORAGE_KEY)
+- Anthropic API key needs to be configured for name generation (set ANTHROPIC_API_KEY in server/.env)
 
 ### Lessons Learned
 
@@ -122,6 +127,8 @@ Gotchas discovered during development that future phases should avoid:
 | 02-04 | **DELETE endpoints must return JSON body** | Returning 204 No Content causes `response.json()` to throw. Always return `{ success: true, data: {} }`. |
 | 02-01 | **motion/react not framer-motion** | Package renamed in v12+. Import from `'motion/react'`, not deprecated `'framer-motion'`. |
 | 04-01 | **Windows Prisma file lock workaround** | EPERM errors on `prisma generate` due to DLL locking. Fix: `rm -rf node_modules/.prisma` before regenerating. Known Windows issue. |
+| 05-01 | **Prisma migrate dev fails with drifted DB** | When DB schema was updated via `db push` or direct SQL without migration history, `prisma migrate dev` refuses to create new migrations (drift detected). Use `prisma db push` to sync, then create migration SQL manually for documentation. |
+| 05-01 | **Clean BOTH .prisma directories on Windows** | Must delete `node_modules/.prisma` AND `server/node_modules/.prisma` before `prisma generate`. The root workspace also has a `.prisma` cache that can hold file locks. |
 
 ### Testing Letters Locally (Without SignalR)
 
@@ -157,34 +164,21 @@ Gotchas discovered during development that future phases should avoid:
 
 ## Session Continuity
 
-Last session: 2026-02-08
-Stopped at: Completed 04-05-PLAN.md (Phase 4 complete!)
+Last session: 2026-02-15
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
 
-**Phase 4 Progress:**
-- [x] 04-01: Letters and Media Foundation (complete, 2026-02-08)
-- [x] 04-02: Photo Upload & Media Library (complete, 2026-02-08)
-- [x] 04-03: Letter Backend (complete, 2026-02-08)
-- [x] 04-04: Letter UI Components (complete, 2026-02-08)
-- [x] 04-05: Integration (complete, 2026-02-08)
+**Phase 5 Progress:**
+- [x] 05-01: Name Game Foundation (complete, 2026-02-15)
+- [ ] 05-02: Backend service, routes, and queries
+- [ ] 05-03: Client hooks and UI components
+- [ ] 05-04: Integration and polish
 
-**Phase 4 Accomplishments:**
-- LetterPrompt, Letter, Photo Prisma models
-- Shared types for letters and media
-- Azure Blob Storage SAS token generation
-- Media API routes (sas, register, list, get, delete)
-- usePhotoUpload hook with browser-direct Azure upload
-- useMediaLibrary hook for photo list management
-- PhotoAttachment, PhotoGrid, SlideshowViewer, MediaLibraryActivity components
-- Letter API routes (getLetterState, saveLetter, submitLetter)
-- Letter SignalR integration (letterSubmitted, letterRevealReady events)
-- useAutoSave hook for debounced content saving
-- useLetter hook for letter activity state management
-- LetterActivity with Writing, Waiting, Reveal, Complete phases
-- Config API for Spotify URL setting
-- SpotifyButton floating action button
-- Letter and media activities wired into BaseEnvelope
-- Reset includes letters in deletion
-- Admin service tests
+**Phase 5 Accomplishments (so far):**
+- NameGameRound, NameGameName, NameGameVote Prisma models with FK relations
+- Shared types for complete name game API contract
+- Anthropic API service with structured outputs for AI name generation
+- Zod validation schemas for request validation
+- Migration SQL for three new database tables
 
-**Ready for Phase 5:** Trivia activity
+**Ready for 05-02:** Database queries, nameGame service, and Express routes

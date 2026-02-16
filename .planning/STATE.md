@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Two people, one screen each, sharing moments that matter.
-**Current focus:** Phase 5 - Baby Name Game & AI
+**Current focus:** Phase 5 complete - Baby Name Game & AI
 
 ## Current Position
 
 Phase: 5 of 7 (Baby Name Game & AI)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-02-15 - Completed 05-03-PLAN.md
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-02-15 - Completed 05-04-PLAN.md
 
-Progress: [███████████████░░░░░] 75% (Phase 5)
-Overall:  [█████████████████████████████████████░░░░] 95% (20/21 plans)
+Progress: [████████████████████] 100% (Phase 5)
+Overall:  [██████████████████████████████████████████] 100% (21/21 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
-- Average duration: ~20 min (including manual debugging)
-- Total execution time: ~6.3 hours
+- Total plans completed: 21
+- Average duration: ~19 min (including manual debugging)
+- Total execution time: ~6.5 hours
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Overall:  [███████████████████████
 | 02 | 4/4 | ~18 min | ~5 min |
 | 03 | 4/4 | ~238 min | ~60 min |
 | 04 | 5/5 | ~41 min | ~8 min |
-| 05 | 3/4 | ~18 min | ~6 min |
+| 05 | 4/4 | ~27 min | ~7 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-04 (~7 min), 04-05 (~10 min), 05-01 (~6 min), 05-02 (~5 min), 05-03 (~7 min)
+- Last 5 plans: 04-05 (~10 min), 05-01 (~6 min), 05-02 (~5 min), 05-03 (~7 min), 05-04 (~9 min)
 - Trend: Consistent ~5-10 min per plan
 
 *Updated after each plan completion*
@@ -101,6 +101,9 @@ Recent decisions affecting current work:
 | 05-02 | Three-tier results categorization | matches (both love), nearMisses (love+maybe), worthDiscussing (both maybe) |
 | 05-03 | Directional overlay feedback via radial gradients | Opacity tied to drag distance for visual Love/Nope/Maybe hints |
 | 05-03 | ResultSection internal sub-component | DRY rendering for match/near-miss/worth-discussing categories |
+| 05-04 | Deterministic client-side name shuffling | Seeded Fisher-Yates with participantId hash for per-partner order |
+| 05-04 | Name game envelopes never complete | No onComplete from BaseEnvelope, envelope stays opened forever |
+| 05-04 | Admin reset FK order for name game | nameGameVote -> nameGameName -> nameGameRound -> participant |
 
 ### Pending Todos
 
@@ -135,6 +138,16 @@ Gotchas discovered during development that future phases should avoid:
 | 05-01 | **Prisma migrate dev fails with drifted DB** | When DB schema was updated via `db push` or direct SQL without migration history, `prisma migrate dev` refuses to create new migrations (drift detected). Use `prisma db push` to sync, then create migration SQL manually for documentation. |
 | 05-01 | **Clean BOTH .prisma directories on Windows** | Must delete `node_modules/.prisma` AND `server/node_modules/.prisma` before `prisma generate`. The root workspace also has a `.prisma` cache that can hold file locks. |
 | 05-02 | **Anthropic SDK ContentBlock type needs explicit narrowing** | `response.content[0]` may be undefined and `ContentBlock` union includes `ThinkingBlock` without `.text`. Must cast explicitly and check for undefined before accessing `.text`. Jest's ts-jest catches this but esbuild doesn't. |
+
+### Testing Name Game Locally (Without SignalR)
+
+1. **Create envelope** with type `'name-game'` (use hyphens!)
+2. **Open the envelope** (click on it in the pile)
+3. **Click "Generate Names"** to start a round (requires ANTHROPIC_API_KEY in server/.env)
+4. **Swipe through names** to vote Love/Maybe/Nope
+5. **Test with two browser windows** (different fingerprints = different participants)
+6. **After both partners vote**, results show with matches highlighted
+7. **Click "Ready for more names?"** to start another round
 
 ### Testing Letters Locally (Without SignalR)
 
@@ -171,16 +184,16 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 05-03-PLAN.md
+Stopped at: Completed 05-04-PLAN.md (Phase 5 complete)
 Resume file: None
 
-**Phase 5 Progress:**
+**Phase 5 Complete:**
 - [x] 05-01: Name Game Foundation (complete, 2026-02-15)
 - [x] 05-02: Backend service, routes, and queries (complete, 2026-02-15)
 - [x] 05-03: Client UI components (complete, 2026-02-15)
-- [ ] 05-04: Integration and polish
+- [x] 05-04: Client integration and wiring (complete, 2026-02-15)
 
-**Phase 5 Accomplishments (so far):**
+**Phase 5 Accomplishments:**
 - NameGameRound, NameGameName, NameGameVote Prisma models with FK relations
 - Shared types for complete name game API contract
 - Anthropic API service with structured outputs for AI name generation
@@ -192,5 +205,11 @@ Resume file: None
 - Six React UI components: NameCard, VotingPhase, WaitingPhase, ResultsPhase, NewRoundPhase, GeneratingPhase
 - Swipe gesture voting (Love/Maybe/Nope) with directional overlay feedback
 - NAME_GAME_* string constants and animation constants
+- useNameGame hook with full phase state machine and SignalR integration
+- NameGameActivity orchestrator component
+- API client functions for all name game endpoints
+- BaseEnvelope wiring for name-game envelope type
+- Admin reset logic for name game data (votes, names, rounds)
+- All admin tests updated for name game models
 
-**Ready for 05-04:** useNameGame hook, NameGameActivity orchestrator, BaseEnvelope integration, reset logic
+**Ready for Phase 6:** Gender Reveal or Phase 7: Polish & Deploy

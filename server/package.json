@@ -19,6 +19,7 @@
     "postdeploy": "prisma migrate deploy"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "@azure/identity": "^4.13.0",
     "@azure/storage-blob": "^12.30.0",
     "@prisma/client": "^6.4.1",

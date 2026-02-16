@@ -106,6 +106,25 @@ export { generateSasSchema, registerPhotoSchema } from './media.js';
 // Re-export Config types
 export type { AppConfig } from './config.js';
 
+// Re-export Name Game types
+export type {
+  NameVoteChoice,
+  GeneratedName,
+  NameVoteState,
+  NameGameRoundResponse,
+  NameGameResults,
+  NameGameMatchList,
+  NameGameStateResponse,
+  GenerateNamesRequest,
+  SubmitVoteRequest,
+  NameVoteSubmittedMessage,
+  NameRoundCompleteMessage,
+} from './nameGame.js';
+export {
+  generateNamesRequestSchema,
+  submitVoteRequestSchema,
+} from './nameGame.js';
+
 /**
  * Health check response data
  */

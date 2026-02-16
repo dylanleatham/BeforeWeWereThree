@@ -57,12 +57,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Baby Name Game Activity
 
-- [ ] **NAME-01**: AI generates batch of names via Anthropic API
-- [ ] **NAME-02**: Each name displays with origin, meaning, and notes
-- [ ] **NAME-03**: User votes Love/Maybe/Nope on each name
-- [ ] **NAME-04**: Match detection shows names both loved
-- [ ] **NAME-05**: User can start new round with optional tweak input
-- [ ] **NAME-06**: Previously shown/declined names never repeat
+- [x] **NAME-01**: AI generates batch of names via Anthropic API
+- [x] **NAME-02**: Each name displays with origin, meaning, and notes
+- [x] **NAME-03**: User votes Love/Maybe/Nope on each name
+- [x] **NAME-04**: Match detection shows names both loved
+- [x] **NAME-05**: User can start new round with optional tweak input
+- [x] **NAME-06**: Previously shown/declined names never repeat
 
 ### Gender Reveal Activity
 
@@ -160,12 +160,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MEDIA-04 | Phase 4 | Complete |
 | ADMIN-02 | Phase 4 | Complete |
 | ADMIN-03 | Phase 4 | Complete |
-| NAME-01 | Phase 5 | Pending |
-| NAME-02 | Phase 5 | Pending |
-| NAME-03 | Phase 5 | Pending |
-| NAME-04 | Phase 5 | Pending |
-| NAME-05 | Phase 5 | Pending |
-| NAME-06 | Phase 5 | Pending |
+| NAME-01 | Phase 5 | Complete |
+| NAME-02 | Phase 5 | Complete |
+| NAME-03 | Phase 5 | Complete |
+| NAME-04 | Phase 5 | Complete |
+| NAME-05 | Phase 5 | Complete |
+| NAME-06 | Phase 5 | Complete |
 | TRIVIA-01 | Phase 6 | Pending |
 | TRIVIA-02 | Phase 6 | Pending |
 | TRIVIA-03 | Phase 6 | Pending |
@@ -184,4 +184,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-02 after Phase 1 completion*
+*Last updated: 2026-02-15 after Phase 5 completion*

@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: UI Foundation & Envelope Model** - Design system, envelope states, animations
 - [x] **Phase 3: Real-Time Sync & Would You Rather** - SignalR, presence, synchronized voting
 - [x] **Phase 4: Letters to Baby & Media** - Text input, photo uploads, media library
-- [ ] **Phase 5: Baby Name Game & AI** - Anthropic API, voting, match detection
+- [x] **Phase 5: Baby Name Game & AI** - Anthropic API, voting, match detection
 - [ ] **Phase 6: Trivia Activity** - Simple Q&A demonstrating pattern reuse
 - [ ] **Phase 7: Gender Reveal Ceremony** - Two-key validation, secret protection, celebration
 
@@ -109,10 +109,10 @@ Plans:
 **Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 05-01-PLAN.md — Database schema, shared types, Anthropic API service (Wave 1)
-- [ ] 05-02-PLAN.md — Server queries, business logic service, API routes (Wave 2)
-- [ ] 05-03-PLAN.md — Name card, voting, results, and phase UI components (Wave 2, parallel)
-- [ ] 05-04-PLAN.md — useNameGame hook, orchestrator, BaseEnvelope wiring, reset (Wave 3)
+- [x] 05-01-PLAN.md — Database schema, shared types, Anthropic API service (Wave 1) -- Completed 2026-02-15
+- [x] 05-02-PLAN.md — Server queries, business logic service, API routes (Wave 2) -- Completed 2026-02-15
+- [x] 05-03-PLAN.md — Name card, voting, results, and phase UI components (Wave 2, parallel) -- Completed 2026-02-15
+- [x] 05-04-PLAN.md — useNameGame hook, orchestrator, BaseEnvelope wiring, reset (Wave 3) -- Completed 2026-02-15
 
 ### Phase 6: Trivia Activity
 **Goal**: Users can play trivia within envelope framework
@@ -158,7 +158,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. UI Foundation & Envelope | 4/4 | Complete | 2026-02-04 |
 | 3. Real-Time Sync & WYR | 4/4 | Complete | 2026-02-06 |
 | 4. Letters & Media | 5/5 | Complete | 2026-02-08 |
-| 5. Baby Name Game & AI | 0/4 | Not started | - |
+| 5. Baby Name Game & AI | 4/4 | Complete | 2026-02-15 |
 | 6. Trivia Activity | 0/3 | Not started | - |
 | 7. Gender Reveal Ceremony | 0/3 | Not started | - |
 

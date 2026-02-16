@@ -166,12 +166,12 @@ export async function generateNames(params: GenerateNamesParams): Promise<AIName
   });
 
   // Structured outputs guarantee valid JSON in response.content[0].text
-  const firstBlock = response.content[0];
-  if (firstBlock.type !== 'text') {
-    throw new Error(`Unexpected response content type: ${firstBlock.type}`);
+  const firstBlock = response.content[0] as { type: string; text?: string } | undefined;
+  if (!firstBlock || firstBlock.type !== 'text') {
+    throw new Error(`Unexpected response content type: ${firstBlock?.type ?? 'empty'}`);
   }
 
-  const parsed = JSON.parse(firstBlock.text) as unknown;
+  const parsed = JSON.parse(firstBlock.text!) as unknown;
   const validated = nameResponseSchema.parse(parsed);
 
   logger.info(`Generated ${validated.names.length} names successfully`);

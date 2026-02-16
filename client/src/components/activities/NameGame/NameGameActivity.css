@@ -1,0 +1,105 @@
+/**
+ * NameGameActivity - Main container styles
+ * Follows the same pattern as WouldYouRatherActivity.css
+ */
+
+.ng-activity {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 300px;
+  position: relative;
+}
+
+/* Header with presence indicator */
+.ng-activity__header {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--spacing-sm);
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+}
+
+/* Content area for phase components */
+.ng-activity__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-lg);
+  padding-top: var(--spacing-xl);
+}
+
+/* Loading state */
+.ng-activity--loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ng-activity__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-warm-sand);
+  border-top-color: var(--color-sunrise-gold);
+  border-radius: 50%;
+}
+
+/* Error state */
+.ng-activity--error {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  text-align: center;
+}
+
+.ng-activity__error-message {
+  color: var(--color-dusk-rose);
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  margin: 0;
+}
+
+.ng-activity__retry {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-deep-terracotta);
+  background: transparent;
+  border: 1px solid var(--color-deep-terracotta);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.ng-activity__retry:hover,
+.ng-activity__retry:focus {
+  background: var(--color-deep-terracotta);
+  color: var(--color-white);
+}
+
+.ng-activity__retry:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
+/* Offline notice (non-blocking banner) */
+.ng-activity__offline-notice {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-deep-terracotta-10);
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  color: var(--color-deep-terracotta);
+  text-align: center;
+  z-index: 5;
+}

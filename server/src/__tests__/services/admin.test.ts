@@ -23,6 +23,18 @@ const mockPhoto = {
   deleteMany: jest.fn() as AnyMock,
 };
 
+const mockNameGameVote = {
+  deleteMany: jest.fn() as AnyMock,
+};
+
+const mockNameGameName = {
+  deleteMany: jest.fn() as AnyMock,
+};
+
+const mockNameGameRound = {
+  deleteMany: jest.fn() as AnyMock,
+};
+
 const mockEnvelope = {
   updateMany: jest.fn() as AnyMock,
 };
@@ -34,6 +46,9 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
     letter: mockLetter,
     wyrVote: mockWyrVote,
     photo: mockPhoto,
+    nameGameVote: mockNameGameVote,
+    nameGameName: mockNameGameName,
+    nameGameRound: mockNameGameRound,
     participant: mockParticipant,
     envelope: mockEnvelope,
     $transaction: mockTransaction,
@@ -52,6 +67,9 @@ describe('Admin Service', () => {
         letter: mockLetter,
         wyrVote: mockWyrVote,
         photo: mockPhoto,
+        nameGameVote: mockNameGameVote,
+        nameGameName: mockNameGameName,
+        nameGameRound: mockNameGameRound,
         participant: mockParticipant,
         envelope: mockEnvelope,
       });
@@ -63,6 +81,9 @@ describe('Admin Service', () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 5 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 2 });
       mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
 
@@ -76,6 +97,9 @@ describe('Admin Service', () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 10 });
       mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
 
@@ -89,6 +113,9 @@ describe('Admin Service', () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 0 });
       mockPhoto.deleteMany.mockResolvedValue({ count: 4 });
+      mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 3 });
 
@@ -102,6 +129,9 @@ describe('Admin Service', () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 0 });
       mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 3 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 5 });
 
@@ -117,6 +147,9 @@ describe('Admin Service', () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 0 });
       mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 0 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 7 });
 
@@ -132,6 +165,9 @@ describe('Admin Service', () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 1 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 2 });
       mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 3 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 4 });
 
@@ -144,6 +180,9 @@ describe('Admin Service', () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 2 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 4 });
       mockPhoto.deleteMany.mockResolvedValue({ count: 3 });
+      mockNameGameVote.deleteMany.mockResolvedValue({ count: 8 });
+      mockNameGameName.deleteMany.mockResolvedValue({ count: 10 });
+      mockNameGameRound.deleteMany.mockResolvedValue({ count: 1 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 1 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 6 });
 
@@ -153,6 +192,9 @@ describe('Admin Service', () => {
         lettersDeleted: 2,
         votesDeleted: 4,
         photosDeleted: 3,
+        nameVotesDeleted: 8,
+        nameNamesDeleted: 10,
+        nameRoundsDeleted: 1,
         participantsDeleted: 1,
         envelopesReset: 6,
       });
@@ -162,6 +204,9 @@ describe('Admin Service', () => {
       mockLetter.deleteMany.mockResolvedValue({ count: 0 });
       mockWyrVote.deleteMany.mockResolvedValue({ count: 0 });
       mockPhoto.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameVote.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameName.deleteMany.mockResolvedValue({ count: 0 });
+      mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
       mockParticipant.deleteMany.mockResolvedValue({ count: 0 });
       mockEnvelope.updateMany.mockResolvedValue({ count: 0 });
 
@@ -171,6 +216,9 @@ describe('Admin Service', () => {
         lettersDeleted: 0,
         votesDeleted: 0,
         photosDeleted: 0,
+        nameVotesDeleted: 0,
+        nameNamesDeleted: 0,
+        nameRoundsDeleted: 0,
         participantsDeleted: 0,
         envelopesReset: 0,
       });

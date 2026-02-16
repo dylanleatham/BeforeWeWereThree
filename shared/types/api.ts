@@ -88,4 +88,7 @@ export interface ResetSessionResponse {
   votesDeleted: number;
   lettersDeleted: number;
   photosDeleted: number;
+  nameVotesDeleted: number;
+  nameNamesDeleted: number;
+  nameRoundsDeleted: number;
 }

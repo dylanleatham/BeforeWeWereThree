@@ -12,6 +12,7 @@ import { EnvelopeCard } from './EnvelopeCard';
 import { WouldYouRatherActivity } from '../activities/WouldYouRather';
 import { LetterActivity } from '../activities/Letter/LetterActivity';
 import { MediaLibraryActivity } from '../activities/MediaLibrary/MediaLibraryActivity';
+import { NameGameActivity } from '../activities/NameGame';
 import { STRINGS } from '../../constants/strings';
 import { ANIMATION_DURATION_MS, CONTENT_REVEAL_DURATION } from '../../constants/animation';
 import './BaseEnvelope.css';
@@ -77,7 +78,8 @@ export function BaseEnvelope({
   const renderActivityContent = () => {
     // Only render activities for opened envelopes (not sealed, not completed)
     // Exception: completed WYR envelopes can reopen into summary view
-    if (envelope.status !== 'opened' && !(envelope.type === 'would-you-rather' && envelope.status === 'completed')) {
+    // Exception: name-game envelopes stay 'opened' forever (never complete)
+    if (envelope.status !== 'opened' && !(envelope.type === 'would-you-rather' && envelope.status === 'completed') && !(envelope.type === 'name-game')) {
       return children || (
         <p className="base-envelope__placeholder">
           {STRINGS.ENVELOPE_PLACEHOLDER}
@@ -111,7 +113,14 @@ export function BaseEnvelope({
           />
         );
 
-      // Other activity types (trivia, name-game, gender-reveal) will be added in future phases
+      case 'name-game':
+        return (
+          <NameGameActivity
+            envelopeId={envelope.id}
+          />
+        );
+
+      // Other activity types (trivia, gender-reveal) will be added in future phases
       default:
         return children || (
           <p className="base-envelope__placeholder">

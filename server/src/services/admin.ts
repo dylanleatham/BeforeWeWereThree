@@ -12,6 +12,9 @@ export interface ResetSessionResult {
   votesDeleted: number;
   lettersDeleted: number;
   photosDeleted: number;
+  nameVotesDeleted: number;
+  nameNamesDeleted: number;
+  nameRoundsDeleted: number;
 }
 
 /**
@@ -27,8 +30,11 @@ export interface ResetSessionResult {
  * 1. Letters (FK to participants and prompts)
  * 2. WYR votes (FK to participants)
  * 3. Photos (FK to participants)
- * 4. Participants (FK target for letters, votes, and photos)
- * 5. Envelopes (just status reset, no FK issues)
+ * 4. Name game votes (FK to participants and names)
+ * 5. Name game names (FK to rounds)
+ * 6. Name game rounds (FK to envelopes)
+ * 7. Participants (FK target for letters, votes, photos, name votes)
+ * 8. Envelopes (just status reset, no FK issues)
  *
  * NOT reset (by design):
  * - LetterPrompts (admin-created content, preserved)
@@ -49,12 +55,17 @@ export async function resetSession(): Promise<ResetSessionResult> {
     // 3. Delete all photos (has FK to participants)
     const photosDeleted = await tx.photo.deleteMany({});
 
-    // 4. Delete all guest participants
+    // 4. Delete name game data (FK order: votes -> names -> rounds)
+    const nameVotesDeleted = await tx.nameGameVote.deleteMany({});
+    const nameNamesDeleted = await tx.nameGameName.deleteMany({});
+    const nameRoundsDeleted = await tx.nameGameRound.deleteMany({});
+
+    // 6. Delete all guest participants
     const participantsDeleted = await tx.participant.deleteMany({
       where: { role: 'guest' },
     });
 
-    // 5. Reset all envelopes to 'sealed' status
+    // 7. Reset all envelopes to 'sealed' status
     const envelopesReset = await tx.envelope.updateMany({
       data: { status: 'sealed' },
     });
@@ -65,6 +76,9 @@ export async function resetSession(): Promise<ResetSessionResult> {
       votesDeleted: votesDeleted.count,
       lettersDeleted: lettersDeleted.count,
       photosDeleted: photosDeleted.count,
+      nameVotesDeleted: nameVotesDeleted.count,
+      nameNamesDeleted: nameNamesDeleted.count,
+      nameRoundsDeleted: nameRoundsDeleted.count,
     };
   });
 

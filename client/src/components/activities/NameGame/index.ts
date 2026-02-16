@@ -2,6 +2,7 @@
  * Name Game Activity Components
  *
  * Exports all components for the Baby Name Game:
+ * - NameGameActivity: Main orchestrator component
  * - NameCard: Individual name display with drag visual feedback
  * - VotingPhase: Swipeable card interface (Love/Maybe/Nope)
  * - WaitingPhase: Waiting for partner to finish voting
@@ -10,6 +11,7 @@
  * - GeneratingPhase: Loading state during AI name generation
  */
 
+export { NameGameActivity } from './NameGameActivity';
 export { NameCard } from './NameCard';
 export { VotingPhase } from './VotingPhase';
 export { WaitingPhase } from './WaitingPhase';

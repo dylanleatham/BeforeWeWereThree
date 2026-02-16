@@ -28,9 +28,10 @@ model Participant {
   role              String // 'guest' or 'admin'
   createdAt         DateTime @default(now()) @map("created_at")
 
-  wyrVotes WyrVote[]
-  letters  Letter[]
-  photos   Photo[]
+  wyrVotes      WyrVote[]
+  letters       Letter[]
+  photos        Photo[]
+  nameGameVotes NameGameVote[]
 
   @@map("participants")
 }
@@ -46,8 +47,9 @@ model Envelope {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  wyrPrompts   WyrPrompt[]
-  letterPrompt LetterPrompt?
+  wyrPrompts     WyrPrompt[]
+  letterPrompt   LetterPrompt?
+  nameGameRounds NameGameRound[]
 
   @@map("envelopes")
 }
@@ -136,4 +138,54 @@ model Photo {
 
   @@index([uploadedById])
   @@map("photos")
+}
+
+// Name Game round - one round per "Start Round" button press
+model NameGameRound {
+  id          String   @id @default(uuid())
+  envelopeId  String   @map("envelope_id")
+  roundNumber Int      @map("round_number")
+  guidance    String?  // User's free-text guidance for AI (null for first round)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  envelope Envelope       @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  names    NameGameName[]
+
+  @@unique([envelopeId, roundNumber])
+  @@index([envelopeId])
+  @@map("name_game_rounds")
+}
+
+// Individual generated name within a round
+model NameGameName {
+  id        String   @id @default(uuid())
+  roundId   String   @map("round_id")
+  name      String
+  origin    String[] // PostgreSQL text array for multiple origins
+  meaning   String
+  notes     String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  round NameGameRound  @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  votes NameGameVote[]
+
+  @@index([roundId])
+  @@map("name_game_names")
+}
+
+// Vote on a name by a participant
+model NameGameVote {
+  id            String   @id @default(uuid())
+  nameId        String   @map("name_id")
+  participantId String   @map("participant_id")
+  choice        String   // 'love', 'maybe', or 'nope'
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  name        NameGameName @relation(fields: [nameId], references: [id], onDelete: Cascade)
+  participant Participant  @relation(fields: [participantId], references: [id])
+
+  @@unique([nameId, participantId])
+  @@index([participantId])
+  @@map("name_game_votes")
 }

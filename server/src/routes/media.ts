@@ -8,6 +8,7 @@ import {
   isStorageConfigured,
 } from '../services/media.js';
 import { getPhotoById, getAllPhotos } from '../db/queries/media.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Media routes for Before We Were Three
@@ -54,7 +55,7 @@ router.post('/sas', authMiddleware, async (req: Request, res: Response) => {
     const sasResponse = await generateUploadSas(filename, contentType);
     res.json(successResponse(sasResponse));
   } catch (error) {
-    console.error('Failed to generate SAS token:', error);
+    logger.error('Failed to generate SAS token', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to generate upload token'));
   }
 });
@@ -92,7 +93,7 @@ router.post('/register', authMiddleware, async (req: Request, res: Response) => 
       res.status(409).json(errorResponse('PHOTO_EXISTS', 'This photo is already registered'));
       return;
     }
-    console.error('Failed to register photo:', error);
+    logger.error('Failed to register photo', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to register photo'));
   }
 });
@@ -106,7 +107,7 @@ router.get('/', authMiddleware, async (_req: Request, res: Response) => {
     const photos = await getAllPhotos();
     res.json(successResponse({ photos }));
   } catch (error) {
-    console.error('Failed to list photos:', error);
+    logger.error('Failed to list photos', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to list photos'));
   }
 });
@@ -125,9 +126,9 @@ router.get('/:id', authMiddleware, async (req: Request<{ id: string }>, res: Res
       return;
     }
 
-    res.json(successResponse(photo));
+    res.json(successResponse({ photo }));
   } catch (error) {
-    console.error('Failed to get photo:', error);
+    logger.error('Failed to get photo', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to get photo'));
   }
 });
@@ -149,7 +150,7 @@ router.delete('/:id', adminMiddleware, async (req: Request<{ id: string }>, res:
 
     res.json(successResponse({}));
   } catch (error) {
-    console.error('Failed to delete photo:', error);
+    logger.error('Failed to delete photo', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete photo'));
   }
 });

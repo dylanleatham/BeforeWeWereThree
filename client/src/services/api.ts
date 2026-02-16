@@ -519,7 +519,7 @@ export async function createLetterPrompt(data: {
   envelopeId: string;
   prompt: string;
 }): Promise<LetterPrompt> {
-  const response = await apiFetch<{ prompt: LetterPrompt }>('/letters', {
+  const response = await apiFetch<{ prompt: LetterPrompt }>('/letters/prompt', {
     method: 'POST',
     body: JSON.stringify(data),
   });

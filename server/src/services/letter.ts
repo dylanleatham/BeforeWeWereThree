@@ -150,7 +150,7 @@ export async function submitLetter(
     });
 
     return { submittedCount };
-  });
+  }, { isolationLevel: 'Serializable' });
 
   // Broadcast letter submitted via SignalR
   const realtime = getRealtimeService();

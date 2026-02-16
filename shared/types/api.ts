@@ -26,6 +26,8 @@ export type ErrorCode =
   | 'PHOTO_NOT_FOUND'
   | 'PHOTO_EXISTS'
   | 'SERVICE_UNAVAILABLE'
+  | 'TOO_MANY_REQUESTS'
+  | 'SORT_ORDER_CONFLICT'
   | `HTTP_${number}`; // For HTTP status code errors
 
 /**

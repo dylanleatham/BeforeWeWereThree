@@ -132,7 +132,7 @@ export async function submitVote(
     });
 
     return { prompt, voteCount };
-  });
+  }, { isolationLevel: 'Serializable' });
 
   // Broadcast vote submitted via SignalR
   const realtime = getRealtimeService();
@@ -171,11 +171,7 @@ export async function submitVote(
         allPrompts[allPrompts.length - 1]!.id === promptId;
 
       let envelopeComplete = false;
-      if (isLastPrompt && allPrompts.length <= 1) {
-        // Single prompt or this is the last one by sort order — check all
-        envelopeComplete = true;
-      } else {
-        // Check every prompt for 2+ votes
+      if (isLastPrompt) {
         let allHaveBothVotes = true;
         for (const p of allPrompts) {
           const count = await countVotesForPrompt(p.id);

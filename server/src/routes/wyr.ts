@@ -17,6 +17,7 @@ import {
 } from '../db/queries/wyr.js';
 import { getEnvelopeState, submitVote } from '../services/wyr.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Would You Rather routes for Before We Were Three
@@ -58,7 +59,7 @@ router.get(
 
       res.json(successResponse(state));
     } catch (error) {
-      console.error('Failed to get WYR envelope state:', error);
+      logger.error('Failed to get WYR envelope state', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to get WYR envelope state'));
     }
   }
@@ -107,7 +108,7 @@ router.post(
           return;
         }
       }
-      console.error('Failed to submit WYR vote:', error);
+      logger.error('Failed to submit WYR vote', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to submit vote'));
     }
   }
@@ -139,7 +140,7 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
       );
       return;
     }
-    console.error('Failed to create WYR prompt:', error);
+    logger.error('Failed to create WYR prompt', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create WYR prompt'));
   }
 });
@@ -163,7 +164,7 @@ router.post('/bulk', adminMiddleware, async (req: Request, res: Response) => {
     const prompts = await createPromptsBulk(parsed.data.envelopeId, parsed.data.prompts);
     res.status(201).json(successResponse({ prompts }));
   } catch (error) {
-    console.error('Failed to bulk create WYR prompts:', error);
+    logger.error('Failed to bulk create WYR prompts', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to bulk create WYR prompts'));
   }
 });
@@ -181,7 +182,7 @@ router.get(
       const prompts = await getPromptsByEnvelopeId(envelopeId);
       res.json(successResponse({ prompts }));
     } catch (error) {
-      console.error('Failed to list WYR prompts:', error);
+      logger.error('Failed to list WYR prompts', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to list WYR prompts'));
     }
   }
@@ -212,7 +213,7 @@ router.patch('/:id', adminMiddleware, async (req: Request<{ id: string }>, res: 
 
     res.json(successResponse({ prompt }));
   } catch (error) {
-    console.error('Failed to update WYR prompt:', error);
+    logger.error('Failed to update WYR prompt', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update WYR prompt'));
   }
 });
@@ -233,7 +234,7 @@ router.delete('/:id', adminMiddleware, async (req: Request<{ id: string }>, res:
 
     res.json(successResponse({ deleted: true }));
   } catch (error) {
-    console.error('Failed to delete WYR prompt:', error);
+    logger.error('Failed to delete WYR prompt', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete WYR prompt'));
   }
 });
@@ -253,7 +254,7 @@ router.get('/prompt/:id', adminMiddleware, async (req: Request<{ id: string }>, 
 
     res.json(successResponse({ prompt }));
   } catch (error) {
-    console.error('Failed to get WYR prompt:', error);
+    logger.error('Failed to get WYR prompt', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to get WYR prompt'));
   }
 });

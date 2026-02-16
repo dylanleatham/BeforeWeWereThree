@@ -61,29 +61,6 @@ export interface WYREnvelopeResponse {
 }
 
 /**
- * Full WYR activity state (for client state management)
- * @deprecated Use WYRPromptState[] with currentPromptIndex for multi-prompt
- */
-export interface WYRState {
-  prompt: WYRPrompt;
-  phase: WYRPhase;
-  myVote: WYRChoice | null;
-  partnerVoted: boolean;
-  results: WYRResults | null;
-}
-
-/**
- * GET /api/wyr/:envelopeId response (single prompt - deprecated)
- * @deprecated Use WYREnvelopeResponse instead
- */
-export interface WYRPromptResponse {
-  prompt: WYRPrompt;
-  myVote: WYRChoice | null;
-  partnerVoted: boolean;
-  results: WYRResults | null;
-}
-
-/**
  * POST /api/wyr/:promptId/vote request body
  */
 export interface WYRVoteRequest {

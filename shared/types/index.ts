@@ -55,8 +55,6 @@ export type {
   WYRResults,
   WYRPromptState,
   WYREnvelopeResponse,
-  WYRState,
-  WYRPromptResponse,
   WYRVoteRequest,
   WYRVoteResponse,
   WYRVoteSubmittedMessage,

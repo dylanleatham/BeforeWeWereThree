@@ -55,6 +55,8 @@ export function useAutoSave<T>({
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
+  // Track saving state via ref to avoid stale closure in flush
+  const isSavingRef = useRef(false);
   // Track the latest content for flush
   const pendingContentRef = useRef<T | null>(null);
   // Track if flush was called while debounce was pending
@@ -65,6 +67,7 @@ export function useAutoSave<T>({
    */
   const executeSave = useCallback(
     async (content: T) => {
+      isSavingRef.current = true;
       setIsSaving(true);
       setError(null);
       try {
@@ -76,6 +79,7 @@ export function useAutoSave<T>({
         console.error('Auto-save failed:', err);
         setError(err instanceof Error ? err.message : 'Save failed');
       } finally {
+        isSavingRef.current = false;
         setIsSaving(false);
         // Resolve any pending flush
         if (flushResolveRef.current) {
@@ -126,13 +130,13 @@ export function useAutoSave<T>({
       });
     }
 
-    // If currently saving, wait for it to complete
-    if (isSaving) {
+    // If currently saving, wait for it to complete (use ref to avoid stale closure)
+    if (isSavingRef.current) {
       return new Promise<void>((resolve) => {
         flushResolveRef.current = resolve;
       });
     }
-  }, [debouncedSave, executeSave, isSaving]);
+  }, [debouncedSave, executeSave]);
 
   return {
     isSaving,

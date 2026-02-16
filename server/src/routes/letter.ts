@@ -15,6 +15,7 @@ import {
 } from '../db/queries/letter.js';
 import { getLetterState, saveLetter, submitLetter } from '../services/letter.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Letter to Baby routes for Before We Were Three
@@ -61,7 +62,7 @@ router.get(
 
       res.json(successResponse(state));
     } catch (error) {
-      console.error('Failed to get letter state:', error);
+      logger.error('Failed to get letter state', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to get letter state'));
     }
   }
@@ -113,7 +114,7 @@ router.put(
           return;
         }
       }
-      console.error('Failed to save letter:', error);
+      logger.error('Failed to save letter', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to save letter'));
     }
   }
@@ -174,7 +175,7 @@ router.post(
           return;
         }
       }
-      console.error('Failed to submit letter:', error);
+      logger.error('Failed to submit letter', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to submit letter'));
     }
   }
@@ -210,7 +211,7 @@ router.post('/prompt', adminMiddleware, async (req: Request, res: Response) => {
         .json(errorResponse('PROMPT_EXISTS', 'This envelope already has a letter prompt'));
       return;
     }
-    console.error('Failed to create letter prompt:', error);
+    logger.error('Failed to create letter prompt', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create letter prompt'));
   }
 });
@@ -230,7 +231,7 @@ router.get('/prompt/:id', adminMiddleware, async (req: Request<{ id: string }>, 
 
     res.json(successResponse({ prompt }));
   } catch (error) {
-    console.error('Failed to get letter prompt:', error);
+    logger.error('Failed to get letter prompt', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to get letter prompt'));
   }
 });
@@ -263,7 +264,7 @@ router.patch(
 
       res.json(successResponse({ prompt }));
     } catch (error) {
-      console.error('Failed to update letter prompt:', error);
+      logger.error('Failed to update letter prompt', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update letter prompt'));
     }
   }
@@ -288,7 +289,7 @@ router.delete(
 
       res.json(successResponse({ deleted: true }));
     } catch (error) {
-      console.error('Failed to delete letter prompt:', error);
+      logger.error('Failed to delete letter prompt', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete letter prompt'));
     }
   }

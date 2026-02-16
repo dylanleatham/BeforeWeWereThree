@@ -7,6 +7,7 @@ import { getOrCreateParticipant, resetParticipants } from '../services/participa
 import { createSession, SESSION_COOKIE_OPTIONS, getSessionExpiration } from '../services/session.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 import { pinRateLimiter } from '../middleware/rateLimit.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Constant-time string comparison to prevent timing attacks
@@ -80,7 +81,7 @@ router.post('/validate-pin', pinRateLimiter, async (req: Request, res: Response)
 
     res.json(successResponse(responseData));
   } catch (error) {
-    console.error('PIN validation error:', error);
+    logger.error('PIN validation error', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'An unexpected error occurred'));
   }
 });
@@ -103,7 +104,7 @@ router.get('/session', authMiddleware, async (req: Request, res: Response) => {
 
     res.json(successResponse(responseData));
   } catch (error) {
-    console.error('Session fetch error:', error);
+    logger.error('Session fetch error', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'An unexpected error occurred'));
   }
 });
@@ -127,7 +128,7 @@ router.delete('/participants', adminMiddleware, async (_req: Request, res: Respo
     await resetParticipants();
     res.json(successResponse({ message: 'All guest participants have been reset' }));
   } catch (error) {
-    console.error('Reset participants error:', error);
+    logger.error('Reset participants error', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to reset participants'));
   }
 });

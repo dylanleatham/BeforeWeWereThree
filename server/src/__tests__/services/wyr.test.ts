@@ -311,16 +311,14 @@ describe('WYR Service', () => {
       ]);
       // 3-prompt envelope
       mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1, PROMPT_2, PROMPT_3]);
-      // Prompt 1: 2 votes, Prompt 2: 0, Prompt 3: 0
-      mockCountVotesForPrompt
-        .mockResolvedValueOnce(2) // prompt 1
-        .mockResolvedValueOnce(0); // prompt 2 — short circuits
+      // isLastPrompt is false (prompt-1 is not last), so vote counts are not checked
 
       const result = await submitVote('prompt-1', PARTICIPANT_A, 'option_a');
 
       expect(result.revealed).toBe(true);
       expect(result.isLastPrompt).toBe(false);
       expect(result.envelopeComplete).toBe(false);
+      expect(mockCountVotesForPrompt).not.toHaveBeenCalled();
       expect(mockUpdateEnvelopeStatus).not.toHaveBeenCalled();
     });
 
@@ -359,10 +357,7 @@ describe('WYR Service', () => {
         { participantId: PARTICIPANT_B, choice: 'option_b' },
       ]);
       mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1, PROMPT_2, PROMPT_3]);
-      mockCountVotesForPrompt
-        .mockResolvedValueOnce(2)
-        .mockResolvedValueOnce(2)
-        .mockResolvedValueOnce(0);
+      // isLastPrompt is false (prompt-2 is not last), so vote counts are not checked
 
       await submitVote('prompt-2', PARTICIPANT_A, 'option_a');
 

@@ -13,6 +13,7 @@ import {
   deleteEnvelope,
 } from '../db/queries/envelopes.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Envelope routes for Before We Were Three
@@ -35,7 +36,7 @@ router.get('/', authMiddleware, async (_req: Request, res: Response) => {
     const envelopes = await getAllEnvelopes();
     res.json(successResponse({ envelopes }));
   } catch (error) {
-    console.error('Failed to fetch envelopes:', error);
+    logger.error('Failed to fetch envelopes', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch envelopes'));
   }
 });
@@ -54,7 +55,7 @@ router.get('/:id', authMiddleware, async (req: Request<{ id: string }>, res: Res
     }
     res.json(successResponse({ envelope }));
   } catch (error) {
-    console.error('Failed to fetch envelope:', error);
+    logger.error('Failed to fetch envelope', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch envelope'));
   }
 });
@@ -78,7 +79,7 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
     const envelope = await createEnvelope(parsed.data);
     res.status(201).json(successResponse({ envelope }));
   } catch (error) {
-    console.error('Failed to create envelope:', error);
+    logger.error('Failed to create envelope', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create envelope'));
   }
 });
@@ -107,7 +108,7 @@ router.post('/:id/open', authMiddleware, async (req: Request<{ id: string }>, re
     const envelope = await updateEnvelope(id, { status: 'opened' });
     res.json(successResponse({ envelope }));
   } catch (error) {
-    console.error('Failed to open envelope:', error);
+    logger.error('Failed to open envelope', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to open envelope'));
   }
 });
@@ -137,7 +138,7 @@ router.patch('/:id', adminMiddleware, async (req: Request<{ id: string }>, res: 
 
     res.json(successResponse({ envelope }));
   } catch (error) {
-    console.error('Failed to update envelope:', error);
+    logger.error('Failed to update envelope', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update envelope'));
   }
 });
@@ -157,7 +158,7 @@ router.delete('/:id', adminMiddleware, async (req: Request<{ id: string }>, res:
 
     res.json(successResponse({ deleted: true }));
   } catch (error) {
-    console.error('Failed to delete envelope:', error);
+    logger.error('Failed to delete envelope', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete envelope'));
   }
 });

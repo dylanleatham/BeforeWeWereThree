@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { successResponse, errorResponse } from 'shared';
 import { adminMiddleware } from '../middleware/auth.js';
 import { resetSession, ResetSessionResult } from '../services/admin.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Admin routes for Before We Were Three
@@ -33,7 +34,7 @@ router.post('/reset-session', adminMiddleware, async (_req: Request, res: Respon
       })
     );
   } catch (error) {
-    console.error('Reset session error:', error);
+    logger.error('Reset session error', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to reset session'));
   }
 });

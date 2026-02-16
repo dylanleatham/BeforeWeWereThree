@@ -43,15 +43,18 @@ const prodPackageJson = {
     '@prisma/client': '^6.19.2',
     'prisma': '^6.19.2',
   },
-  prisma: {
-    schema: './prisma/schema.prisma',
-  },
 };
 
 writeFileSync(join(deployDir, 'package.json'), JSON.stringify(prodPackageJson, null, 2));
 
-// Copy Prisma schema (needed for migrations and client generation)
+// Copy Prisma schema and config (needed for migrations and client generation)
 copyFileSync(join(prismaDir, 'schema.prisma'), join(deployDir, 'prisma', 'schema.prisma'));
+
+// Copy prisma.config.ts (replaces deprecated package.json#prisma key)
+const prismaConfigPath = join(__dirname, 'prisma.config.ts');
+if (existsSync(prismaConfigPath)) {
+  copyFileSync(prismaConfigPath, join(deployDir, 'prisma.config.ts'));
+}
 
 // Copy migrations folder if it exists (needed for prisma migrate deploy)
 const migrationsDir = join(prismaDir, 'migrations');

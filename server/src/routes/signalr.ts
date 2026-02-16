@@ -4,6 +4,7 @@ import { authMiddleware } from '../middleware/auth.js';
 import { successResponse, errorResponse } from 'shared';
 import type { RealtimeNegotiateResponse } from 'shared';
 import { getTransport, getRealtimeService } from '../services/realtime.js';
+import { logger } from '../utils/logger.js';
 
 const router = Router();
 
@@ -94,7 +95,7 @@ router.post('/negotiate', authMiddleware, async (req, res) => {
       userId,
     }));
   } catch (error) {
-    console.error('SignalR negotiate error:', error);
+    logger.error('SignalR negotiate error', { error });
     res.status(500).json({
       success: false,
       error: { code: 'SIGNALR_TOKEN_ERROR', message: 'Failed to generate connection token' },

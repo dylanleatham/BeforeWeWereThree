@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { successResponse, errorResponse, type AppConfig } from 'shared';
 import { adminMiddleware } from '../middleware/auth.js';
 import { db } from '../db/connection.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Config routes for Before We Were Three
@@ -44,7 +45,7 @@ router.get('/', async (_req: Request, res: Response) => {
 
     res.json(successResponse(config));
   } catch (error) {
-    console.error('Get config error:', error);
+    logger.error('Get config error', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch config'));
   }
 });
@@ -94,7 +95,7 @@ router.put('/', adminMiddleware, async (req: Request, res: Response) => {
 
     res.json(successResponse(config));
   } catch (error) {
-    console.error('Update config error:', error);
+    logger.error('Update config error', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update config'));
   }
 });

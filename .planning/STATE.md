@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 5 of 7 (Baby Name Game & AI)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-15 - Completed 05-01-PLAN.md
+Last activity: 2026-02-15 - Completed 05-02-PLAN.md
 
-Progress: [█████░░░░░░░░░░░░░░░] 25% (Phase 5)
-Overall:  [██████████████████████████████████░░░░░░░] 86% (18/21 plans)
+Progress: [██████████░░░░░░░░░░] 50% (Phase 5)
+Overall:  [████████████████████████████████████░░░░░] 90% (19/21 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
-- Average duration: ~22 min (including manual debugging)
-- Total execution time: ~6.1 hours
+- Total plans completed: 19
+- Average duration: ~21 min (including manual debugging)
+- Total execution time: ~6.2 hours
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Overall:  [███████████████████████
 | 02 | 4/4 | ~18 min | ~5 min |
 | 03 | 4/4 | ~238 min | ~60 min |
 | 04 | 5/5 | ~41 min | ~8 min |
-| 05 | 1/4 | ~6 min | ~6 min |
+| 05 | 2/4 | ~11 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (~8 min), 04-03 (~4 min), 04-04 (~7 min), 04-05 (~10 min), 05-01 (~6 min)
-- Trend: Consistent ~6-10 min per plan
+- Last 5 plans: 04-03 (~4 min), 04-04 (~7 min), 04-05 (~10 min), 05-01 (~6 min), 05-02 (~5 min)
+- Trend: Consistent ~5-10 min per plan
 
 *Updated after each plan completion*
 
@@ -96,6 +96,9 @@ Recent decisions affecting current work:
 | 05-01 | Anthropic structured outputs (output_config.format) | Guaranteed valid JSON via constrained decoding, no retry logic needed |
 | 05-01 | Default model claude-sonnet-4-5-20250929 | Sweet spot of quality/cost, configurable via ANTHROPIC_MODEL env var |
 | 05-01 | Isolated AI service pattern | anthropic.ts wrapper never called from routes, only from nameGame service |
+| 05-02 | EnvelopeId lookup via FK chain for vote | name -> round -> envelope FK chain used to resolve SignalR group name |
+| 05-02 | Vote progress broadcast with counts | namesVotedCount/totalNames enables client progress UI |
+| 05-02 | Three-tier results categorization | matches (both love), nearMisses (love+maybe), worthDiscussing (both maybe) |
 
 ### Pending Todos
 
@@ -129,6 +132,7 @@ Gotchas discovered during development that future phases should avoid:
 | 04-01 | **Windows Prisma file lock workaround** | EPERM errors on `prisma generate` due to DLL locking. Fix: `rm -rf node_modules/.prisma` before regenerating. Known Windows issue. |
 | 05-01 | **Prisma migrate dev fails with drifted DB** | When DB schema was updated via `db push` or direct SQL without migration history, `prisma migrate dev` refuses to create new migrations (drift detected). Use `prisma db push` to sync, then create migration SQL manually for documentation. |
 | 05-01 | **Clean BOTH .prisma directories on Windows** | Must delete `node_modules/.prisma` AND `server/node_modules/.prisma` before `prisma generate`. The root workspace also has a `.prisma` cache that can hold file locks. |
+| 05-02 | **Anthropic SDK ContentBlock type needs explicit narrowing** | `response.content[0]` may be undefined and `ContentBlock` union includes `ThinkingBlock` without `.text`. Must cast explicitly and check for undefined before accessing `.text`. Jest's ts-jest catches this but esbuild doesn't. |
 
 ### Testing Letters Locally (Without SignalR)
 
@@ -165,12 +169,12 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 05-01-PLAN.md
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
 
 **Phase 5 Progress:**
 - [x] 05-01: Name Game Foundation (complete, 2026-02-15)
-- [ ] 05-02: Backend service, routes, and queries
+- [x] 05-02: Backend service, routes, and queries (complete, 2026-02-15)
 - [ ] 05-03: Client hooks and UI components
 - [ ] 05-04: Integration and polish
 
@@ -180,5 +184,8 @@ Resume file: None
 - Anthropic API service with structured outputs for AI name generation
 - Zod validation schemas for request validation
 - Migration SQL for three new database tables
+- Typed Prisma query functions for all name game DB operations
+- Business logic service with Anthropic integration, Serializable transactions, SignalR broadcasts
+- Four REST API endpoints at /api/name-game (state, generate, vote, matches)
 
-**Ready for 05-02:** Database queries, nameGame service, and Express routes
+**Ready for 05-03:** Client hooks (useNameGame) and UI components (NameCard, VotingPhase, ResultsPhase, etc.)

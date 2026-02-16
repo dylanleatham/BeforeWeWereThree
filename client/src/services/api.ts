@@ -20,6 +20,11 @@ import type {
   LetterPrompt,
   SubmitLetterResponse,
   AppConfig,
+  NameGameStateResponse,
+  NameGameRoundResponse,
+  NameVoteChoice,
+  NameGameMatchList,
+  NameGameResults,
 } from 'shared';
 import { STRINGS } from '../constants/strings';
 
@@ -583,6 +588,69 @@ export async function updateConfig(config: { spotifyUrl?: string | null }): Prom
   });
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to update config');
+  }
+  return response.data;
+}
+
+// ============================================================================
+// Name Game API
+// ============================================================================
+
+/**
+ * Get name game state for an envelope (current round + matches)
+ */
+export async function getNameGameState(envelopeId: string): Promise<NameGameStateResponse> {
+  const response = await apiFetch<NameGameStateResponse>(`/name-game/${envelopeId}`);
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch name game state');
+  }
+  return response.data;
+}
+
+/**
+ * Generate a new round of AI-powered baby names
+ */
+export async function generateNameGameRound(
+  envelopeId: string,
+  guidance?: string
+): Promise<NameGameRoundResponse> {
+  const response = await apiFetch<NameGameRoundResponse>(`/name-game/${envelopeId}/generate`, {
+    method: 'POST',
+    body: JSON.stringify({ guidance }),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to generate names');
+  }
+  return response.data;
+}
+
+/**
+ * Submit a vote on a generated name
+ */
+export async function submitNameVote(
+  nameId: string,
+  choice: NameVoteChoice
+): Promise<{ allVoted: boolean; results?: NameGameResults }> {
+  const response = await apiFetch<{ allVoted: boolean; results?: NameGameResults }>(
+    `/name-game/${nameId}/vote`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ choice }),
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to submit vote');
+  }
+  return response.data;
+}
+
+/**
+ * Get accumulated matches across all rounds
+ */
+export async function getNameGameMatches(envelopeId: string): Promise<NameGameMatchList> {
+  const response = await apiFetch<NameGameMatchList>(`/name-game/${envelopeId}/matches`);
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch matches');
   }
   return response.data;
 }

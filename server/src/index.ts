@@ -43,7 +43,7 @@ app.use(
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'blob:', 'https://*.blob.core.windows.net'],
         mediaSrc: ["'self'", 'blob:', 'https://*.blob.core.windows.net'],
-        connectSrc: ["'self'", frontendUrl, 'wss:', 'ws:'],
+        connectSrc: ["'self'", frontendUrl, 'wss:', 'ws:', 'https://*.blob.core.windows.net'],
       },
     },
   })

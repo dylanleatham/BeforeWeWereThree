@@ -209,6 +209,7 @@ Each phase results in a working, deployed checkpoint in production. New complexi
 - **Public blob read access for thumbnails:** The app stores bare `blobUrl` values (no SAS token) in the database for displaying photos. The storage account must have `--allow-blob-public-access true` and the `photos` container must have `--public-access blob`. Without this, image `<img src>` tags get 409 "Public access is not permitted" errors.
 - **Storage account name:** `bwwtstorage` in resource group `bwwt-rg`, region `centralus`. Container: `photos`.
 - **Env vars:** `AZURE_STORAGE_ACCOUNT` and `AZURE_STORAGE_KEY` in `server/.env`. The SAS endpoint returns 503 if these are missing.
+- **Use XHR for blob uploads, not the Azure SDK:** The `@azure/storage-blob` SDK's `BlockBlobClient.uploadData` uses the Fetch API internally, which does not support upload progress events in browsers. Use direct XHR PUT to the SAS URL with `x-ms-blob-type: BlockBlob` header for granular `upload.onprogress` tracking. See `client/src/services/blobUpload.ts`.
 
 ### Interaction Design
 
@@ -227,6 +228,7 @@ Each phase results in a working, deployed checkpoint in production. New complexi
 - **Never use `useState` for cleanup logic:** `useState(() => { return () => cleanup() })` does NOT work as a cleanup function. The return value of the initializer is stored as state, not registered as a cleanup. Always use `useEffect` with a return function for unmount cleanup.
 - **Pass current values to submit functions:** When a hook holds state (`myLetter`) that a component also holds locally (`content` in textarea), the hook's state may be stale if auto-save hasn't flushed. Thread the current value from the component through to the API call rather than reading from hook state. Pattern: `submit(content, photoUrl)` not `submit()` reading from internal state.
 - **Capture values before async calls:** When using state values (like `myLetter.id`) to match results after an async API call, capture the value *before* the `await`. State may change between the call and the response.
+- **`mountedRef` must be set `true` in effect body, not just `useRef(true)`:** React 18 `StrictMode` double-invokes effects in dev: mount → cleanup → re-mount. If cleanup sets `mountedRef.current = false` but the effect body doesn't reset it to `true`, the ref stays `false` after the strict mode cycle. Any async code checking `if (!mountedRef.current) return` will silently bail out, causing operations to appear stuck (no progress, no error). Always pair: `useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);`
 
 ### Database Transactions
 
@@ -234,7 +236,7 @@ Each phase results in a working, deployed checkpoint in production. New complexi
 
 ### CSP and External Resources
 
-- **CSP must allow all external resource origins:** When adding features that load external resources (Azure Blob images, CDN scripts, etc.), update the `helmet` CSP directives in `server/src/index.ts`. The `imgSrc` directive must include `https://*.blob.core.windows.net` for Azure-hosted photos to display.
+- **CSP must allow all external resource origins:** When adding features that load external resources (Azure Blob images, CDN scripts, etc.), update the `helmet` CSP directives in `server/src/index.ts`. The `imgSrc` directive must include `https://*.blob.core.windows.net` for Azure-hosted photos to display. The `connectSrc` directive must also include `https://*.blob.core.windows.net` for direct browser uploads to Azure Blob Storage — `img-src` alone is not enough.
 
 ### API Response Consistency
 

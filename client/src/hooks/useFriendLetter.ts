@@ -33,6 +33,7 @@ export function useFriendLetter(
   const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       if (saveTimerRef.current) {

@@ -38,9 +38,14 @@ export const pinSchema = z
 
 /**
  * Validate PIN request schema
+ * Uses relaxed PIN validation (8 digits only, no date format check)
+ * because friend PINs are arbitrary 8-digit codes, not MMDDYYYY dates.
  */
 export const validatePinRequestSchema = z.object({
-  pin: pinSchema,
+  pin: z
+    .string()
+    .length(8, 'PIN must be exactly 8 digits')
+    .regex(/^\d{8}$/, 'PIN must contain only digits'),
   deviceFingerprint: z
     .string()
     .min(1, 'Device fingerprint is required')

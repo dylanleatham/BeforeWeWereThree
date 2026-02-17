@@ -6,15 +6,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
 // Hoist mock so it's available when vi.mock factory runs
-const { mockUploadData } = vi.hoisted(() => ({
-  mockUploadData: vi.fn().mockResolvedValue(undefined),
+const { mockUploadToBlob } = vi.hoisted(() => ({
+  mockUploadToBlob: vi.fn().mockReturnValue({
+    xhr: { abort: vi.fn() },
+    promise: Promise.resolve(),
+  }),
 }));
 
-// Mock Azure Storage SDK with class-based mock for proper `new` behavior
-vi.mock('@azure/storage-blob', () => ({
-  BlockBlobClient: class MockBlockBlobClient {
-    uploadData = mockUploadData;
-  },
+// Mock blobUpload service
+vi.mock('../../services/blobUpload', () => ({
+  uploadToBlob: mockUploadToBlob,
 }));
 
 // Mock api module
@@ -36,16 +37,6 @@ function createMockFile(name: string, type: string): File {
 describe('usePhotoUpload', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // jsdom may not have Blob.prototype.arrayBuffer; polyfill for tests
-    if (!Blob.prototype.arrayBuffer) {
-      Blob.prototype.arrayBuffer = function () {
-        return new Promise<ArrayBuffer>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as ArrayBuffer);
-          reader.readAsArrayBuffer(this);
-        });
-      };
-    }
   });
 
   it('should start with no upload state', () => {
@@ -96,7 +87,11 @@ describe('usePhotoUpload', () => {
 
     // Verify the SAS token was requested and photo was registered
     expect(mockGetUploadSas).toHaveBeenCalledWith('pic.jpg', 'image/jpeg');
-    expect(mockUploadData).toHaveBeenCalled();
+    expect(mockUploadToBlob).toHaveBeenCalledWith(
+      'https://storage.blob.core.windows.net/photos/blob?sas=token',
+      imageFile,
+      expect.objectContaining({ onProgress: expect.any(Function) })
+    );
     expect(mockRegisterPhoto).toHaveBeenCalledWith(
       'https://storage.blob.core.windows.net/photos/blob',
       'pic.jpg',

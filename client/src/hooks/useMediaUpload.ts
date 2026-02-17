@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { BlockBlobClient } from '@azure/storage-blob';
 import { getUploadSas, registerPhoto } from '../services/api';
+import { uploadToBlob } from '../services/blobUpload';
 
 interface UploadState {
   isUploading: boolean;
@@ -25,13 +25,16 @@ export function useMediaUpload(): UseMediaUploadReturn {
   });
 
   const mountedRef = useRef(true);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const xhrRef = useRef<XMLHttpRequest | null>(null);
 
+  // Track mount state — must set true in effect body for React strict mode,
+  // which runs cleanup between the double-mount cycle in development.
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
+      if (xhrRef.current) {
+        xhrRef.current.abort();
       }
     };
   }, []);
@@ -53,28 +56,26 @@ export function useMediaUpload(): UseMediaUploadReturn {
     }
 
     setState({ isUploading: true, progress: 0, error: null });
-    abortControllerRef.current = new AbortController();
+
+    // Abort any in-progress upload
+    if (xhrRef.current) {
+      xhrRef.current.abort();
+    }
 
     try {
       const sasResponse = await getUploadSas(file.name, file.type);
       if (!mountedRef.current) return null;
 
-      const arrayBuffer = await file.arrayBuffer();
-      if (!mountedRef.current) return null;
-
-      const blockBlobClient = new BlockBlobClient(sasResponse.sasUrl);
-
-      await blockBlobClient.uploadData(arrayBuffer, {
-        blobHTTPHeaders: { blobContentType: file.type },
-        onProgress: (progress) => {
+      // Upload directly to Azure Blob Storage using XHR for real progress
+      const { xhr, promise } = uploadToBlob(sasResponse.sasUrl, file, {
+        onProgress: (percent) => {
           if (!mountedRef.current) return;
-          const percent = Math.round(
-            (progress.loadedBytes / arrayBuffer.byteLength) * 100
-          );
           setState((prev) => ({ ...prev, progress: percent }));
         },
-        abortSignal: abortControllerRef.current.signal,
       });
+      xhrRef.current = xhr;
+
+      await promise;
 
       if (!mountedRef.current) return null;
 
@@ -98,8 +99,9 @@ export function useMediaUpload(): UseMediaUploadReturn {
   }, []);
 
   const reset = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+    if (xhrRef.current) {
+      xhrRef.current.abort();
+      xhrRef.current = null;
     }
     setState({ isUploading: false, progress: 0, error: null });
   }, []);

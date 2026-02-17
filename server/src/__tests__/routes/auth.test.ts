@@ -88,12 +88,12 @@ describe('Auth Routes', () => {
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('should return 400 for invalid date PIN', async () => {
+    it('should return 401 for unrecognized 8-digit PIN', async () => {
       const response = await request(app)
         .post('/api/auth/validate-pin')
         .send({ pin: '13012025', deviceFingerprint: 'test-fp' });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
     });
 
     it('should return 401 for wrong PIN', async () => {

@@ -183,6 +183,7 @@ export async function resetSession(): Promise<ResetSessionResult> {
 **What NOT to reset:**
 - Admin-created content (prompts, questions, configuration)
 - Envelope definitions (just reset status to 'sealed')
+- **Friend letters (`FriendLetter`, `FriendThankYouNote`)** — these are contributed by real friends and must never be deleted. Friend-letter envelopes should also keep their current status.
 
 ## Build Philosophy
 

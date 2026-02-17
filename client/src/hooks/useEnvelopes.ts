@@ -46,6 +46,9 @@ export function useEnvelopes(): UseEnvelopesResult {
   // Update envelope status (for opening/completing)
   const updateStatus = useCallback(
     async (id: string, status: EnvelopeStatus) => {
+      // Capture original status for rollback
+      const originalStatus = envelopes.find((env) => env.id === id)?.status;
+
       // Optimistic update
       setEnvelopes((prev) =>
         prev.map((env) => (env.id === id ? { ...env, status } : env))
@@ -60,12 +63,16 @@ export function useEnvelopes(): UseEnvelopesResult {
           await apiUpdateEnvelope(id, { status });
         }
       } catch (err) {
-        // Revert on error
-        await fetchEnvelopes();
+        // Revert the specific envelope instead of refetching all
+        if (originalStatus) {
+          setEnvelopes((prev) =>
+            prev.map((env) => (env.id === id ? { ...env, status: originalStatus } : env))
+          );
+        }
         throw err;
       }
     },
-    [fetchEnvelopes]
+    [envelopes]
   );
 
   return {

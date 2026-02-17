@@ -57,19 +57,13 @@ router.post('/negotiate', authMiddleware, async (req, res) => {
   const connectionString = process.env.SIGNALR_CONNECTION_STRING;
   if (!connectionString) {
     // This shouldn't happen if transport is 'signalr', but handle it gracefully
-    res.status(503).json({
-      success: false,
-      error: { code: 'SIGNALR_NOT_CONFIGURED', message: 'Real-time features are not available' },
-    });
+    res.status(503).json(errorResponse('SIGNALR_NOT_CONFIGURED', 'Real-time features are not available'));
     return;
   }
 
   const parsed = parseConnectionString(connectionString);
   if (!parsed) {
-    res.status(500).json({
-      success: false,
-      error: { code: 'SIGNALR_CONFIG_ERROR', message: 'Invalid SignalR configuration' },
-    });
+    res.status(500).json(errorResponse('SIGNALR_CONFIG_ERROR', 'Invalid SignalR configuration'));
     return;
   }
 
@@ -96,10 +90,7 @@ router.post('/negotiate', authMiddleware, async (req, res) => {
     }));
   } catch (error) {
     logger.error('SignalR negotiate error', { error });
-    res.status(500).json({
-      success: false,
-      error: { code: 'SIGNALR_TOKEN_ERROR', message: 'Failed to generate connection token' },
-    });
+    res.status(500).json(errorResponse('SIGNALR_TOKEN_ERROR', 'Failed to generate connection token'));
   }
 });
 
@@ -112,6 +103,10 @@ router.post('/groups/join', authMiddleware, async (req, res) => {
   const { groupName } = req.body;
   if (!groupName || typeof groupName !== 'string') {
     res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
+    return;
+  }
+  if (!/^activity:[a-z0-9]+$/.test(groupName)) {
+    res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
     return;
   }
 
@@ -134,6 +129,10 @@ router.post('/groups/leave', authMiddleware, async (req, res) => {
   const { groupName } = req.body;
   if (!groupName || typeof groupName !== 'string') {
     res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
+    return;
+  }
+  if (!/^activity:[a-z0-9]+$/.test(groupName)) {
+    res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
     return;
   }
 

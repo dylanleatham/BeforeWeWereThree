@@ -1,4 +1,5 @@
 import { db } from '../connection.js';
+import { Prisma } from '@prisma/client';
 import type { Photo as PrismaPhoto } from '@prisma/client';
 import type { Photo } from 'shared';
 
@@ -92,8 +93,10 @@ export async function deletePhotoById(id: string): Promise<Photo | null> {
       where: { id },
     });
     return toApiPhoto(photo);
-  } catch {
-    // Record not found
-    return null;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return null;
+    }
+    throw error;
   }
 }

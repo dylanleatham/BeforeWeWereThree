@@ -1,4 +1,5 @@
 import { db } from '../connection.js';
+import { Prisma } from '@prisma/client';
 import type {
   LetterPrompt as PrismaLetterPrompt,
   Letter as PrismaLetter,
@@ -95,9 +96,11 @@ export async function updatePrompt(
       data,
     });
     return toApiPrompt(prompt);
-  } catch {
-    // Prisma throws if record not found
-    return null;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return null;
+    }
+    throw error;
   }
 }
 
@@ -111,8 +114,11 @@ export async function deletePrompt(id: string): Promise<boolean> {
       where: { id },
     });
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return false;
+    }
+    throw error;
   }
 }
 
@@ -207,9 +213,11 @@ export async function updateLetter(
       data,
     });
     return toApiLetter(letter);
-  } catch {
-    // Prisma throws if record not found
-    return null;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return null;
+    }
+    throw error;
   }
 }
 
@@ -225,9 +233,11 @@ export async function submitLetter(id: string): Promise<Letter | null> {
       },
     });
     return toApiLetter(letter);
-  } catch {
-    // Prisma throws if record not found
-    return null;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return null;
+    }
+    throw error;
   }
 }
 

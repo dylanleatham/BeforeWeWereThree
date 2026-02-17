@@ -1,4 +1,5 @@
 import { db } from '../connection.js';
+import { Prisma } from '@prisma/client';
 import type {
   Friend as PrismaFriend,
   FriendThankYouNote as PrismaFriendThankYouNote,
@@ -114,8 +115,11 @@ export async function deleteFriend(id: string): Promise<boolean> {
       await tx.friend.delete({ where: { id } });
     });
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return false;
+    }
+    throw error;
   }
 }
 
@@ -170,8 +174,11 @@ export async function submitFriendLetter(
       data: { submittedAt: new Date() },
     });
     return toApiFriendLetter(letter);
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return null;
+    }
+    throw error;
   }
 }
 

@@ -71,7 +71,10 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
       error: null,
     });
 
-    // Create new abort controller for this upload
+    // Abort any in-progress upload before starting a new one
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     abortControllerRef.current = new AbortController();
 
     try {

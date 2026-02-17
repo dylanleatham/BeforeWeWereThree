@@ -74,13 +74,21 @@ export function BaseEnvelope({
   }, [onStatusChange, onClose]);
 
   /**
+   * Check if an envelope should render its activity content.
+   * name-game never completes; WYR shows summary when completed; others only when opened.
+   */
+  const shouldRenderActivity = (env: Envelope): boolean => {
+    if (env.type === 'name-game') return true;
+    if (env.type === 'would-you-rather' && env.status === 'completed') return true;
+    if (env.type === 'friend-letter' && env.status === 'completed') return true;
+    return env.status === 'opened';
+  };
+
+  /**
    * Render the appropriate activity content based on envelope type
    */
   const renderActivityContent = () => {
-    // Only render activities for opened envelopes (not sealed, not completed)
-    // Exception: completed WYR envelopes can reopen into summary view
-    // Exception: name-game envelopes stay 'opened' forever (never complete)
-    if (envelope.status !== 'opened' && !(envelope.type === 'would-you-rather' && envelope.status === 'completed') && !(envelope.type === 'name-game')) {
+    if (!shouldRenderActivity(envelope)) {
       return children || (
         <p className="base-envelope__placeholder">
           {STRINGS.ENVELOPE_PLACEHOLDER}

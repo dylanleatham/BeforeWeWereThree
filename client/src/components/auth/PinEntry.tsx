@@ -26,33 +26,28 @@ export function PinEntry({ onSubmit, isLoading = false }: PinEntryProps) {
     inputRef.current?.focus();
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    if (pin.length !== PIN_LENGTH || isLoading) return;
-
-    setError(null);
-    const result = await onSubmit(pin);
-
-    if (!result.success) {
-      // Wrong PIN: shake animation + clear input + show message
-      setIsShaking(true);
-      setError(result.error ?? STRINGS.PIN_ERROR_FALLBACK);
-      setPin('');
-
-      // Remove shake after animation
-      setTimeout(() => {
-        setIsShaking(false);
-        inputRef.current?.focus();
-      }, ANIMATION_DURATION_MS);
-    }
-  }, [pin, isLoading, onSubmit]);
-
   // Auto-submit when all digits entered (intentional UX pattern)
   useEffect(() => {
-    if (pin.length === PIN_LENGTH && !isLoading) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      handleSubmit();
-    }
-  }, [pin, isLoading, handleSubmit]);
+    if (pin.length !== PIN_LENGTH || isLoading) return;
+
+    const submitPin = async () => {
+      setError(null);
+      const result = await onSubmit(pin);
+
+      if (!result.success) {
+        setIsShaking(true);
+        setError(result.error ?? STRINGS.PIN_ERROR_FALLBACK);
+        setPin('');
+
+        setTimeout(() => {
+          setIsShaking(false);
+          inputRef.current?.focus();
+        }, ANIMATION_DURATION_MS);
+      }
+    };
+
+    submitPin();
+  }, [pin, isLoading, onSubmit]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, ''); // Only digits

@@ -1,6 +1,5 @@
 import { db } from '../db/connection.js';
 import {
-  getAllFriends as dbGetAllFriends,
   getFriendById,
   getFriendByPin,
   createFriend as dbCreateFriend,
@@ -9,7 +8,6 @@ import {
   getFriendLetterById,
   createFriendLetter as dbCreateFriendLetter,
   updateFriendLetter as dbUpdateFriendLetter,
-  countFriendLetters,
   getThankYouNote,
   upsertThankYouNote as dbUpsertThankYouNote,
 } from '../db/queries/friend.js';
@@ -31,9 +29,9 @@ import type {
  */
 
 const RECIPIENT_NAMES: Record<FriendLetterRecipient, string> = {
-  you: 'Dylan',
-  partner: 'Wife',
-  baby: 'Baby',
+  you: process.env.RECIPIENT_NAME_YOU ?? 'Dylan',
+  partner: process.env.RECIPIENT_NAME_PARTNER ?? 'Wife',
+  baby: process.env.RECIPIENT_NAME_BABY ?? 'Baby',
 };
 
 // ============================================================
@@ -44,17 +42,27 @@ const RECIPIENT_NAMES: Record<FriendLetterRecipient, string> = {
  * Get all friends with letter counts (admin)
  */
 export async function getAllFriends(): Promise<FriendListResponse> {
-  const friends = await dbGetAllFriends();
-  const friendsWithCounts = await Promise.all(
-    friends.map(async (friend) => {
-      const counts = await countFriendLetters(friend.id);
-      return {
-        ...friend,
-        letterCount: counts.total,
-        submittedCount: counts.submitted,
-      };
-    })
-  );
+  const friends = await db.friend.findMany({
+    orderBy: { createdAt: 'asc' },
+    include: {
+      _count: { select: { friendLetters: true } },
+      friendLetters: {
+        where: { submittedAt: { not: null } },
+        select: { id: true },
+      },
+    },
+  });
+
+  const friendsWithCounts = friends.map((friend) => ({
+    id: friend.id,
+    name: friend.name,
+    pin: friend.pin,
+    createdAt: friend.createdAt.toISOString(),
+    updatedAt: friend.updatedAt.toISOString(),
+    letterCount: friend._count.friendLetters,
+    submittedCount: friend.friendLetters.length,
+  }));
+
   return { friends: friendsWithCounts };
 }
 

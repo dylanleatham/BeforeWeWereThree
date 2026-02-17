@@ -1,4 +1,5 @@
 import { db } from '../connection.js';
+import { Prisma } from '@prisma/client';
 import type { WyrPrompt as PrismaWyrPrompt, WyrVote as PrismaWyrVote } from '@prisma/client';
 import type {
   WYRPrompt,
@@ -143,9 +144,11 @@ export async function updatePrompt(
       data,
     });
     return toApiPrompt(prompt);
-  } catch {
-    // Prisma throws if record not found
-    return null;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return null;
+    }
+    throw error;
   }
 }
 
@@ -159,8 +162,11 @@ export async function deletePrompt(id: string): Promise<boolean> {
       where: { id },
     });
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return false;
+    }
+    throw error;
   }
 }
 

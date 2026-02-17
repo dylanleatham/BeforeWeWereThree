@@ -138,7 +138,7 @@ describe('useEnvelopes', () => {
     expect(result.current.envelopes[0]!.status).toBe('opened');
   });
 
-  it('should revert on error and refetch', async () => {
+  it('should revert on error without refetching', async () => {
     mockGetEnvelopes.mockResolvedValue(ENVELOPES);
     mockOpenEnvelope.mockRejectedValue(new Error('Server error'));
 
@@ -148,17 +148,15 @@ describe('useEnvelopes', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    // Prepare for refetch after error
-    mockGetEnvelopes.mockResolvedValue(ENVELOPES);
-
     await expect(
       act(async () => {
         await result.current.updateStatus('env-1', 'opened');
       })
     ).rejects.toThrow('Server error');
 
-    // Should have refetched to get accurate state
-    expect(mockGetEnvelopes).toHaveBeenCalledTimes(2);
+    // Should revert to original status without refetching
+    expect(result.current.envelopes[0]!.status).toBe('sealed');
+    expect(mockGetEnvelopes).toHaveBeenCalledTimes(1);
   });
 
   it('should refetch when refetch is called', async () => {

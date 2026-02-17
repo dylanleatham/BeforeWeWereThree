@@ -1,4 +1,5 @@
 import { db } from '../connection.js';
+import { Prisma } from '@prisma/client';
 import type { Envelope as PrismaEnvelope } from '@prisma/client';
 import type { Envelope, CreateEnvelopeRequest, UpdateEnvelopeRequest } from 'shared';
 
@@ -70,9 +71,11 @@ export async function updateEnvelope(
       data,
     });
     return toApiEnvelope(envelope);
-  } catch {
-    // Prisma throws if record not found
-    return null;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return null;
+    }
+    throw error;
   }
 }
 
@@ -85,8 +88,11 @@ export async function deleteEnvelope(id: string): Promise<boolean> {
       where: { id },
     });
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return false;
+    }
+    throw error;
   }
 }
 

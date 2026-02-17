@@ -24,7 +24,7 @@ model AppConfig {
 model Participant {
   id                String   @id @default(uuid())
   deviceFingerprint String   @unique @map("device_fingerprint")
-  designation       String // 'A', 'B', or 'readonly'
+  designation       String? // 'A', 'B', or 'readonly' (null for admin participants)
   role              String // 'guest', 'admin', or 'friend'
   friendId          String?  @map("friend_id")
   createdAt         DateTime @default(now()) @map("created_at")
@@ -195,6 +195,7 @@ model NameGameGuidance {
 
   @@unique([envelopeId, roundNumber, participantId])
   @@index([envelopeId, roundNumber])
+  @@index([participantId])
   @@map("name_game_guidance")
 }
 

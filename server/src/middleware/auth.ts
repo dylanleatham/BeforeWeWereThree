@@ -119,6 +119,7 @@ export async function friendMiddleware(
     next();
   } catch {
     res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
+    return;
   }
 }
 
@@ -162,5 +163,6 @@ export async function adminMiddleware(
     next();
   } catch {
     res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
+    return;
   }
 }

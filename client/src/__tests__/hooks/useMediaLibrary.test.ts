@@ -119,7 +119,7 @@ describe('useMediaLibrary', () => {
     });
 
     expect(result.current.photos).toHaveLength(1);
-    expect(result.current.photos[0].id).toBe('photo-2');
+    expect(result.current.photos[0]!.id).toBe('photo-2');
     expect(mockDeletePhoto).toHaveBeenCalledWith('photo-1');
   });
 

@@ -28,6 +28,8 @@ export type ErrorCode =
   | 'SERVICE_UNAVAILABLE'
   | 'TOO_MANY_REQUESTS'
   | 'SORT_ORDER_CONFLICT'
+  | 'FRIEND_NOT_FOUND'
+  | 'PIN_ALREADY_EXISTS'
   | `HTTP_${number}`; // For HTTP status code errors
 
 /**

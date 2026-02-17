@@ -1,0 +1,72 @@
+.friend-dashboard {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.friend-dashboard--loading,
+.friend-dashboard--error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+}
+
+.friend-dashboard__retry {
+  background: none;
+  border: 1px solid var(--color-deep-terracotta, #BC6C4A);
+  color: var(--color-deep-terracotta, #BC6C4A);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Source Sans 3', sans-serif;
+  min-height: 44px;
+}
+
+.friend-dashboard__header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friend-dashboard__title {
+  font-family: 'Fraunces', serif;
+  color: var(--color-deep-terracotta, #BC6C4A);
+}
+
+.friend-dashboard__section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  color: var(--color-deep-terracotta, #BC6C4A);
+  margin-bottom: 12px;
+}
+
+.friend-dashboard__letter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.friend-dashboard__new-letter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.friend-dashboard__recipient-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.friend-dashboard__recipient-btn {
+  min-height: 44px;
+}

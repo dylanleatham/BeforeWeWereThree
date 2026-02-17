@@ -1,0 +1,64 @@
+.friend-letter-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.friend-letter-view--loading,
+.friend-letter-view--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.friend-letter-view__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.friend-letter-view__from {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  color: var(--color-deep-terracotta, #BC6C4A);
+}
+
+.friend-letter-view__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.friend-letter-view__text {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-text, #333);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.friend-letter-view__image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.friend-letter-view__video {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+}
+
+.friend-letter-view__audio {
+  width: 100%;
+}
+
+.friend-letter-view__footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}

@@ -25,29 +25,34 @@ model Participant {
   id                String   @id @default(uuid())
   deviceFingerprint String   @unique @map("device_fingerprint")
   designation       String // 'A', 'B', or 'readonly'
-  role              String // 'guest' or 'admin'
+  role              String // 'guest', 'admin', or 'friend'
+  friendId          String?  @map("friend_id")
   createdAt         DateTime @default(now()) @map("created_at")
 
+  friend            Friend?  @relation(fields: [friendId], references: [id], onDelete: Restrict)
   wyrVotes          WyrVote[]
   letters           Letter[]
   photos            Photo[]
   nameGameVotes     NameGameVote[]
   nameGameGuidance  NameGameGuidance[]
 
+  @@index([friendId])
   @@map("participants")
 }
 
 // Envelope activity container
 // Each envelope holds one activity (Would You Rather, Letter, Trivia, etc.)
 model Envelope {
-  id        String   @id @default(uuid())
-  title     String   // Display title (e.g., "Would You Rather #1")
-  type      String   // Activity type: 'would-you-rather' | 'letter' | 'trivia' | 'name-game' | 'gender-reveal'
-  status    String   @default("sealed") // 'sealed' | 'opened' | 'completed'
-  order     Int      // Display order in pile
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  title          String   // Display title (e.g., "Would You Rather #1")
+  type           String   // Activity type: 'would-you-rather' | 'letter' | 'trivia' | 'name-game' | 'gender-reveal' | 'friend-letter'
+  status         String   @default("sealed") // 'sealed' | 'opened' | 'completed'
+  order          Int      // Display order in pile
+  friendLetterId String?  @unique @map("friend_letter_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
+  friendLetter   FriendLetter?  @relation(fields: [friendLetterId], references: [id], onDelete: Restrict)
   wyrPrompts     WyrPrompt[]
   letterPrompt   LetterPrompt?
   nameGameRounds NameGameRound[]
@@ -207,4 +212,53 @@ model NameGameVote {
   @@unique([nameId, participantId])
   @@index([participantId])
   @@map("name_game_votes")
+}
+
+// Friend - a friend of the couple who writes letters
+model Friend {
+  id        String   @id @default(uuid())
+  name      String
+  pin       String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  participants  Participant[]
+  friendLetters FriendLetter[]
+  thankYouNote  FriendThankYouNote?
+
+  @@map("friends")
+}
+
+// Personalized thank-you note from couple to friend (written by admin)
+model FriendThankYouNote {
+  id        String   @id @default(uuid())
+  friendId  String   @unique @map("friend_id")
+  content   String
+  mediaUrl  String?  @map("media_url")
+  mediaType String?  @map("media_type") // 'image' | 'video' | 'audio'
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  friend Friend @relation(fields: [friendId], references: [id], onDelete: Restrict)
+
+  @@map("friend_thank_you_notes")
+}
+
+// Letter a friend writes to a recipient
+model FriendLetter {
+  id          String    @id @default(uuid())
+  friendId    String    @map("friend_id")
+  recipient   String    // 'you' | 'partner' | 'baby'
+  content     String    @default("")
+  mediaUrl    String?   @map("media_url")
+  mediaType   String?   @map("media_type") // 'image' | 'video' | 'audio'
+  submittedAt DateTime? @map("submitted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  friend   Friend    @relation(fields: [friendId], references: [id], onDelete: Restrict)
+  envelope Envelope?
+
+  @@index([friendId])
+  @@map("friend_letters")
 }

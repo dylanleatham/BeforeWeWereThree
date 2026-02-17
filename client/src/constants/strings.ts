@@ -207,6 +207,53 @@ export const STRINGS = {
   NAME_GAME_ALL_MATCHES_TITLE: 'All matched names',
   NAME_GAME_ORIGIN_LABEL: 'Origin',
   NAME_GAME_MEANING_LABEL: 'Meaning',
+
+  // Friend Dashboard
+  FRIEND_GREETING: (name: string) => `Welcome, ${name}!`,
+  FRIEND_SUBTITLE: 'We are so glad you are here. Write a letter to share your love and wisdom.',
+  FRIEND_LETTERS_TITLE: 'Your Letters',
+  FRIEND_THANK_YOU_LABEL: 'A note for you',
+  FRIEND_BACK_TO_DASHBOARD: '\u2190 Back',
+
+  // Friend Letter Card
+  FRIEND_LETTER_TO: (name: string) => `To ${name}`,
+  FRIEND_LETTER_NOT_STARTED: 'Not started',
+  FRIEND_LETTER_DRAFT: 'Draft saved',
+  FRIEND_LETTER_SUBMITTED: 'Sent',
+
+  // Friend Letter Activity
+  FRIEND_LETTER_PLACEHOLDER: 'Write your letter here...',
+  FRIEND_LETTER_SUBMIT: 'Send Letter',
+  FRIEND_LETTER_CONFIRM_MESSAGE: 'Once you send this letter, it cannot be edited. Ready?',
+  FRIEND_LETTER_CONFIRM_SUBMIT: 'Yes, send it',
+  FRIEND_LETTER_SENT_TITLE: 'Letter Sent!',
+  FRIEND_LETTER_SENT_MESSAGE: (recipientName: string) =>
+    `Your letter to ${recipientName} has been delivered. Thank you for your beautiful words.`,
+  FRIEND_LETTER_SENT_ICON: '\u2709\uFE0F',
+
+  // Friend Admin
+  FRIEND_MANAGER_HEADING: 'Friend Letters',
+  FRIEND_MANAGER_ADD: 'Add Friend',
+  FRIEND_MANAGER_EMPTY: 'No friends added yet.',
+  FRIEND_MANAGER_NAME_LABEL: 'Name',
+  FRIEND_MANAGER_PIN_LABEL: 'PIN (MMDDYYYY)',
+  FRIEND_MANAGER_LETTERS: (submitted: number) =>
+    submitted === 1 ? '1 letter sent' : `${submitted} letters sent`,
+  FRIEND_MANAGER_THANK_YOU: 'Thank-you note',
+  FRIEND_MANAGER_VIEW_LETTERS: 'View letters',
+  FRIEND_MANAGER_DELETE_CONFIRM:
+    'This will permanently delete this friend and all their letters. This cannot be undone.',
+  FRIEND_THANK_YOU_PLACEHOLDER: 'Write a personal thank-you note for this friend...',
+  FRIEND_THANK_YOU_SAVE: 'Save Note',
+
+  // Friend - new letter flow
+  FRIEND_NEW_LETTER: 'Write a new letter',
+  FRIEND_PICK_RECIPIENT: 'Who is this letter for?',
+  RECIPIENT_NAMES: {
+    you: 'Dylan',
+    partner: 'Wife',
+    baby: 'Baby',
+  } as { readonly you: string; readonly partner: string; readonly baby: string },
 } as const;
 
 /**

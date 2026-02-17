@@ -4,6 +4,7 @@ import { useEnvelopes } from './hooks/useEnvelopes';
 import { PinEntry } from './components/auth/PinEntry';
 import { EnvelopePile } from './components/envelope';
 import { EnvelopeManager } from './components/admin';
+import { FriendDashboard } from './components/friend/FriendDashboard';
 import { Heading, Text, SpotifyButton } from './components/common';
 import { SignalRProvider } from './context/SignalRContext';
 import { STRINGS } from './constants/strings';
@@ -24,7 +25,12 @@ function App() {
     return <PinEntry onSubmit={login} isLoading={sessionLoading} />;
   }
 
-  // Authenticated: show main app wrapped in SignalR provider
+  // Friend role: no SignalR needed, render FriendDashboard directly
+  if (role === 'friend') {
+    return <FriendDashboard />;
+  }
+
+  // Authenticated (guest/admin): show main app wrapped in SignalR provider
   return (
     <SignalRProvider>
       <AuthenticatedApp

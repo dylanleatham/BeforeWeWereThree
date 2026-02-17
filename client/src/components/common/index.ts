@@ -23,3 +23,5 @@ export type { CardProps } from './Card';
 export { ErrorBoundary } from './ErrorBoundary';
 
 export { SpotifyButton } from './SpotifyButton';
+
+export { MediaAttachment } from './MediaAttachment';

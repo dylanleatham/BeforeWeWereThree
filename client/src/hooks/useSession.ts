@@ -13,6 +13,7 @@ interface SessionState {
   role: Role | null;
   participantId: string | null;
   designation: Designation | null;
+  friendId: string | null;
   error: string | null;
 }
 
@@ -36,6 +37,7 @@ export function useSession(): UseSessionReturn {
     role: null,
     participantId: null,
     designation: null,
+    friendId: null,
     error: null,
   });
 
@@ -48,6 +50,7 @@ export function useSession(): UseSessionReturn {
         role: null,
         participantId: null,
         designation: null,
+        friendId: null,
         error: null,
       });
     };
@@ -69,6 +72,7 @@ export function useSession(): UseSessionReturn {
             role: response.data.role,
             participantId: response.data.participantId,
             designation: response.data.designation,
+            friendId: response.data.friendId ?? null,
             error: null,
           });
         } else {
@@ -79,6 +83,7 @@ export function useSession(): UseSessionReturn {
             role: null,
             participantId: null,
             designation: null,
+            friendId: null,
             error: null,
           });
         }
@@ -89,6 +94,7 @@ export function useSession(): UseSessionReturn {
           role: null,
           participantId: null,
           designation: null,
+          friendId: null,
           error: null,
         });
       }
@@ -116,6 +122,7 @@ export function useSession(): UseSessionReturn {
           role: response.data.role,
           participantId: response.data.participantId,
           designation: response.data.designation,
+          friendId: response.data.friendId ?? null,
           error: null,
         });
         return { success: true };
@@ -148,6 +155,7 @@ export function useSession(): UseSessionReturn {
       role: null,
       participantId: null,
       designation: null,
+      friendId: null,
       error: null,
     });
 

@@ -15,6 +15,7 @@ import { mediaRouter } from './routes/media.js';
 import { letterRouter } from './routes/letter.js';
 import { configRouter } from './routes/config.js';
 import { nameGameRouter } from './routes/nameGame.js';
+import { friendRouter } from './routes/friend.js';
 import { initializeRealtimeService } from './services/realtime.js';
 import { disconnectDatabase } from './db/connection.js';
 import { logger } from './utils/logger.js';
@@ -41,6 +42,7 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'blob:', 'https://*.blob.core.windows.net'],
+        mediaSrc: ["'self'", 'blob:', 'https://*.blob.core.windows.net'],
         connectSrc: ["'self'", frontendUrl, 'wss:', 'ws:'],
       },
     },
@@ -70,6 +72,7 @@ app.use('/api/media', mediaRouter);
 app.use('/api/letters', letterRouter);
 app.use('/api/config', configRouter);
 app.use('/api/name-game', nameGameRouter);
+app.use('/api/friends', friendRouter);
 
 // Serve static files from client build
 // In production bundle, public/ is in the same directory as index.js

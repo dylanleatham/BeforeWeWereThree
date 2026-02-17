@@ -8,7 +8,7 @@ import { z } from 'zod';
 /**
  * Valid roles in the application
  */
-export type Role = 'guest' | 'admin';
+export type Role = 'guest' | 'admin' | 'friend';
 
 /**
  * Participant designations for guest role
@@ -56,6 +56,7 @@ export interface ValidatePinResponse {
   role: Role;
   participantId: string;
   designation: Designation | null;
+  friendId?: string;
 }
 
 /**
@@ -66,6 +67,7 @@ export interface SessionPayload {
   role: Role;
   deviceFingerprint: string;
   designation: Designation | null;
+  friendId?: string;
 }
 
 /**
@@ -75,6 +77,7 @@ export interface SessionResponse {
   role: Role;
   participantId: string;
   designation: Designation | null;
+  friendId?: string;
   expiresAt: string;
 }
 

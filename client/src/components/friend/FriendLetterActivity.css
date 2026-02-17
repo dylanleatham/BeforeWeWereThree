@@ -1,0 +1,117 @@
+.friend-letter-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.friend-letter-activity__header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friend-letter-activity__back {
+  background: none;
+  border: none;
+  color: var(--color-deep-terracotta, #BC6C4A);
+  cursor: pointer;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.9rem;
+  padding: 4px 0;
+  text-align: left;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.friend-letter-activity__to {
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem;
+  color: var(--color-deep-terracotta, #BC6C4A);
+}
+
+.friend-letter-activity__editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.friend-letter-activity__textarea {
+  width: 100%;
+  min-height: 250px;
+  padding: 16px;
+  border: 1px solid rgba(188, 108, 74, 0.2);
+  border-radius: 12px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+  background: var(--color-warm-sand, #FAF3E8);
+  color: var(--color-text, #333);
+}
+
+.friend-letter-activity__textarea:focus {
+  outline: none;
+  border-color: var(--color-deep-terracotta, #BC6C4A);
+}
+
+.friend-letter-activity__textarea::placeholder {
+  color: var(--color-muted, #999);
+}
+
+.friend-letter-activity__save-status {
+  min-height: 20px;
+}
+
+.friend-letter-activity__error {
+  color: var(--color-dusk-rose, #E07A5F);
+}
+
+.friend-letter-activity__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--color-warm-sand, #FAF3E8);
+  border-radius: 12px;
+  border: 1px solid rgba(188, 108, 74, 0.15);
+}
+
+.friend-letter-activity__confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.friend-letter-activity__submit {
+  align-self: flex-end;
+}
+
+/* Submitted state */
+.friend-letter-activity--submitted {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.friend-letter-activity__complete {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.friend-letter-activity__complete-icon {
+  font-size: 3rem;
+}
+
+.friend-letter-activity__complete-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  color: var(--color-deep-terracotta, #BC6C4A);
+}

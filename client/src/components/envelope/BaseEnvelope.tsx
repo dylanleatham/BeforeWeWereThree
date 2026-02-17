@@ -13,6 +13,7 @@ import { WouldYouRatherActivity } from '../activities/WouldYouRather';
 import { LetterActivity } from '../activities/Letter/LetterActivity';
 import { MediaLibraryActivity } from '../activities/MediaLibrary/MediaLibraryActivity';
 import { NameGameActivity } from '../activities/NameGame';
+import { FriendLetterView } from '../friend/FriendLetterView';
 import { STRINGS } from '../../constants/strings';
 import { ANIMATION_DURATION_MS, CONTENT_REVEAL_DURATION } from '../../constants/animation';
 import './BaseEnvelope.css';
@@ -119,6 +120,17 @@ export function BaseEnvelope({
             envelopeId={envelope.id}
           />
         );
+
+      case 'friend-letter':
+        if (envelope.friendLetterId) {
+          return (
+            <FriendLetterView
+              friendLetterId={envelope.friendLetterId}
+              onComplete={handleActivityComplete}
+            />
+          );
+        }
+        return null;
 
       // Other activity types (trivia, gender-reveal) will be added in future phases
       default:

@@ -1,0 +1,47 @@
+.friend-letter-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 44px;
+}
+
+.friend-letter-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.friend-letter-card--submitted {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.friend-letter-card--submitted:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.friend-letter-card__icon {
+  color: var(--color-deep-terracotta, #BC6C4A);
+  flex-shrink: 0;
+}
+
+.friend-letter-card--submitted .friend-letter-card__icon {
+  color: var(--color-soft-sage, #9DB5A0);
+}
+
+.friend-letter-card--draft .friend-letter-card__icon {
+  color: var(--color-sunrise-gold, #F4A261);
+}
+
+.friend-letter-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.friend-letter-card__recipient {
+  font-weight: 600;
+}

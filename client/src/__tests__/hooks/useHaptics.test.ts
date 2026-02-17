@@ -68,7 +68,7 @@ describe('useHaptics', () => {
     beforeEach(() => {
       // Delete vibrate property to simulate unsupported device
       // Setting to undefined isn't enough — 'vibrate' in navigator would still be true
-      delete (navigator as Record<string, unknown>).vibrate;
+      delete (navigator as unknown as Record<string, unknown>).vibrate;
     });
 
     it('should report isSupported as false', () => {

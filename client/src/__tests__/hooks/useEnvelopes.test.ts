@@ -27,6 +27,7 @@ const ENVELOPES: Envelope[] = [
     type: 'would-you-rather',
     status: 'sealed',
     order: 1,
+    friendLetterId: null,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   },
@@ -36,6 +37,7 @@ const ENVELOPES: Envelope[] = [
     type: 'letter',
     status: 'sealed',
     order: 2,
+    friendLetterId: null,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   },
@@ -83,7 +85,7 @@ describe('useEnvelopes', () => {
 
   it('should use openEnvelope API when status is opened', async () => {
     mockGetEnvelopes.mockResolvedValue(ENVELOPES);
-    mockOpenEnvelope.mockResolvedValue({ ...ENVELOPES[0], status: 'opened' });
+    mockOpenEnvelope.mockResolvedValue({ ...ENVELOPES[0]!, status: 'opened' });
 
     const { result } = renderHook(() => useEnvelopes());
 
@@ -101,7 +103,7 @@ describe('useEnvelopes', () => {
 
   it('should use updateEnvelope API for non-open status changes', async () => {
     mockGetEnvelopes.mockResolvedValue(ENVELOPES);
-    mockUpdateEnvelope.mockResolvedValue({ ...ENVELOPES[0], status: 'completed' });
+    mockUpdateEnvelope.mockResolvedValue({ ...ENVELOPES[0]!, status: 'completed' });
 
     const { result } = renderHook(() => useEnvelopes());
 
@@ -133,7 +135,7 @@ describe('useEnvelopes', () => {
     });
 
     // Status should be optimistically updated immediately
-    expect(result.current.envelopes[0].status).toBe('opened');
+    expect(result.current.envelopes[0]!.status).toBe('opened');
   });
 
   it('should revert on error and refetch', async () => {
@@ -168,14 +170,14 @@ describe('useEnvelopes', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    const updatedEnvelopes = [{ ...ENVELOPES[0], status: 'opened' as const }, ENVELOPES[1]];
+    const updatedEnvelopes: Envelope[] = [{ ...ENVELOPES[0]!, status: 'opened' as const }, ENVELOPES[1]!];
     mockGetEnvelopes.mockResolvedValue(updatedEnvelopes);
 
     await act(async () => {
       await result.current.refetch();
     });
 
-    expect(result.current.envelopes[0].status).toBe('opened');
+    expect(result.current.envelopes[0]!.status).toBe('opened');
     expect(mockGetEnvelopes).toHaveBeenCalledTimes(2);
   });
 });

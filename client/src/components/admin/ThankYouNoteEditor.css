@@ -1,0 +1,28 @@
+.thank-you-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.thank-you-editor__textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 12px;
+  border: 1px solid rgba(188, 108, 74, 0.2);
+  border-radius: 8px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  background: var(--color-warm-sand, #FAF3E8);
+}
+
+.thank-you-editor__textarea:focus {
+  outline: none;
+  border-color: var(--color-deep-terracotta, #BC6C4A);
+}
+
+.thank-you-editor__actions {
+  display: flex;
+  gap: 8px;
+}

@@ -53,15 +53,17 @@ export interface RegisterPhotoRequest {
 
 /**
  * Request for SAS token generation
+ * Accepts image, video, and audio content types
  */
 export const generateSasSchema = z.object({
   filename: z.string().min(1, 'Filename is required').max(255, 'Filename too long'),
   contentType: z
     .string()
     .min(1, 'Content type is required')
-    .refine((ct) => ct.startsWith('image/'), {
-      message: 'Only image files are allowed',
-    }),
+    .refine(
+      (ct) => ct.startsWith('image/') || ct.startsWith('video/') || ct.startsWith('audio/'),
+      { message: 'Only image, video, and audio files are allowed' }
+    ),
 });
 
 export type GenerateSasRequest = z.infer<typeof generateSasSchema>;

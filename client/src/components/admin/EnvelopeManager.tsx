@@ -3,6 +3,7 @@ import { Plus, Edit2, Trash2, Mail, Users } from 'lucide-react';
 import type { Envelope, CreateEnvelopeRequest, UpdateEnvelopeRequest } from 'shared';
 import { Button, Card, Heading, Text } from '../common';
 import { EnvelopeForm } from './EnvelopeForm';
+import { FriendManager } from './FriendManager';
 import { createEnvelope, updateEnvelope, deleteEnvelope, resetSession } from '../../services/api';
 import { STRINGS } from '../../constants/strings';
 import './EnvelopeManager.css';
@@ -189,6 +190,9 @@ export function EnvelopeManager({
           ))}
         </ul>
       )}
+
+      {/* Friend Letters Management */}
+      <FriendManager />
 
       {/* Debug/Test Tools */}
       <section className="envelope-manager__tools">

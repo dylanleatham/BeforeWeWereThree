@@ -1,0 +1,148 @@
+.friend-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.friend-manager__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.friend-manager__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friend-manager__card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+}
+
+.friend-manager__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.friend-manager__name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.friend-manager__pin {
+  font-size: 0.85rem;
+  color: var(--color-muted, #999);
+  font-family: monospace;
+}
+
+.friend-manager__actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.friend-manager__btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  color: var(--color-deep-terracotta, #BC6C4A);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.85rem;
+}
+
+.friend-manager__btn:hover {
+  background: rgba(188, 108, 74, 0.08);
+}
+
+.friend-manager__btn--danger {
+  color: var(--color-dusk-rose, #E07A5F);
+}
+
+.friend-manager__btn--danger:hover {
+  background: rgba(224, 122, 95, 0.08);
+}
+
+/* Form */
+.friend-manager__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.friend-manager__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.friend-manager__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-deep-terracotta, #BC6C4A);
+}
+
+.friend-manager__input {
+  padding: 10px 12px;
+  border: 1px solid rgba(188, 108, 74, 0.2);
+  border-radius: 8px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.95rem;
+  background: var(--color-warm-sand, #FAF3E8);
+}
+
+.friend-manager__input:focus {
+  outline: none;
+  border-color: var(--color-deep-terracotta, #BC6C4A);
+}
+
+.friend-manager__form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Letters view */
+.friend-manager__letters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.friend-manager__letter-card {
+  padding: 16px;
+}
+
+.friend-manager__letter-recipient {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.friend-manager__letter-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 8px 0;
+}
+
+.friend-manager__letter-media {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}

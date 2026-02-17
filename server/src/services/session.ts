@@ -29,31 +29,40 @@ interface TokenPayload extends JWTPayload {
   role: Role;
   deviceFingerprint: string;
   designation: Designation | null;
+  friendId?: string;
 }
 
 /**
  * Create a new JWT session token
  * @param participantId - Unique participant identifier
- * @param role - 'guest' or 'admin'
+ * @param role - 'guest', 'admin', or 'friend'
  * @param deviceFingerprint - Device fingerprint for identification
  * @param designation - 'A', 'B', 'readonly', or null for admin
+ * @param friendId - Optional friend ID for friend role
  * @returns JWT token string
  */
 export async function createSession(
   participantId: string,
   role: Role,
   deviceFingerprint: string,
-  designation: Designation | null
+  designation: Designation | null,
+  friendId?: string
 ): Promise<string> {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + SESSION_DURATION_DAYS);
 
-  const token = await new SignJWT({
+  const payload: Record<string, unknown> = {
     participantId,
     role,
     deviceFingerprint,
     designation,
-  })
+  };
+
+  if (friendId) {
+    payload.friendId = friendId;
+  }
+
+  const token = await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(expiresAt)
@@ -83,6 +92,7 @@ export async function verifySession(token: string): Promise<SessionPayload> {
       role: tokenPayload.role as Role,
       deviceFingerprint: tokenPayload.deviceFingerprint,
       designation: tokenPayload.designation as Designation | null,
+      friendId: tokenPayload.friendId as string | undefined,
     };
   } catch {
     throw new Error('Invalid or expired session');

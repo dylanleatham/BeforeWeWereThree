@@ -20,13 +20,44 @@ interface ParticipantResult {
 /**
  * Get or create a participant based on device fingerprint
  * @param fingerprint - Device fingerprint from client
- * @param role - 'guest' or 'admin'
+ * @param role - 'guest', 'admin', or 'friend'
+ * @param friendId - Optional friend ID for friend role
  * @returns Participant ID and designation
  */
 export async function getOrCreateParticipant(
   fingerprint: string,
-  role: Role
+  role: Role,
+  friendId?: string
 ): Promise<ParticipantResult> {
+  // Friend role - create/get friend participant (readonly designation)
+  if (role === 'friend' && friendId) {
+    const existing = await db.participant.findUnique({
+      where: { deviceFingerprint: fingerprint },
+    });
+
+    if (existing) {
+      // Update to friend role if needed
+      if (existing.role !== 'friend' || existing.friendId !== friendId) {
+        await db.participant.update({
+          where: { id: existing.id },
+          data: { role: 'friend', designation: 'readonly', friendId },
+        });
+      }
+      return { participantId: existing.id, designation: 'readonly' as Designation };
+    }
+
+    // Create new friend participant
+    const newFriend = await db.participant.create({
+      data: {
+        deviceFingerprint: fingerprint,
+        designation: 'readonly',
+        role: 'friend',
+        friendId,
+      },
+    });
+    return { participantId: newFriend.id, designation: 'readonly' as Designation };
+  }
+
   // Admin role - create/get admin participant (no A/B designation)
   if (role === 'admin') {
     const existing = await db.participant.findUnique({

@@ -16,6 +16,7 @@ function toApiEnvelope(envelope: PrismaEnvelope): Envelope {
     ...envelope,
     type: envelope.type as Envelope['type'],
     status: envelope.status as Envelope['status'],
+    friendLetterId: envelope.friendLetterId,
     createdAt: envelope.createdAt.toISOString(),
     updatedAt: envelope.updatedAt.toISOString(),
   };

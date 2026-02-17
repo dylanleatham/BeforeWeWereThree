@@ -12,9 +12,14 @@ const mockParticipant = {
   update: jest.fn<() => Promise<unknown>>(),
 };
 
+const mockFriend = {
+  findUnique: jest.fn<() => Promise<unknown>>().mockResolvedValue(null),
+};
+
 jest.unstable_mockModule('../../db/connection.js', () => ({
   db: {
     participant: mockParticipant,
+    friend: mockFriend,
     $transaction: jest.fn((callback: (tx: unknown) => Promise<unknown>) => {
       return callback({ participant: mockParticipant });
     }),

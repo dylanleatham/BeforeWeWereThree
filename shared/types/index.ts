@@ -131,6 +131,33 @@ export {
   submitVoteRequestSchema,
 } from './nameGame.js';
 
+// Re-export Friend types
+export type {
+  FriendLetterRecipient,
+  Friend,
+  FriendThankYouNote,
+  FriendLetter,
+  FriendLetterStatus,
+  FriendLetterCard,
+  FriendDashboardResponse,
+  FriendListResponse,
+  FriendLettersResponse,
+  CreateFriendRequest,
+  CreateFriendLetterRequest,
+  SaveFriendLetterRequest,
+  SubmitFriendLetterRequest,
+  SaveFriendThankYouNoteRequest,
+  FriendLetterViewResponse,
+} from './friend.js';
+export {
+  createFriendSchema,
+  createFriendLetterSchema,
+  saveFriendLetterSchema,
+  submitFriendLetterSchema,
+  saveFriendThankYouNoteSchema,
+  friendLetterRecipientSchema,
+} from './friend.js';
+
 /**
  * Health check response data
  */

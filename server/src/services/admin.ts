@@ -53,8 +53,10 @@ export async function resetSession(): Promise<ResetSessionResult> {
     // 2. Delete all WYR votes (has FK to participants)
     const votesDeleted = await tx.wyrVote.deleteMany({});
 
-    // 3. Delete all photos (has FK to participants)
-    const photosDeleted = await tx.photo.deleteMany({});
+    // 3. Delete all photos uploaded by non-friend participants (has FK to participants)
+    const photosDeleted = await tx.photo.deleteMany({
+      where: { uploadedBy: { role: { not: 'friend' } } },
+    });
 
     // 4. Delete name game data (FK order: votes -> names -> rounds, guidance -> participants)
     const nameVotesDeleted = await tx.nameGameVote.deleteMany({});
@@ -67,8 +69,9 @@ export async function resetSession(): Promise<ResetSessionResult> {
       where: { role: 'guest' },
     });
 
-    // 7. Reset all envelopes to 'sealed' status
+    // 7. Reset all non-friend-letter envelopes to 'sealed' status
     const envelopesReset = await tx.envelope.updateMany({
+      where: { type: { not: 'friend-letter' } },
       data: { status: 'sealed' },
     });
 

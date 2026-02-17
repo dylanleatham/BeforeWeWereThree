@@ -81,6 +81,48 @@ export async function optionalAuthMiddleware(
 }
 
 /**
+ * Friend-only middleware
+ * Requires auth + friend role
+ */
+export async function friendMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const sessionCookie = req.cookies?.session;
+
+  if (!sessionCookie) {
+    res.status(401).json(errorResponse('UNAUTHORIZED', 'Authentication required'));
+    return;
+  }
+
+  try {
+    const session = await verifySession(sessionCookie);
+
+    // Verify participant still exists
+    const participant = await db.participant.findUnique({
+      where: { id: session.participantId },
+      select: { id: true },
+    });
+    if (!participant) {
+      res.status(401).json(errorResponse('SESSION_EXPIRED', 'Your session has expired. Please re-enter your PIN.'));
+      return;
+    }
+
+    req.session = session;
+
+    if (session.role !== 'friend') {
+      res.status(403).json(errorResponse('FORBIDDEN', 'Friend access required'));
+      return;
+    }
+
+    next();
+  } catch {
+    res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
+  }
+}
+
+/**
  * Admin-only middleware
  * Requires auth + admin role
  * Note: Implemented without nested middleware to avoid double-response issues

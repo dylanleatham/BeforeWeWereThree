@@ -165,6 +165,7 @@ describe('Admin Service', () => {
       const result = await resetSession();
 
       expect(mockEnvelope.updateMany).toHaveBeenCalledWith({
+        where: { type: { not: 'friend-letter' } },
         data: { status: 'sealed' },
       });
       expect(result.envelopesReset).toBe(7);

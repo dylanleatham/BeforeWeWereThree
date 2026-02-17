@@ -1,13 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { timingSafeEqual } from 'crypto';
 import { validatePinRequestSchema, successResponse, errorResponse } from 'shared';
-import type { ValidatePinResponse, SessionResponse } from 'shared';
+import type { ValidatePinResponse, SessionResponse, Role } from 'shared';
 import { getGuestPin, getAdminPin } from '../db/queries/config.js';
 import { getOrCreateParticipant, resetParticipants } from '../services/participant.js';
 import { createSession, SESSION_COOKIE_OPTIONS, getSessionExpiration } from '../services/session.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 import { pinRateLimiter } from '../middleware/rateLimit.js';
 import { logger } from '../utils/logger.js';
+import { db } from '../db/connection.js';
 
 /**
  * Constant-time string comparison to prevent timing attacks
@@ -51,23 +52,34 @@ router.post('/validate-pin', pinRateLimiter, async (req: Request, res: Response)
     const [guestPin, adminPin] = await Promise.all([getGuestPin(), getAdminPin()]);
 
     // Determine role based on PIN match (timing-safe comparison)
-    let role: 'guest' | 'admin';
+    let role: Role;
+    let friendId: string | undefined;
 
     if (adminPin && safeCompare(pin, adminPin)) {
       role = 'admin';
     } else if (guestPin && safeCompare(pin, guestPin)) {
       role = 'guest';
     } else {
-      // Per CONTEXT.md: friendly message on wrong PIN
-      res.status(401).json(errorResponse('INVALID_PIN', "Hmm, that's not it. Try again?"));
-      return;
+      // Check friend PINs (DB lookup, already rate-limited above)
+      const friend = await db.friend.findUnique({
+        where: { pin },
+        select: { id: true },
+      });
+      if (friend) {
+        role = 'friend';
+        friendId = friend.id;
+      } else {
+        // Per CONTEXT.md: friendly message on wrong PIN
+        res.status(401).json(errorResponse('INVALID_PIN', "Hmm, that's not it. Try again?"));
+        return;
+      }
     }
 
     // Get or create participant
-    const { participantId, designation } = await getOrCreateParticipant(deviceFingerprint, role);
+    const { participantId, designation } = await getOrCreateParticipant(deviceFingerprint, role, friendId);
 
     // Create session JWT
-    const token = await createSession(participantId, role, deviceFingerprint, designation);
+    const token = await createSession(participantId, role, deviceFingerprint, designation, friendId);
 
     // Set session cookie
     res.cookie('session', token, SESSION_COOKIE_OPTIONS);
@@ -77,6 +89,7 @@ router.post('/validate-pin', pinRateLimiter, async (req: Request, res: Response)
       role,
       participantId,
       designation,
+      friendId,
     };
 
     res.json(successResponse(responseData));
@@ -99,6 +112,7 @@ router.get('/session', authMiddleware, async (req: Request, res: Response) => {
       role: session.role,
       participantId: session.participantId,
       designation: session.designation,
+      friendId: session.friendId,
       expiresAt: expiresAt.toISOString(),
     };
 

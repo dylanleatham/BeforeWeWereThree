@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { getUploadSas, registerPhoto } from '../services/api';
+import { getUploadSas } from '../services/api';
 import { uploadToBlob } from '../services/blobUpload';
 
 interface UploadState {
@@ -79,8 +79,10 @@ export function useMediaUpload(): UseMediaUploadReturn {
 
       if (!mountedRef.current) return null;
 
-      await registerPhoto(sasResponse.blobUrl, file.name, file.type);
-      if (!mountedRef.current) return null;
+      // No registerPhoto call — friend letter and thank-you note media is stored
+      // directly in FriendLetter.mediaUrl / FriendThankYouNote.mediaUrl, not in the
+      // Photo table. Registering here would cause friend content to appear in the
+      // couple's media library.
 
       setState({ isUploading: false, progress: 100, error: null });
       return sasResponse.blobUrl;

@@ -95,6 +95,7 @@ Request validation uses Zod. Standard error codes: `ENVELOPE_NOT_FOUND`, `VALIDA
 8. **Style guide adherence** — all UI references the design system
 9. **Centralized constants** — no magic numbers or inline strings (see Constants section below)
 10. **Reset capability** — all features must support admin session reset (see Reset Capability section)
+11. **Component reuse over duplication** — before building new UI, check for existing components or patterns that solve the same problem. Extract shared logic into reusable components or hooks rather than duplicating similar code across features. A fix or change should only need to happen in one place.
 
 ## Design System
 

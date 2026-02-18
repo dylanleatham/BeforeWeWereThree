@@ -148,7 +148,7 @@ export function FriendLetterActivity({
               <Button
                 variant="primary"
                 onClick={handleSubmit}
-                disabled={isSubmitting || !content.trim()}
+                disabled={isSubmitting || (!content.trim() && !mediaUrl)}
               >
                 {isSubmitting ? STRINGS.LETTER_SAVING : STRINGS.FRIEND_LETTER_CONFIRM_SUBMIT}
               </Button>
@@ -161,7 +161,7 @@ export function FriendLetterActivity({
           <Button
             variant="primary"
             onClick={() => setShowConfirm(true)}
-            disabled={!content.trim() || isSubmitting}
+            disabled={(!content.trim() && !mediaUrl) || isSubmitting}
             className="friend-letter-activity__submit"
           >
             {STRINGS.FRIEND_LETTER_SUBMIT}

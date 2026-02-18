@@ -129,7 +129,10 @@ export const submitFriendLetterSchema = z.object({
   content: z.string().max(10000, 'Letter is too long').optional(),
   mediaUrl: z.string().url('Invalid media URL').nullable().optional(),
   mediaType: z.enum(['image', 'video', 'audio']).nullable().optional(),
-});
+}).refine(
+  (data) => (data.content && data.content.trim().length > 0) || (data.mediaUrl && data.mediaUrl.trim().length > 0),
+  { message: 'Letter must have text content or media attached' }
+);
 
 export type SubmitFriendLetterRequest = z.infer<typeof submitFriendLetterSchema>;
 

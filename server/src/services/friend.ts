@@ -149,6 +149,7 @@ export async function getFriendDashboard(friendId: string): Promise<FriendDashbo
     id: letter.id,
     recipient: letter.recipient,
     recipientName: RECIPIENT_NAMES[letter.recipient] || letter.recipient,
+    title: letter.title,
     status: letter.submittedAt ? 'submitted' : 'draft',
     content: letter.content,
     submittedAt: letter.submittedAt,
@@ -182,7 +183,7 @@ export async function createNewFriendLetter(
 export async function saveFriendLetter(
   friendId: string,
   letterId: string,
-  data: { content?: string; mediaUrl?: string | null; mediaType?: string | null }
+  data: { title?: string | null; content?: string; mediaUrl?: string | null; mediaType?: string | null }
 ): Promise<FriendLetter> {
   const existing = await getFriendLetterById(letterId);
   if (!existing || existing.friendId !== friendId) {
@@ -201,7 +202,7 @@ export async function saveFriendLetter(
 export async function submitFriendLetterAndCreateEnvelope(
   friendId: string,
   letterId: string,
-  data: { content?: string; mediaUrl?: string | null; mediaType?: string | null }
+  data: { title?: string | null; content?: string; mediaUrl?: string | null; mediaType?: string | null }
 ): Promise<FriendLetter> {
   const friend = await getFriendById(friendId);
   if (!friend) {
@@ -222,6 +223,7 @@ export async function submitFriendLetterAndCreateEnvelope(
     const letter = await tx.friendLetter.update({
       where: { id: letterId },
       data: {
+        title: data.title !== undefined ? data.title : existing.title,
         content: data.content ?? existing.content,
         mediaUrl: data.mediaUrl ?? existing.mediaUrl,
         mediaType: data.mediaType ?? existing.mediaType,
@@ -238,11 +240,15 @@ export async function submitFriendLetterAndCreateEnvelope(
     // Map recipient to display name
     const recipientName = RECIPIENT_NAMES[letter.recipient as FriendLetterRecipient] || letter.recipient;
 
+    // Build envelope title: include letter title if present for differentiation
+    const baseTitle = `Letter from ${friend.name} to ${recipientName}`;
+    const envelopeTitle = letter.title ? `${baseTitle} \u2014 ${letter.title}` : baseTitle;
+
     // Create envelope for the couple
     await tx.envelope.create({
       data: {
         type: 'friend-letter',
-        title: `Letter from ${friend.name} to ${recipientName}`,
+        title: envelopeTitle,
         status: 'sealed',
         order: nextOrder,
         friendLetterId: letter.id,
@@ -256,6 +262,7 @@ export async function submitFriendLetterAndCreateEnvelope(
     id: result.id,
     friendId: result.friendId,
     recipient: result.recipient as FriendLetterRecipient,
+    title: result.title,
     content: result.content,
     mediaUrl: result.mediaUrl,
     mediaType: result.mediaType,
@@ -282,6 +289,7 @@ export async function getFriendLetterForCouple(friendLetterId: string): Promise<
   return {
     friendName: friend.name,
     recipient: letter.recipient,
+    title: letter.title,
     content: letter.content,
     mediaUrl: letter.mediaUrl,
     mediaType: letter.mediaType,

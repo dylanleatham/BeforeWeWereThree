@@ -194,6 +194,20 @@ Each phase results in a working, deployed checkpoint in production. New complexi
 - **Prisma config:** The `package.json#prisma` key is deprecated (removed in Prisma 7). Use `server/prisma.config.ts` instead.
 - **Module-level timers need `.unref()`:** Any `setInterval`/`setTimeout` at module scope in server code must call `.unref()` so Jest worker processes can exit cleanly. Without it, tests pass but Jest force-kills the worker and prints a warning about leaked handles.
 
+### Prisma Schema Changes (Windows)
+
+On Windows, the running dev server locks `query_engine-windows.dll.node`, making `prisma generate` fail with `EPERM`. **The correct order for schema changes is:**
+
+1. **Stop the dev server first** — tell the user to stop it before touching `schema.prisma`
+2. Edit `schema.prisma`
+3. Run `npx prisma generate` (from `server/` dir, no `--schema` flag needed since `prisma.config.ts` exists)
+4. Write the migration SQL
+5. Run `npx prisma migrate deploy`
+6. Rebuild shared types if needed (`cd shared && npx tsc`)
+7. Restart the dev server
+
+**Never apply `migrate deploy` before `generate` succeeds.** If the DB has new columns but the Prisma client doesn't know about them, every query touching those tables returns 500s. The migration and generate must both succeed before the server restarts.
+
 ### Real-time (Socket.io / SignalR)
 
 - **Dual transport pattern:** Use Socket.io for local development (no external services needed), Azure SignalR for production. Abstract behind a `RealtimeAdapter` interface with `sendToGroup()`, `sendToUser()`, `joinGroup()`, `leaveGroup()`. See `server/src/services/realtime.ts`.

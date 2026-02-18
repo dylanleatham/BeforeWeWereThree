@@ -33,35 +33,47 @@ export function FriendLetterActivity({
     submit,
   } = useFriendLetter(letterId, initialLetter);
 
+  const [title, setTitle] = useState(initialLetter?.title ?? '');
   const [content, setContent] = useState(initialLetter?.content ?? '');
   const [mediaUrl, setMediaUrl] = useState<string | null>(initialLetter?.mediaUrl ?? null);
   const [mediaType, setMediaType] = useState<string | null>(initialLetter?.mediaType ?? null);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const titleValue = title.trim() || null;
+
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newTitle = e.target.value;
+      setTitle(newTitle);
+      save(newTitle.trim() || null, content, mediaUrl, mediaType);
+    },
+    [save, content, mediaUrl, mediaType]
+  );
+
   const handleContentChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const newContent = e.target.value;
       setContent(newContent);
-      save(newContent, mediaUrl, mediaType);
+      save(titleValue, newContent, mediaUrl, mediaType);
     },
-    [save, mediaUrl, mediaType]
+    [save, titleValue, mediaUrl, mediaType]
   );
 
   const handleMediaChange = useCallback(
     (url: string | null, type: string | null) => {
       setMediaUrl(url);
       setMediaType(type);
-      save(content, url, type);
+      save(titleValue, content, url, type);
     },
-    [save, content]
+    [save, titleValue, content]
   );
 
   const handleSubmit = useCallback(async () => {
-    const success = await submit(content, mediaUrl, mediaType);
+    const success = await submit(titleValue, content, mediaUrl, mediaType);
     if (success) {
       setShowConfirm(false);
     }
-  }, [submit, content, mediaUrl, mediaType]);
+  }, [submit, titleValue, content, mediaUrl, mediaType]);
 
   // Submitted state - warm confirmation
   if (isSubmitted) {
@@ -95,6 +107,16 @@ export function FriendLetterActivity({
       </header>
 
       <div className="friend-letter-activity__editor">
+        <input
+          className="friend-letter-activity__title-input"
+          type="text"
+          value={title}
+          onChange={handleTitleChange}
+          placeholder={STRINGS.FRIEND_LETTER_TITLE_PLACEHOLDER}
+          disabled={isSubmitting}
+          maxLength={150}
+        />
+
         <textarea
           className="friend-letter-activity__textarea"
           value={content}

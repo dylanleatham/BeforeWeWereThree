@@ -87,7 +87,7 @@ export async function createFriendLetter(
 
 export async function saveFriendLetter(
   letterId: string,
-  data: { content?: string; mediaUrl?: string | null; mediaType?: string | null }
+  data: { title?: string | null; content?: string; mediaUrl?: string | null; mediaType?: string | null }
 ): Promise<FriendLetter> {
   const response = await apiFetch<{ letter: FriendLetter }>(`/friends/me/letters/${letterId}`, {
     method: 'PUT',
@@ -101,7 +101,7 @@ export async function saveFriendLetter(
 
 export async function submitFriendLetter(
   letterId: string,
-  data: { content?: string; mediaUrl?: string | null; mediaType?: string | null }
+  data: { title?: string | null; content?: string; mediaUrl?: string | null; mediaType?: string | null }
 ): Promise<FriendLetter> {
   const response = await apiFetch<{ letter: FriendLetter }>(`/friends/me/letters/${letterId}/submit`, {
     method: 'POST',

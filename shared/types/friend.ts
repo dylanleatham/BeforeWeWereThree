@@ -41,6 +41,7 @@ export interface FriendLetter {
   id: string;
   friendId: string;
   recipient: FriendLetterRecipient;
+  title: string | null;
   content: string;
   mediaUrl: string | null;
   mediaType: string | null;
@@ -61,6 +62,7 @@ export interface FriendLetterCard {
   id: string;
   recipient: FriendLetterRecipient;
   recipientName: string;
+  title: string | null;
   status: FriendLetterStatus;
   content: string;
   submittedAt: string | null;
@@ -111,6 +113,7 @@ export type CreateFriendRequest = z.infer<typeof createFriendSchema>;
  * Save friend letter (auto-save)
  */
 export const saveFriendLetterSchema = z.object({
+  title: z.string().max(150, 'Title is too long').nullable().optional(),
   content: z.string().max(10000, 'Letter is too long').optional(),
   mediaUrl: z.string().url('Invalid media URL').nullable().optional(),
   mediaType: z.enum(['image', 'video', 'audio']).nullable().optional(),
@@ -122,6 +125,7 @@ export type SaveFriendLetterRequest = z.infer<typeof saveFriendLetterSchema>;
  * Submit friend letter (final)
  */
 export const submitFriendLetterSchema = z.object({
+  title: z.string().max(150, 'Title is too long').nullable().optional(),
   content: z.string().max(10000, 'Letter is too long').optional(),
   mediaUrl: z.string().url('Invalid media URL').nullable().optional(),
   mediaType: z.enum(['image', 'video', 'audio']).nullable().optional(),
@@ -160,6 +164,7 @@ export type CreateFriendLetterRequest = z.infer<typeof createFriendLetterSchema>
 export interface FriendLetterViewResponse {
   friendName: string;
   recipient: FriendLetterRecipient;
+  title: string | null;
   content: string;
   mediaUrl: string | null;
   mediaType: string | null;

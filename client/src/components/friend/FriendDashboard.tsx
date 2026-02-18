@@ -57,6 +57,7 @@ export function FriendDashboard() {
         id: card.id,
         friendId: dashboard.friend.id,
         recipient: card.recipient,
+        title: card.title,
         content: card.content,
         mediaUrl: null,
         mediaType: null,

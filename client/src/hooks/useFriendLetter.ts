@@ -9,8 +9,8 @@ interface UseFriendLetterReturn {
   isSubmitted: boolean;
   lastSaved: Date | null;
   error: string | null;
-  save: (content: string, mediaUrl: string | null, mediaType: string | null) => void;
-  submit: (content: string, mediaUrl: string | null, mediaType: string | null) => Promise<boolean>;
+  save: (title: string | null, content: string, mediaUrl: string | null, mediaType: string | null) => void;
+  submit: (title: string | null, content: string, mediaUrl: string | null, mediaType: string | null) => Promise<boolean>;
 }
 
 const AUTO_SAVE_DELAY_MS = 2000;
@@ -43,7 +43,7 @@ export function useFriendLetter(
   }, []);
 
   const save = useCallback(
-    (content: string, mediaUrl: string | null, mediaType: string | null) => {
+    (title: string | null, content: string, mediaUrl: string | null, mediaType: string | null) => {
       if (isSubmitted) return;
 
       // Debounced auto-save
@@ -57,6 +57,7 @@ export function useFriendLetter(
         setError(null);
         try {
           const saved = await saveFriendLetter(letterId, {
+            title,
             content,
             mediaUrl,
             mediaType,
@@ -81,6 +82,7 @@ export function useFriendLetter(
 
   const submit = useCallback(
     async (
+      title: string | null,
       content: string,
       mediaUrl: string | null,
       mediaType: string | null
@@ -97,6 +99,7 @@ export function useFriendLetter(
 
       try {
         const submitted = await submitFriendLetter(letterId, {
+          title,
           content,
           mediaUrl,
           mediaType,

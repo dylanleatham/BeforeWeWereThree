@@ -45,3 +45,8 @@
 .friend-letter-card__recipient {
   font-weight: 600;
 }
+
+.friend-letter-card__title {
+  font-style: italic;
+  color: var(--color-deep-terracotta, #BC6C4A);
+}

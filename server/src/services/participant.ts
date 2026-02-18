@@ -99,9 +99,9 @@ export async function getOrCreateParticipant(
     };
   }
 
-  // If existing is admin, convert to guest with proper designation
+  // If existing is non-guest (admin or friend), convert to guest with proper designation
   // (Don't delete - would violate FK constraints from votes/letters)
-  if (existing && existing.role === 'admin') {
+  if (existing) {
     const updatedParticipant = await db.$transaction(async (tx) => {
       // Count existing guest participants to determine designation
       const guestCount = await tx.participant.count({
@@ -124,6 +124,7 @@ export async function getOrCreateParticipant(
         data: {
           designation,
           role: 'guest',
+          friendId: null,
         },
       });
     }, { isolationLevel: 'Serializable' });

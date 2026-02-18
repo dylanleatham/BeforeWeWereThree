@@ -250,6 +250,7 @@ model FriendLetter {
   id          String    @id @default(uuid())
   friendId    String    @map("friend_id")
   recipient   String    // 'you' | 'partner' | 'baby'
+  title       String?
   content     String    @default("")
   mediaUrl    String?   @map("media_url")
   mediaType   String?   @map("media_type") // 'image' | 'video' | 'audio'

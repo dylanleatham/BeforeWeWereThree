@@ -13,7 +13,7 @@ interface FriendLetterCardProps {
  * Card showing a friend letter's status in the dashboard
  */
 export function FriendLetterCard({ card, onClick }: FriendLetterCardProps) {
-  const { id, recipientName, status } = card;
+  const { id, recipientName, title, status } = card;
 
   const statusIcon = {
     draft: <Edit3 size={20} />,
@@ -37,6 +37,11 @@ export function FriendLetterCard({ card, onClick }: FriendLetterCardProps) {
         <Text className="friend-letter-card__recipient">
           {STRINGS.FRIEND_LETTER_TO(recipientName)}
         </Text>
+        {title && (
+          <Text variant="small" className="friend-letter-card__title">
+            {title}
+          </Text>
+        )}
         <Text variant="small" color="muted" className="friend-letter-card__status">
           {statusLabel[status]}
         </Text>

@@ -62,6 +62,11 @@ export function FriendLetterView({ friendLetterId, onComplete }: FriendLetterVie
         <Text variant="small" color="muted" className="friend-letter-view__to">
           To {recipientLabel}
         </Text>
+        {letterView.title && (
+          <Text className="friend-letter-view__title">
+            {letterView.title}
+          </Text>
+        )}
       </header>
 
       <div className="friend-letter-view__content">

@@ -222,6 +222,7 @@ export const STRINGS = {
   FRIEND_LETTER_SUBMITTED: 'Sent',
 
   // Friend Letter Activity
+  FRIEND_LETTER_TITLE_PLACEHOLDER: 'Give your letter a title (optional)',
   FRIEND_LETTER_PLACEHOLDER: 'Write your letter here...',
   FRIEND_LETTER_SUBMIT: 'Send Letter',
   FRIEND_LETTER_CONFIRM_MESSAGE: 'Once you send this letter, it cannot be edited. Ready?',

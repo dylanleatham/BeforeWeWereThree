@@ -47,6 +47,7 @@ function toApiFriendLetter(letter: PrismaFriendLetter): FriendLetter {
     id: letter.id,
     friendId: letter.friendId,
     recipient: letter.recipient as FriendLetter['recipient'],
+    title: letter.title,
     content: letter.content,
     mediaUrl: letter.mediaUrl,
     mediaType: letter.mediaType,
@@ -152,11 +153,12 @@ export async function getFriendLetterById(id: string): Promise<FriendLetter | nu
 
 export async function updateFriendLetter(
   letterId: string,
-  data: { content?: string; mediaUrl?: string | null; mediaType?: string | null }
+  data: { title?: string | null; content?: string; mediaUrl?: string | null; mediaType?: string | null }
 ): Promise<FriendLetter> {
   const letter = await db.friendLetter.update({
     where: { id: letterId },
     data: {
+      title: data.title,
       content: data.content,
       mediaUrl: data.mediaUrl,
       mediaType: data.mediaType,

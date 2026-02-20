@@ -1,0 +1,88 @@
+/**
+ * CeremonyPhase — Full-screen reveal animation
+ *
+ * The most dramatic visual moment in the entire app.
+ * Uses position:fixed to overlay everything, including the BaseEnvelope.
+ *
+ * Color themes use CSS custom properties from variables.css:
+ * - Boy: warm sky/sage (--reveal-boy-*)
+ * - Girl: warm rose (--reveal-girl-*)
+ */
+
+.ceremony {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--color-warm-charcoal-rgb), 0.85);
+  overflow: hidden;
+}
+
+/* Glow element — large radial gradient circle */
+.ceremony__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+  /* translateX/Y handled by motion scale from center */
+  margin-top: -150px;
+  margin-left: -150px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+/* Boy theme glow */
+.ceremony--boy .ceremony__glow {
+  background: radial-gradient(
+    circle,
+    var(--reveal-boy-glow) 0%,
+    var(--reveal-boy-primary) 40%,
+    transparent 70%
+  );
+}
+
+/* Girl theme glow */
+.ceremony--girl .ceremony__glow {
+  background: radial-gradient(
+    circle,
+    var(--reveal-girl-glow) 0%,
+    var(--reveal-girl-primary) 40%,
+    transparent 70%
+  );
+}
+
+/* Reveal text */
+.ceremony__text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 400;
+  margin: 0;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Boy text color */
+.ceremony--boy .ceremony__text {
+  color: var(--reveal-boy-glow);
+  text-shadow:
+    0 0 30px var(--reveal-boy-glow),
+    0 0 60px rgba(168, 200, 216, 0.3);
+}
+
+/* Girl text color */
+.ceremony--girl .ceremony__text {
+  color: var(--reveal-girl-glow);
+  text-shadow:
+    0 0 30px var(--reveal-girl-glow),
+    0 0 60px rgba(240, 184, 168, 0.3);
+}

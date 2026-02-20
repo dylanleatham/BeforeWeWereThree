@@ -141,12 +141,12 @@ Plans:
   3. Reveal triggers only when both keys validated server-side
   4. Full-screen ceremony with countdown and celebration displays
   5. Gender value never sent to client until both keys valid (no DevTools leak)
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 07-01: Gender reveal admin configuration
-- [ ] 07-02: Two-key validation with constant-time operations
-- [ ] 07-03: Ceremony animation sequence
+- [ ] 07-01-PLAN.md — Backend: Prisma schema, shared types, queries, service (Serializable isolation), routes, reset (Wave 1)
+- [ ] 07-02-PLAN.md — Participant UI: useGenderReveal hook, key entry, waiting, ceremony animation, keepsake, BaseEnvelope wiring (Wave 2)
+- [ ] 07-03-PLAN.md — Admin UI: GenderRevealContentTab, ContentManager wiring (Wave 3)
 
 ## Progress
 

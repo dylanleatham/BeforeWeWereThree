@@ -1,0 +1,95 @@
+/**
+ * TriviaActivity - Main container styles
+ * Follows WouldYouRatherActivity pattern.
+ */
+
+.trivia-activity {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 300px;
+  position: relative;
+}
+
+/* Content area for phase components */
+.trivia-activity__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-md);
+}
+
+/* Loading state */
+.trivia-activity--loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.trivia-activity__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-warm-sand);
+  border-top-color: var(--color-sunrise-gold);
+  border-radius: 50%;
+}
+
+/* Error state (full page) */
+.trivia-activity--error {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  text-align: center;
+}
+
+.trivia-activity__error-message {
+  color: var(--color-dusk-rose);
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  margin: 0;
+}
+
+.trivia-activity__retry {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  color: var(--color-deep-terracotta);
+  background: transparent;
+  border: 1px solid var(--color-deep-terracotta);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.trivia-activity__retry:hover,
+.trivia-activity__retry:focus {
+  background: var(--color-deep-terracotta);
+  color: var(--color-white);
+}
+
+.trivia-activity__retry:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
+/* Error banner (non-blocking, shown alongside content) */
+.trivia-activity__error-banner {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-dusk-rose-10);
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  color: var(--color-dusk-rose);
+  text-align: center;
+  z-index: 5;
+}

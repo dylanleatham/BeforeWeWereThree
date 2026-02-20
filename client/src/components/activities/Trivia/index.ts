@@ -1,0 +1,1 @@
+export { TriviaActivity } from './TriviaActivity';

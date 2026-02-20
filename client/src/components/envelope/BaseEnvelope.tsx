@@ -13,6 +13,7 @@ import { WouldYouRatherActivity } from '../activities/WouldYouRather';
 import { LetterActivity } from '../activities/Letter/LetterActivity';
 import { MediaLibraryActivity } from '../activities/MediaLibrary/MediaLibraryActivity';
 import { NameGameActivity } from '../activities/NameGame';
+import { TriviaActivity } from '../activities/Trivia';
 import { FriendLetterView } from '../friend/FriendLetterView';
 import { STRINGS } from '../../constants/strings';
 import { ANIMATION_DURATION_MS, CONTENT_REVEAL_DURATION } from '../../constants/animation';
@@ -80,6 +81,7 @@ export function BaseEnvelope({
   const shouldRenderActivity = (env: Envelope): boolean => {
     if (env.type === 'name-game') return true;
     if (env.type === 'would-you-rather' && env.status === 'completed') return true;
+    if (env.type === 'trivia' && env.status === 'completed') return true;
     if (env.type === 'friend-letter' && env.status === 'completed') return true;
     return env.status === 'opened';
   };
@@ -122,6 +124,14 @@ export function BaseEnvelope({
           />
         );
 
+      case 'trivia':
+        return (
+          <TriviaActivity
+            envelopeId={envelope.id}
+            onComplete={handleActivityComplete}
+          />
+        );
+
       case 'name-game':
         return (
           <NameGameActivity
@@ -140,7 +150,7 @@ export function BaseEnvelope({
         }
         return null;
 
-      // Other activity types (trivia, gender-reveal) will be added in future phases
+      // Other activity types (gender-reveal) will be added in future phases
       default:
         return children || (
           <p className="base-envelope__placeholder">

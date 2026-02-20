@@ -1,0 +1,138 @@
+/**
+ * Trivia Question Phase Styles
+ *
+ * Vertical list of multiple choice options with letter labels.
+ * Full-width stacked buttons, minimum 44px touch targets.
+ */
+
+/* =============================================================================
+ * Container
+ * ============================================================================= */
+
+.trivia-question {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  width: 100%;
+  padding: var(--space-4);
+}
+
+/* =============================================================================
+ * Question Text
+ * ============================================================================= */
+
+.trivia-question__text {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+  line-height: 1.3;
+  max-width: 400px;
+}
+
+/* =============================================================================
+ * Options Group
+ * ============================================================================= */
+
+.trivia-question__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 360px;
+}
+
+/* =============================================================================
+ * Individual Option Button
+ * ============================================================================= */
+
+.trivia-question__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--bg-elevated);
+  border: 2px solid var(--color-muted-stone);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-default),
+    background-color var(--duration-fast) var(--ease-default);
+}
+
+.trivia-question__option:hover:not(:disabled) {
+  border-color: var(--color-sunrise-gold);
+  background-color: var(--color-sunrise-gold-5);
+}
+
+.trivia-question__option:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
+.trivia-question__option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Selected state */
+.trivia-question__option--selected {
+  border-color: var(--color-sunrise-gold);
+  background-color: var(--color-sunrise-gold-10);
+}
+
+.trivia-question__option--selected:hover:not(:disabled) {
+  border-color: var(--color-sunrise-gold);
+  background-color: var(--color-sunrise-gold-10);
+}
+
+/* =============================================================================
+ * Option Letter Label (A, B, C, D)
+ * ============================================================================= */
+
+.trivia-question__option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-full);
+  transition: color var(--duration-fast) var(--ease-default),
+    background-color var(--duration-fast) var(--ease-default);
+}
+
+.trivia-question__option--selected .trivia-question__option-letter {
+  color: var(--bg-elevated);
+  background-color: var(--color-sunrise-gold);
+}
+
+/* =============================================================================
+ * Option Text
+ * ============================================================================= */
+
+.trivia-question__option-text {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* =============================================================================
+ * Submit Button
+ * ============================================================================= */
+
+.trivia-question__submit {
+  margin-top: var(--space-2);
+  min-width: 160px;
+}

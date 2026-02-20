@@ -5,24 +5,38 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Two people, one screen each, sharing moments that matter.
-**Current focus:** Phase 5 complete - Baby Name Game & AI
+**Current focus:** Phase 6 in progress - Trivia Activity
 
 ## Current Position
 
-Phase: 5 of 7 (Baby Name Game & AI)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-02-15 - Completed 05-04-PLAN.md
+Phase: 6 of 7 (Trivia Activity)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-19 - Completed 06-01-PLAN.md
 
-Progress: [████████████████████] 100% (Phase 5)
-Overall:  [██████████████████████████████████████████] 100% (21/21 plans)
+Progress: [█████] 25% (Phase 6)
+Overall:  [██████████████████████████████████████████████] 88% (22/25 plans)
+
+Config:
+{
+  "mode": "interactive",
+  "depth": "comprehensive",
+  "parallelization": true,
+  "commit_docs": true,
+  "model_profile": "quality",
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true
+  }
+}
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
-- Average duration: ~19 min (including manual debugging)
-- Total execution time: ~6.5 hours
+- Total plans completed: 22
+- Average duration: ~18 min (including manual debugging)
+- Total execution time: ~6.7 hours
 
 **By Phase:**
 
@@ -33,9 +47,10 @@ Overall:  [███████████████████████
 | 03 | 4/4 | ~238 min | ~60 min |
 | 04 | 5/5 | ~41 min | ~8 min |
 | 05 | 4/4 | ~27 min | ~7 min |
+| 06 | 1/4 | ~10 min | ~10 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-05 (~10 min), 05-01 (~6 min), 05-02 (~5 min), 05-03 (~7 min), 05-04 (~9 min)
+- Last 5 plans: 05-01 (~6 min), 05-02 (~5 min), 05-03 (~7 min), 05-04 (~9 min), 06-01 (~10 min)
 - Trend: Consistent ~5-10 min per plan
 
 *Updated after each plan completion*
@@ -104,6 +119,9 @@ Recent decisions affecting current work:
 | 05-04 | Deterministic client-side name shuffling | Seeded Fisher-Yates with participantId hash for per-partner order |
 | 05-04 | Name game envelopes never complete | No onComplete from BaseEnvelope, envelope stays opened forever |
 | 05-04 | Admin reset FK order for name game | nameGameVote -> nameGameName -> nameGameRound -> participant |
+| 06-01 | JSON column for trivia options | Options stored as Prisma Json (PostgreSQL jsonb), cast through unknown to TriviaOption[] |
+| 06-01 | Content library with join table | TriviaQuestion standalone + TriviaEnvelopeQuestion join, unlike WYR direct ownership |
+| 06-01 | Admin routes use /admin/ prefix | Prevents Express param route collision with envelopeId |
 
 ### Pending Todos
 
@@ -138,6 +156,28 @@ Gotchas discovered during development that future phases should avoid:
 | 05-01 | **Prisma migrate dev fails with drifted DB** | When DB schema was updated via `db push` or direct SQL without migration history, `prisma migrate dev` refuses to create new migrations (drift detected). Use `prisma db push` to sync, then create migration SQL manually for documentation. |
 | 05-01 | **Clean BOTH .prisma directories on Windows** | Must delete `node_modules/.prisma` AND `server/node_modules/.prisma` before `prisma generate`. The root workspace also has a `.prisma` cache that can hold file locks. |
 | 05-02 | **Anthropic SDK ContentBlock type needs explicit narrowing** | `response.content[0]` may be undefined and `ContentBlock` union includes `ThinkingBlock` without `.text`. Must cast explicitly and check for undefined before accessing `.text`. Jest's ts-jest catches this but esbuild doesn't. |
+| 06-01 | **Prisma migrate dev --create-only hangs on Windows with remote DB** | Command does not return when connected to Azure PostgreSQL. Workaround: create migration SQL manually, use `prisma migrate deploy`. The command may silently create a migration directory before hanging. |
+| 06-01 | **Prisma Json type requires double-cast** | `question.options as TriviaOption[]` fails in strict mode. Must use `question.options as unknown as TriviaOption[]` for the intermediate cast from `Prisma.JsonValue`. |
+
+### Testing Trivia Locally
+
+1. **Create envelope** with type `'trivia'` (use hyphens if needed!)
+2. **Create trivia question** via admin API:
+   ```bash
+   curl -X POST http://localhost:3000/api/trivia/admin/questions \
+     -H "Content-Type: application/json" \
+     -H "Cookie: session=<admin-cookie>" \
+     -d '{"questionText":"What year were you born?","options":[{"text":"1990","isCorrect":true},{"text":"1991","isCorrect":false}]}'
+   ```
+3. **Assign question to envelope** via admin API:
+   ```bash
+   curl -X PUT http://localhost:3000/api/trivia/admin/envelope/<envelope-id>/questions \
+     -H "Content-Type: application/json" \
+     -H "Cookie: session=<admin-cookie>" \
+     -d '{"questionIds":["<question-id>"]}'
+   ```
+4. **Get trivia state**: `GET /api/trivia/<envelope-id>`
+5. **Submit answer**: `POST /api/trivia/<envelope-id>/answer` with `{"questionId":"...","selectedIndex":0}`
 
 ### Testing Name Game Locally (Without SignalR)
 
@@ -183,33 +223,22 @@ Gotchas discovered during development that future phases should avoid:
 
 ## Session Continuity
 
-Last session: 2026-02-15
-Stopped at: Completed 05-04-PLAN.md (Phase 5 complete)
+Last session: 2026-02-19
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
 
-**Phase 5 Complete:**
-- [x] 05-01: Name Game Foundation (complete, 2026-02-15)
-- [x] 05-02: Backend service, routes, and queries (complete, 2026-02-15)
-- [x] 05-03: Client UI components (complete, 2026-02-15)
-- [x] 05-04: Client integration and wiring (complete, 2026-02-15)
+**Phase 6 In Progress:**
+- [x] 06-01: Trivia Backend Foundation (complete, 2026-02-19)
+- [ ] 06-02: Client UI Components
+- [ ] 06-03: Client Integration and Wiring
+- [ ] 06-04: Admin Content Management
 
-**Phase 5 Accomplishments:**
-- NameGameRound, NameGameName, NameGameVote Prisma models with FK relations
-- Shared types for complete name game API contract
-- Anthropic API service with structured outputs for AI name generation
-- Zod validation schemas for request validation
+**Phase 6 Plan 01 Accomplishments:**
+- TriviaQuestion, TriviaEnvelopeQuestion, TriviaAnswer Prisma models
 - Migration SQL for three new database tables
-- Typed Prisma query functions for all name game DB operations
-- Business logic service with Anthropic integration, Serializable transactions, SignalR broadcasts
-- Four REST API endpoints at /api/name-game (state, generate, vote, matches)
-- Six React UI components: NameCard, VotingPhase, WaitingPhase, ResultsPhase, NewRoundPhase, GeneratingPhase
-- Swipe gesture voting (Love/Maybe/Nope) with directional overlay feedback
-- NAME_GAME_* string constants and animation constants
-- useNameGame hook with full phase state machine and SignalR integration
-- NameGameActivity orchestrator component
-- API client functions for all name game endpoints
-- BaseEnvelope wiring for name-game envelope type
-- Admin reset logic for name game data (votes, names, rounds)
-- All admin tests updated for name game models
-
-**Ready for Phase 6:** Gender Reveal or Phase 7: Polish & Deploy
+- Shared types with full trivia API contract and Zod schemas
+- Typed Prisma query functions for all trivia DB operations
+- Business logic service (solo, no SignalR)
+- REST API endpoints at /api/trivia (guest: state/answer, admin: CRUD/assign/reorder)
+- Admin reset logic for trivia answers
+- All existing tests updated and passing

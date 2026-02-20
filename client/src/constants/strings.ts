@@ -306,6 +306,34 @@ export const STRINGS = {
   TRIVIA_ASSIGNER_SAVING: 'Saving...',
   TRIVIA_ASSIGNER_SELECT_ENVELOPE: 'Select a trivia envelope to manage questions:',
   TRIVIA_ASSIGNER_NO_ENVELOPES: 'No trivia envelopes exist. Create one in Envelope Management above.',
+
+  // WYR Admin
+  WYR_ADMIN_HEADING: 'Would You Rather Prompts',
+  WYR_ADMIN_SELECT_ENVELOPE: 'Select a Would You Rather envelope to manage prompts:',
+  WYR_ADMIN_NO_ENVELOPES: 'No Would You Rather envelopes exist. Create one in Envelope Management above.',
+  WYR_ADMIN_ADD: 'New Prompt',
+  WYR_ADMIN_EMPTY: 'No prompts for this envelope. Add one!',
+  WYR_ADMIN_OPTION_A: 'Option A',
+  WYR_ADMIN_OPTION_B: 'Option B',
+  WYR_ADMIN_SAVE: 'Save Prompt',
+  WYR_ADMIN_SAVING: 'Saving...',
+  WYR_ADMIN_CONFIRM_DELETE: 'Delete?',
+  WYR_ADMIN_CANCEL: 'Cancel',
+
+  // Letter Admin
+  LETTER_ADMIN_HEADING: 'Letter Prompts',
+  LETTER_ADMIN_SELECT_ENVELOPE: 'Select a Letter envelope to manage its prompt:',
+  LETTER_ADMIN_NO_ENVELOPES: 'No Letter envelopes exist. Create one in Envelope Management above.',
+  LETTER_ADMIN_EMPTY: 'No prompt set for this envelope. Create one!',
+  LETTER_ADMIN_PROMPT_LABEL: 'Prompt Text',
+  LETTER_ADMIN_PROMPT_HINT: 'The question or topic that guides what participants write about',
+  LETTER_ADMIN_SAVE: 'Save Prompt',
+  LETTER_ADMIN_SAVING: 'Saving...',
+  LETTER_ADMIN_EDIT: 'Edit Prompt',
+  LETTER_ADMIN_DELETE: 'Delete Prompt',
+  LETTER_ADMIN_CONFIRM_DELETE: 'Delete this prompt? This will also delete all letters written for it.',
+  LETTER_ADMIN_CANCEL: 'Cancel',
+  LETTER_ADMIN_CREATE: 'Create Prompt',
 } as const;
 
 /**

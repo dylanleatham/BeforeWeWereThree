@@ -1,0 +1,178 @@
+.letter-content-tab {
+  /* No extra padding - ContentManager already provides it */
+}
+
+.letter-content-tab__heading {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.letter-content-tab__loading,
+.letter-content-tab__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  text-align: center;
+}
+
+/* Envelope select */
+.letter-content-tab__envelope-select {
+  margin-bottom: var(--space-4);
+}
+
+.letter-content-tab__select-label {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.letter-content-tab__select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-light-linen);
+  border-radius: 0.75rem;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  min-height: 48px;
+  transition: border-color var(--duration-fast) var(--ease-default);
+}
+
+.letter-content-tab__select:focus {
+  outline: none;
+  border-color: var(--color-sunrise-gold);
+}
+
+/* Prompt display */
+.letter-content-tab__card {
+  padding: var(--space-4);
+}
+
+.letter-content-tab__prompt-display {
+  margin-bottom: var(--space-3);
+}
+
+.letter-content-tab__prompt-text {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.letter-content-tab__actions {
+  display: flex;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-light-linen);
+}
+
+.letter-content-tab__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--color-light-linen);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  transition: background var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default);
+}
+
+.letter-content-tab__btn:hover {
+  background: var(--color-muted-stone);
+  color: var(--text-primary);
+}
+
+.letter-content-tab__btn--danger {
+  background: var(--color-dusk-rose-10);
+  color: var(--color-dusk-rose);
+}
+
+.letter-content-tab__btn--danger:hover {
+  background: var(--color-dusk-rose);
+  color: var(--bg-elevated);
+}
+
+.letter-content-tab__btn:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
+.letter-content-tab__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Create/edit form */
+.letter-content-tab__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.letter-content-tab__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.letter-content-tab__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.letter-content-tab__hint {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.letter-content-tab__textarea {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-light-linen);
+  border-radius: 0.75rem;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color var(--duration-fast) var(--ease-default);
+}
+
+.letter-content-tab__textarea:focus {
+  outline: none;
+  border-color: var(--color-sunrise-gold);
+}
+
+.letter-content-tab__form-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+/* Create action in empty state */
+.letter-content-tab__create-action {
+  margin-top: var(--space-3);
+}
+
+/* Delete confirmation */
+.letter-content-tab__delete-confirm {
+  font-size: var(--text-sm);
+  color: var(--color-dusk-rose);
+  margin-bottom: var(--space-2);
+}

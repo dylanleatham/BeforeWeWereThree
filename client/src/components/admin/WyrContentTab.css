@@ -1,0 +1,207 @@
+.wyr-content-tab {
+  /* No extra padding - ContentManager already provides it */
+}
+
+.wyr-content-tab__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.wyr-content-tab__header .btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.wyr-content-tab__heading {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.wyr-content-tab__loading,
+.wyr-content-tab__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  text-align: center;
+}
+
+/* Envelope select */
+.wyr-content-tab__envelope-select {
+  margin-bottom: var(--space-4);
+}
+
+.wyr-content-tab__select-label {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.wyr-content-tab__select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-light-linen);
+  border-radius: 0.75rem;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  min-height: 48px;
+  transition: border-color var(--duration-fast) var(--ease-default);
+}
+
+.wyr-content-tab__select:focus {
+  outline: none;
+  border-color: var(--color-sunrise-gold);
+}
+
+/* Prompt list */
+.wyr-content-tab__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.wyr-content-tab__item {
+  margin: 0;
+}
+
+.wyr-content-tab__card {
+  padding: var(--space-4);
+}
+
+.wyr-content-tab__prompt-info {
+  margin-bottom: var(--space-2);
+}
+
+.wyr-content-tab__prompt-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.wyr-content-tab__option-text {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wyr-content-tab__option-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: var(--space-2);
+}
+
+.wyr-content-tab__prompt-order {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* Action buttons */
+.wyr-content-tab__actions {
+  display: flex;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-light-linen);
+}
+
+.wyr-content-tab__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--color-light-linen);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default);
+}
+
+.wyr-content-tab__btn:hover {
+  background: var(--color-muted-stone);
+  color: var(--text-primary);
+}
+
+.wyr-content-tab__btn--danger {
+  background: var(--color-dusk-rose-10);
+  color: var(--color-dusk-rose);
+}
+
+.wyr-content-tab__btn--danger:hover {
+  background: var(--color-dusk-rose);
+  color: var(--bg-elevated);
+}
+
+.wyr-content-tab__btn:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
+.wyr-content-tab__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Create/edit form */
+.wyr-content-tab__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.wyr-content-tab__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wyr-content-tab__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.wyr-content-tab__textarea {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-light-linen);
+  border-radius: 0.75rem;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color var(--duration-fast) var(--ease-default);
+}
+
+.wyr-content-tab__textarea:focus {
+  outline: none;
+  border-color: var(--color-sunrise-gold);
+}
+
+.wyr-content-tab__form-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}

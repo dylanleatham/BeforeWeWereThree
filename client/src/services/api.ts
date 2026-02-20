@@ -264,6 +264,17 @@ export async function submitWyrVote(
 }
 
 /**
+ * Get WYR prompts for an envelope (admin only)
+ */
+export async function getWyrPromptsForEnvelope(envelopeId: string): Promise<WYRPrompt[]> {
+  const response = await apiFetch<{ prompts: WYRPrompt[] }>(`/wyr/envelope/${envelopeId}/prompts`);
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch WYR prompts');
+  }
+  return response.data.prompts;
+}
+
+/**
  * Create WYR prompt (admin only)
  */
 export async function createWyrPrompt(data: {
@@ -455,6 +466,20 @@ export async function submitLetter(
     throw new Error(response.error?.message || 'Failed to submit letter');
   }
   return response.data;
+}
+
+/**
+ * Get letter prompt for an envelope (admin only)
+ */
+export async function getLetterPromptForEnvelope(envelopeId: string): Promise<LetterPrompt | null> {
+  const response = await apiFetch<{ prompt: LetterPrompt }>(`/letters/prompt/envelope/${envelopeId}`);
+  if (!response.success) {
+    if (response.error?.code === 'PROMPT_NOT_FOUND') {
+      return null;
+    }
+    throw new Error(response.error?.message || 'Failed to fetch letter prompt');
+  }
+  return response.data.prompt;
 }
 
 /**

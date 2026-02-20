@@ -12,6 +12,7 @@ import {
   updatePrompt,
   deletePrompt,
   getPromptById,
+  getPromptByEnvelopeId,
 } from '../db/queries/letter.js';
 import { getLetterState, saveLetter, submitLetter } from '../services/letter.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
@@ -184,6 +185,31 @@ router.post(
 // ============================================================
 // Admin Routes
 // ============================================================
+
+/**
+ * GET /letters/prompt/envelope/:envelopeId
+ * Get letter prompt for an envelope (admin only, for management)
+ * Returns the prompt or 404 if none exists
+ */
+router.get(
+  '/prompt/envelope/:envelopeId',
+  adminMiddleware,
+  async (req: Request<{ envelopeId: string }>, res: Response) => {
+    try {
+      const { envelopeId } = req.params;
+      const prompt = await getPromptByEnvelopeId(envelopeId);
+      if (!prompt) {
+        res.status(404).json(errorResponse('PROMPT_NOT_FOUND', 'No letter prompt found for this envelope'));
+        return;
+      }
+
+      res.json(successResponse({ prompt }));
+    } catch (error) {
+      logger.error('Failed to get letter prompt for envelope', { error });
+      res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to get letter prompt'));
+    }
+  }
+);
 
 /**
  * POST /letters/prompt

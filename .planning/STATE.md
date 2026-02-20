@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 7 of 7 (Gender Reveal Ceremony)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-20 - Completed 07-01-PLAN.md
+Last activity: 2026-02-20 - Completed 07-02-PLAN.md
 
-Progress: [█████] 25% (Phase 7)
-Overall:  [██████████████████████████████████████████████████████] 100% (26/29 plans)
+Progress: [██████████] 50% (Phase 7)
+Overall:  [████████████████████████████████████████████████████████] 100% (27/29 plans)
 
 Config:
 {
@@ -34,9 +34,9 @@ Config:
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
+- Total plans completed: 27
 - Average duration: ~17 min (including manual debugging)
-- Total execution time: ~7.2 hours
+- Total execution time: ~7.4 hours
 
 **By Phase:**
 
@@ -48,10 +48,10 @@ Config:
 | 04 | 5/5 | ~41 min | ~8 min |
 | 05 | 4/4 | ~27 min | ~7 min |
 | 06 | 4/4 | ~29 min | ~7 min |
-| 07 | 1/4 | ~12 min | ~12 min |
+| 07 | 2/4 | ~24 min | ~12 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-01 (~10 min), 06-02 (~6 min), 06-03 (~7 min), 06-04 (~6 min), 07-01 (~12 min)
+- Last 5 plans: 06-02 (~6 min), 06-03 (~7 min), 06-04 (~6 min), 07-01 (~12 min), 07-02 (~12 min)
 - Trend: Consistent ~6-12 min per plan
 
 *Updated after each plan completion*
@@ -134,6 +134,10 @@ Recent decisions affecting current work:
 | 07-01 | Accept either key from either participant | Server doesn't enforce key-participant assignment, avoids edge cases |
 | 07-01 | Gender only returned when revealedAt is set | REVEAL-05 security requirement: gender never leaks before both keys validated |
 | 07-01 | Re-seal preserves config, clears validation | Admin can test ceremony multiple times without re-entering gender/keys |
+| 07-02 | Error string as motion key for shake | Using error prop value as key remounts motion container, avoiding ref-during-render violations |
+| 07-02 | onComplete ref updated in useEffect | React 19 ESLint rules disallow ref writes during render |
+| 07-02 | Gender reveal envelopes never complete | Same pattern as name-game, no onComplete from BaseEnvelope |
+| 07-02 | Full-screen fixed overlay for ceremony | CeremonyPhase uses position:fixed z-index:1000 above all UI |
 
 ### Pending Todos
 
@@ -170,6 +174,8 @@ Gotchas discovered during development that future phases should avoid:
 | 05-02 | **Anthropic SDK ContentBlock type needs explicit narrowing** | `response.content[0]` may be undefined and `ContentBlock` union includes `ThinkingBlock` without `.text`. Must cast explicitly and check for undefined before accessing `.text`. Jest's ts-jest catches this but esbuild doesn't. |
 | 06-01 | **Prisma migrate dev --create-only hangs on Windows with remote DB** | Command does not return when connected to Azure PostgreSQL. Workaround: create migration SQL manually, use `prisma migrate deploy`. The command may silently create a migration directory before hanging. |
 | 06-01 | **Prisma Json type requires double-cast** | `question.options as TriviaOption[]` fails in strict mode. Must use `question.options as unknown as TriviaOption[]` for the intermediate cast from `Prisma.JsonValue`. |
+| 07-02 | **React 19 ESLint: no refs during render** | `react-hooks/refs` rule disallows accessing/writing ref.current during render body. Move ref updates to `useEffect`. For patterns like "shake on error change," use the error value itself as a `key` prop to remount the animated element instead of tracking via refs. |
+| 07-02 | **React 19 ESLint: no setState in effect body** | `react-hooks/set-state-in-effect` rule disallows calling setState synchronously inside useEffect. For cascading state updates, use useRef for non-rendering state (like counters) or derive values from props directly. |
 
 ### Testing Trivia Locally
 
@@ -224,11 +230,11 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 07-01-PLAN.md
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
 
 **Phase 7 In Progress:**
 - [x] 07-01: Gender Reveal Backend Foundation (complete, 2026-02-20)
-- [ ] 07-02: Client hooks and UI components
+- [x] 07-02: Client hooks and UI components (complete, 2026-02-20)
 - [ ] 07-03: Admin content tab
 - [ ] 07-04: Ceremony animation and integration

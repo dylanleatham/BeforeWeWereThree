@@ -126,10 +126,10 @@ Plans:
 **Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 06-01-PLAN.md — Prisma schema, migration, shared types, query layer, service, routes, reset (Wave 1)
-- [ ] 06-02-PLAN.md — Trivia UI: useTrivia hook, phase components, orchestrator, BaseEnvelope wiring (Wave 2)
-- [ ] 06-03-PLAN.md — Admin content manager: accessible tabs, trivia question CRUD, envelope assignment with drag-to-reorder (Wave 2, parallel)
-- [ ] 06-04-PLAN.md — WYR and Letter content tabs, wire ContentManager into admin view (Wave 3)
+- [x] 06-01-PLAN.md — Prisma schema, migration, shared types, query layer, service, routes, reset (Wave 1) -- Completed 2026-02-19
+- [x] 06-02-PLAN.md — Trivia UI: useTrivia hook, phase components, orchestrator, BaseEnvelope wiring (Wave 2) -- Completed 2026-02-19
+- [x] 06-03-PLAN.md — Admin content manager: accessible tabs, trivia question CRUD, envelope assignment with drag-to-reorder (Wave 3) -- Completed 2026-02-19
+- [x] 06-04-PLAN.md — WYR and Letter content tabs, wire ContentManager into admin view (Wave 4) -- Completed 2026-02-19
 
 ### Phase 7: Gender Reveal Ceremony
 **Goal**: Two-key unlock triggers dramatic reveal; secret never leaks
@@ -160,7 +160,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Real-Time Sync & WYR | 4/4 | Complete | 2026-02-06 |
 | 4. Letters & Media | 5/5 | Complete | 2026-02-08 |
 | 5. Baby Name Game & AI | 4/4 | Complete | 2026-02-15 |
-| 6. Trivia Activity | 0/4 | Not started | - |
+| 6. Trivia Activity | 4/4 | Complete | 2026-02-19 |
 | 7. Gender Reveal Ceremony | 0/3 | Not started | - |
 
 ---

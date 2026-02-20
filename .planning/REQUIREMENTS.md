@@ -23,30 +23,30 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### UI Foundation
 
-- [ ] **UI-01**: Envelope component displays sealed/opened/completed states
-- [ ] **UI-02**: Opening envelope triggers satisfying animation
-- [ ] **UI-03**: Design system uses Golden Hour tokens (colors, typography, spacing)
-- [ ] **UI-04**: Layout is mobile-optimized with large touch targets
+- [x] **UI-01**: Envelope component displays sealed/opened/completed states
+- [x] **UI-02**: Opening envelope triggers satisfying animation
+- [x] **UI-03**: Design system uses Golden Hour tokens (colors, typography, spacing)
+- [x] **UI-04**: Layout is mobile-optimized with large touch targets
 
 ### Real-Time Sync
 
-- [ ] **SYNC-01**: SignalR connection established between two devices
-- [ ] **SYNC-02**: Partner presence indicator shows online/offline status
-- [ ] **SYNC-03**: Voting activities reveal only after both participants submit
-- [ ] **SYNC-04**: UI shows optimistic updates with sync status indicators
+- [x] **SYNC-01**: SignalR connection established between two devices
+- [x] **SYNC-02**: Partner presence indicator shows online/offline status
+- [x] **SYNC-03**: Voting activities reveal only after both participants submit
+- [x] **SYNC-04**: UI shows optimistic updates with sync status indicators
 
 ### Trivia Activity
 
-- [ ] **TRIVIA-01**: User can view trivia question in envelope
-- [ ] **TRIVIA-02**: User can submit answer and see correct answer revealed
-- [ ] **TRIVIA-03**: Envelope marks complete after answer revealed
+- [x] **TRIVIA-01**: User can view trivia question in envelope
+- [x] **TRIVIA-02**: User can submit answer and see correct answer revealed
+- [x] **TRIVIA-03**: Envelope marks complete after answer revealed
 
 ### Would You Rather Activity
 
-- [ ] **WYR-01**: Both participants see same prompt with two options
-- [ ] **WYR-02**: Each participant votes independently (choice hidden)
-- [ ] **WYR-03**: Reveal shows both choices side-by-side after both vote
-- [ ] **WYR-04**: Envelope marks complete after reveal
+- [x] **WYR-01**: Both participants see same prompt with two options
+- [x] **WYR-02**: Each participant votes independently (choice hidden)
+- [x] **WYR-03**: Reveal shows both choices side-by-side after both vote
+- [x] **WYR-04**: Envelope marks complete after reveal
 
 ### Letters to Baby Activity
 
@@ -86,7 +86,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **ADMIN-03**: Admin can upload and delete photos in media library
 - [ ] **ADMIN-04**: Admin can configure Gender Reveal (value + keys)
 - [ ] **ADMIN-05**: Admin can create/edit envelopes
-- [ ] **ADMIN-06**: Admin can create/edit WYR prompts, trivia questions, letter prompts
+- [x] **ADMIN-06**: Admin can create/edit WYR prompts, trivia questions, letter prompts
 
 ## v2 Requirements
 
@@ -137,19 +137,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Complete |
 | ADMIN-01 | Phase 1 | Complete |
-| UI-01 | Phase 2 | Pending |
-| UI-02 | Phase 2 | Pending |
-| UI-03 | Phase 2 | Pending |
-| UI-04 | Phase 2 | Pending |
-| ADMIN-05 | Phase 2 | Pending |
-| SYNC-01 | Phase 3 | Pending |
-| SYNC-02 | Phase 3 | Pending |
-| SYNC-03 | Phase 3 | Pending |
-| SYNC-04 | Phase 3 | Pending |
-| WYR-01 | Phase 3 | Pending |
-| WYR-02 | Phase 3 | Pending |
-| WYR-03 | Phase 3 | Pending |
-| WYR-04 | Phase 3 | Pending |
+| UI-01 | Phase 2 | Complete |
+| UI-02 | Phase 2 | Complete |
+| UI-03 | Phase 2 | Complete |
+| UI-04 | Phase 2 | Complete |
+| ADMIN-05 | Phase 2 | Complete |
+| SYNC-01 | Phase 3 | Complete |
+| SYNC-02 | Phase 3 | Complete |
+| SYNC-03 | Phase 3 | Complete |
+| SYNC-04 | Phase 3 | Complete |
+| WYR-01 | Phase 3 | Complete |
+| WYR-02 | Phase 3 | Complete |
+| WYR-03 | Phase 3 | Complete |
+| WYR-04 | Phase 3 | Complete |
 | LETTER-01 | Phase 4 | Complete |
 | LETTER-02 | Phase 4 | Complete |
 | LETTER-03 | Phase 4 | Complete |
@@ -166,10 +166,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NAME-04 | Phase 5 | Complete |
 | NAME-05 | Phase 5 | Complete |
 | NAME-06 | Phase 5 | Complete |
-| TRIVIA-01 | Phase 6 | Pending |
-| TRIVIA-02 | Phase 6 | Pending |
-| TRIVIA-03 | Phase 6 | Pending |
-| ADMIN-06 | Phase 6 | Pending |
+| TRIVIA-01 | Phase 6 | Complete |
+| TRIVIA-02 | Phase 6 | Complete |
+| TRIVIA-03 | Phase 6 | Complete |
+| ADMIN-06 | Phase 6 | Complete |
 | REVEAL-01 | Phase 7 | Pending |
 | REVEAL-02 | Phase 7 | Pending |
 | REVEAL-03 | Phase 7 | Pending |
@@ -184,4 +184,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-15 after Phase 5 completion*
+*Last updated: 2026-02-19 after Phase 6 completion*

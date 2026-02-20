@@ -187,3 +187,37 @@ export const TRIVIA_ADVANCE_BUTTON_DELAY_MS = 800;
 
 /** Stagger delay between review items in seconds */
 export const TRIVIA_REVIEW_ITEM_STAGGER_S = 0.1;
+
+// =============================================================================
+// Gender Reveal Ceremony
+// =============================================================================
+
+/** Duration of initial buildup phase (screen dims, glow starts) in milliseconds */
+export const REVEAL_BUILDUP_DURATION_MS = 1500;
+
+/** Duration of bloom expansion phase in milliseconds */
+export const REVEAL_BLOOM_DURATION_MS = 2000;
+
+/** Delay before reveal text appears in milliseconds */
+export const REVEAL_TEXT_DELAY_MS = 3500;
+
+/** Delay before animation settles in milliseconds */
+export const REVEAL_SETTLE_DELAY_MS = 5500;
+
+/** Delay before ceremony completes and transitions to keepsake in milliseconds */
+export const REVEAL_COMPLETE_DELAY_MS = 6500;
+
+/** Initial glow scale (small center point) */
+export const REVEAL_GLOW_INITIAL_SCALE = 0.3;
+
+/** Bloom phase glow scale (rapid expansion) */
+export const REVEAL_GLOW_BLOOM_SCALE = 2.5;
+
+/** Final settled glow scale */
+export const REVEAL_GLOW_FINAL_SCALE = 3;
+
+/** Initial text scale (slightly smaller before growing in) */
+export const REVEAL_TEXT_INITIAL_SCALE = 0.8;
+
+/** Duration of waiting phase pulse animation in milliseconds */
+export const REVEAL_WAITING_PULSE_DURATION_MS = 2000;

@@ -31,6 +31,8 @@ import type {
   TriviaEnvelopeQuestion,
   CreateTriviaQuestionRequest,
   UpdateTriviaQuestionRequest,
+  GenderRevealStateResponse,
+  ValidateKeyResponse,
 } from 'shared';
 import { apiFetch } from './fetchClient';
 import { STRINGS } from '../constants/strings';
@@ -772,4 +774,45 @@ export async function reorderTriviaQuestions(
     throw new Error(response.error?.message || 'Failed to reorder trivia questions');
   }
   return response.data.count;
+}
+
+// ============================================================================
+// Gender Reveal API
+// ============================================================================
+
+/**
+ * Get gender reveal state for an envelope (participant-facing)
+ * NEVER includes gender unless reveal is complete (REVEAL-05)
+ */
+export async function getGenderRevealState(
+  envelopeId: string
+): Promise<GenderRevealStateResponse> {
+  const response = await apiFetch<GenderRevealStateResponse>(
+    `/gender-reveal/${envelopeId}`
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch gender reveal state');
+  }
+  return response.data;
+}
+
+/**
+ * Submit a key for gender reveal validation
+ * Returns the validation result (invalid, waiting, revealed, etc.)
+ */
+export async function validateRevealKey(
+  envelopeId: string,
+  key: string
+): Promise<ValidateKeyResponse> {
+  const response = await apiFetch<ValidateKeyResponse>(
+    `/gender-reveal/${envelopeId}/validate-key`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ key }),
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to validate reveal key');
+  }
+  return response.data;
 }

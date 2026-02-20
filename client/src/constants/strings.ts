@@ -177,6 +177,7 @@ export const STRINGS = {
   MEDIA_SHUFFLE: 'Shuffle',
   MEDIA_UPLOAD_PROGRESS: (progress: number) => `Uploading... ${progress}%`,
   MEDIA_ADD_PHOTO: 'Add Photo',
+  MEDIA_ADD_ATTACHMENT: 'Add attachment',
   MEDIA_LOADING_ARIA: 'Loading photos',
   MEDIA_EMPTY: 'No photos yet',
   MEDIA_VIEW_PHOTO_ARIA: (n: number) => `View photo ${n}`,
@@ -334,6 +335,40 @@ export const STRINGS = {
   LETTER_ADMIN_CONFIRM_DELETE: 'Delete this prompt? This will also delete all letters written for it.',
   LETTER_ADMIN_CANCEL: 'Cancel',
   LETTER_ADMIN_CREATE: 'Create Prompt',
+
+  // Gender Reveal - Participant
+  REVEAL_HEADING: 'Gender Reveal',
+  REVEAL_KEY_ENTRY_TITLE: 'Enter Your Key',
+  REVEAL_KEY_ENTRY_SUBTITLE: 'Type the code you were given to unlock the reveal',
+  REVEAL_KEY_ENTRY_ARIA: 'Enter your reveal key',
+  REVEAL_KEY_INVALID: "That doesn't look right \u2014 try again",
+  REVEAL_KEY_ALREADY_USED: 'This key has already been entered',
+  REVEAL_WAITING_TITLE: 'Almost There...',
+  REVEAL_WAITING_SUBTITLE: 'Waiting for your partner to enter their key',
+  REVEAL_NOT_CONFIGURED: "The reveal hasn't been set up yet",
+  REVEAL_NOT_CONFIGURED_SUBTITLE: 'Ask the admin to configure the gender reveal',
+  REVEAL_BOY_TEXT: "It's a Boy!",
+  REVEAL_GIRL_TEXT: "It's a Girl!",
+  REVEAL_KEEPSAKE_MESSAGE: 'This is the moment you found out',
+  REVEAL_KEEPSAKE_DATE: (date: string) => `Revealed on ${date}`,
+
+  // Gender Reveal - Admin (for Plan 03)
+  REVEAL_ADMIN_HEADING: 'Gender Reveal Configuration',
+  REVEAL_ADMIN_SELECT_ENVELOPE: 'Select a Gender Reveal envelope to configure',
+  REVEAL_ADMIN_GENDER_LABEL: "Baby's Gender",
+  REVEAL_ADMIN_KEY_A_LABEL: 'Key for Participant A',
+  REVEAL_ADMIN_KEY_B_LABEL: 'Key for Participant B',
+  REVEAL_ADMIN_KEY_HINT: '6-8 alphanumeric characters',
+  REVEAL_ADMIN_SAVE: 'Save Configuration',
+  REVEAL_ADMIN_SAVING: 'Saving...',
+  REVEAL_ADMIN_RESEAL: 'Re-seal Reveal',
+  REVEAL_ADMIN_RESEAL_CONFIRM: 'This will reset the reveal so both keys must be entered again. The gender and keys will be preserved.',
+  REVEAL_ADMIN_DELETE: 'Delete Configuration',
+  REVEAL_ADMIN_DELETE_CONFIRM: 'This will permanently delete the gender reveal configuration.',
+  REVEAL_ADMIN_STATUS_NOT_CONFIGURED: 'Not configured',
+  REVEAL_ADMIN_STATUS_CONFIGURED: 'Configured \u2014 awaiting keys',
+  REVEAL_ADMIN_STATUS_REVEALED: 'Revealed',
+  REVEAL_ADMIN_CANCEL: 'Cancel',
 } as const;
 
 /**

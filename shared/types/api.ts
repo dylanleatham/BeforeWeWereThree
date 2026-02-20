@@ -97,4 +97,5 @@ export interface ResetSessionResponse {
   nameRoundsDeleted: number;
   nameGuidanceDeleted: number;
   triviaAnswersDeleted: number;
+  genderRevealReset: number;
 }

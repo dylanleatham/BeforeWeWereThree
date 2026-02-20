@@ -58,6 +58,7 @@ model Envelope {
   letterPrompt              LetterPrompt?
   nameGameRounds            NameGameRound[]
   triviaEnvelopeQuestions   TriviaEnvelopeQuestion[]
+  genderRevealConfig        GenderRevealConfig?
 
   @@map("envelopes")
 }
@@ -315,4 +316,24 @@ model TriviaAnswer {
   @@index([envelopeId])
   @@index([participantId])
   @@map("trivia_answers")
+}
+
+// Gender reveal configuration
+// One config per envelope, stores gender value and two unique keys
+// Keys are validated by participants to trigger the reveal
+model GenderRevealConfig {
+  id            String    @id @default(uuid())
+  envelopeId    String    @unique @map("envelope_id")
+  genderValue   String    @map("gender_value")  // 'boy' | 'girl'
+  keyA          String    @map("key_a")          // 6-8 char alphanumeric
+  keyB          String    @map("key_b")          // 6-8 char alphanumeric
+  keyAValidated Boolean   @default(false) @map("key_a_validated")
+  keyBValidated Boolean   @default(false) @map("key_b_validated")
+  revealedAt    DateTime? @map("revealed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  envelope Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+
+  @@map("gender_reveal_configs")
 }

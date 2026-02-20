@@ -181,6 +181,23 @@ export {
   reorderQuestionsSchema,
 } from './trivia.js';
 
+// Re-export Gender Reveal types
+export type {
+  GenderValue,
+  GenderRevealPhase,
+  ConfigureGenderRevealRequest,
+  ValidateRevealKeyRequest,
+  GenderRevealStateResponse,
+  ValidateKeyResponse,
+  GenderRevealAdminResponse,
+  GenderRevealKeyValidatedMessage,
+  GenderRevealUnlockedMessage,
+} from './genderReveal.js';
+export {
+  configureGenderRevealSchema,
+  validateRevealKeySchema,
+} from './genderReveal.js';
+
 /**
  * Health check response data
  */

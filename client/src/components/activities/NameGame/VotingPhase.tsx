@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useDrag } from '@use-gesture/react';
 import type { NameVoteState, NameVoteChoice } from 'shared';
 import { STRINGS } from '../../../constants/strings';
-import { SWIPE_THRESHOLD_PX, FAST_SWIPE_VELOCITY } from '../../../constants/config';
+import { SWIPE_THRESHOLD_PX, FAST_SWIPE_VELOCITY, FAST_SWIPE_MIN_DISTANCE_PX } from '../../../constants/config';
 import {
   NAME_CARD_EXIT_DURATION_S,
   NAME_CARD_SPRING_STIFFNESS,
@@ -70,7 +70,7 @@ export function VotingPhase({
 
         if (isHorizontal) {
           // Horizontal swipe
-          const fastSwipe = vx > FAST_SWIPE_VELOCITY && absX > 20;
+          const fastSwipe = vx > FAST_SWIPE_VELOCITY && absX > FAST_SWIPE_MIN_DISTANCE_PX;
           if (mx > SWIPE_THRESHOLD_PX || (fastSwipe && dx > 0)) {
             handleVote('love', 500, 0);
             cancel();
@@ -83,7 +83,7 @@ export function VotingPhase({
           }
         } else {
           // Vertical swipe
-          const fastSwipe = vy > FAST_SWIPE_VELOCITY && absY > 20;
+          const fastSwipe = vy > FAST_SWIPE_VELOCITY && absY > FAST_SWIPE_MIN_DISTANCE_PX;
           if (my > SWIPE_THRESHOLD_PX || (fastSwipe && dy > 0)) {
             handleVote('maybe', 0, 500);
             cancel();

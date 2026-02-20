@@ -170,18 +170,18 @@ export async function submitVote(
       const isLastPrompt = allPrompts.length <= 1 ||
         allPrompts[allPrompts.length - 1]!.id === promptId;
 
+      // Always check completion regardless of prompt order — participants may
+      // vote on prompts in any sequence, so we can't rely on position alone.
       let envelopeComplete = false;
-      if (isLastPrompt) {
-        let allHaveBothVotes = true;
-        for (const p of allPrompts) {
-          const count = await countVotesForPrompt(p.id);
-          if (count < 2) {
-            allHaveBothVotes = false;
-            break;
-          }
+      let allHaveBothVotes = true;
+      for (const p of allPrompts) {
+        const count = await countVotesForPrompt(p.id);
+        if (count < 2) {
+          allHaveBothVotes = false;
+          break;
         }
-        envelopeComplete = allHaveBothVotes;
       }
+      envelopeComplete = allHaveBothVotes;
 
       if (envelopeComplete) {
         await updateEnvelopeStatus(result.prompt.envelopeId, 'completed');

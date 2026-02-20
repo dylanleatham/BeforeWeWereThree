@@ -34,6 +34,13 @@ jest.unstable_mockModule('../../db/queries/config.js', () => ({
   getAdminPin: jest.fn<() => Promise<string>>().mockResolvedValue('12251990'),
 }));
 
+// Bypass rate limiter in auth integration tests (all requests share the same IP via supertest)
+jest.unstable_mockModule('../../middleware/rateLimit.js', () => ({
+  pinRateLimiter: jest.fn((_req: unknown, _res: unknown, next: () => void) => next()),
+  resetRateLimit: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  getRemainingAttempts: jest.fn<() => Promise<number>>().mockResolvedValue(5),
+}));
+
 // Import after mocking
 const { default: request } = await import('supertest');
 const { app } = await import('../../index.js');

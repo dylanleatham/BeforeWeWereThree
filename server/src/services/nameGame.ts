@@ -4,20 +4,14 @@ import { generateNames } from './anthropic.js';
 import {
   getNameGameState as getNameGameStateQuery,
   getExcludedNames,
-  getNextRoundNumber,
-  createRound,
   createNames,
   updateRoundStatus,
   getRoundResults,
   getAccumulatedMatches as getAccumulatedMatchesQuery,
   getRoundCount,
   getRoundIdForName,
-  getGuidanceCount,
-  hasSubmittedGuidance,
-  createGuidance,
   getGuidanceForRound,
   getPendingGuidanceState,
-  getReadyRound,
 } from '../db/queries/nameGame.js';
 import { logger } from '../utils/logger.js';
 import type {
@@ -84,26 +78,52 @@ export async function submitGuidance(
   guidance?: string
 ): Promise<SubmitGuidanceResponse> {
   // Phase 1: Coordination transaction (Serializable to prevent races)
-  const txResult = await db.$transaction(async (_tx) => {
-    const nextRound = await getNextRoundNumber(envelopeId);
+  // All queries use `tx` (not the module-level `db`) so they run within the transaction scope.
+  const txResult = await db.$transaction(async (tx) => {
+    // Get next round number
+    const lastRound = await tx.nameGameRound.findFirst({
+      where: { envelopeId },
+      orderBy: { roundNumber: 'desc' },
+      select: { roundNumber: true },
+    });
+    const nextRound = lastRound ? lastRound.roundNumber + 1 : 1;
 
     // Idempotent: if round already exists and is ready, return it
-    const existingReady = await getReadyRound(envelopeId, nextRound);
+    const existingReady = await tx.nameGameRound.findFirst({
+      where: { envelopeId, roundNumber: nextRound, status: 'ready' },
+    });
     if (existingReady) {
       return { action: 'already_ready' as const, roundNumber: nextRound };
     }
 
     // Idempotent: if this participant already submitted guidance, return current state
-    const alreadySubmitted = await hasSubmittedGuidance(envelopeId, nextRound, participantId);
-    if (alreadySubmitted) {
+    const existingGuidance = await tx.nameGameGuidance.findUnique({
+      where: {
+        envelopeId_roundNumber_participantId: {
+          envelopeId,
+          roundNumber: nextRound,
+          participantId,
+        },
+      },
+    });
+    if (existingGuidance) {
       return { action: 'already_submitted' as const, roundNumber: nextRound };
     }
 
     // Create guidance record
-    await createGuidance(envelopeId, nextRound, participantId, guidance);
+    await tx.nameGameGuidance.create({
+      data: {
+        envelopeId,
+        roundNumber: nextRound,
+        participantId,
+        guidance: guidance ?? null,
+      },
+    });
 
     // Count total guidance submissions (including the one we just created)
-    const guidanceCount = await getGuidanceCount(envelopeId, nextRound);
+    const guidanceCount = await tx.nameGameGuidance.count({
+      where: { envelopeId, roundNumber: nextRound },
+    });
 
     // Determine if ready to generate:
     // Round 1: ready after 1 submission
@@ -115,7 +135,14 @@ export async function submitGuidance(
     }
 
     // Create round record with 'generating' status to claim the generation slot
-    const round = await createRound(envelopeId, nextRound, undefined, 'generating');
+    const round = await tx.nameGameRound.create({
+      data: {
+        envelopeId,
+        roundNumber: nextRound,
+        guidance: null,
+        status: 'generating',
+      },
+    });
 
     return {
       action: 'generate' as const,

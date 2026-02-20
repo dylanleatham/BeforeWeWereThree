@@ -1,6 +1,7 @@
 import { useRef, useCallback } from 'react';
 import { Upload, X, Film, Mic, Image } from 'lucide-react';
 import { useMediaUpload } from '../../hooks/useMediaUpload';
+import type { UseMediaUploadOptions } from '../../hooks/useMediaUpload';
 import { STRINGS } from '../../constants/strings';
 import './MediaAttachment.css';
 
@@ -13,7 +14,16 @@ interface MediaAttachmentProps {
   onChange: (url: string | null, type: string | null) => void;
   /** Whether editing is disabled (e.g., after submission) */
   disabled?: boolean;
+  /** Which file types to accept. Defaults to 'all' (image/video/audio). */
+  accept?: UseMediaUploadOptions['accept'];
+  /** Whether to register uploads in the Photo table. Defaults to false. */
+  registerInDatabase?: boolean;
 }
+
+const FILE_ACCEPT: Record<string, string> = {
+  image: 'image/*',
+  all: 'image/*,video/*,audio/*',
+};
 
 /**
  * Detect media category from content type or URL
@@ -42,9 +52,11 @@ export function MediaAttachment({
   mediaType,
   onChange,
   disabled = false,
+  accept = 'all',
+  registerInDatabase = false,
 }: MediaAttachmentProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { upload, isUploading, progress, error, reset } = useMediaUpload();
+  const { upload, isUploading, progress, error, reset } = useMediaUpload({ accept, registerInDatabase });
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -134,19 +146,21 @@ export function MediaAttachment({
           type="button"
         >
           <Upload size={18} />
-          <span>Add attachment</span>
-          <span className="media-attachment__types">
-            <Image size={14} />
-            <Film size={14} />
-            <Mic size={14} />
-          </span>
+          <span>{accept === 'image' ? STRINGS.MEDIA_ADD_PHOTO : STRINGS.MEDIA_ADD_ATTACHMENT}</span>
+          {accept === 'all' && (
+            <span className="media-attachment__types">
+              <Image size={14} />
+              <Film size={14} />
+              <Mic size={14} />
+            </span>
+          )}
         </button>
       )}
       {error && <p className="media-attachment__error">{error}</p>}
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,video/*,audio/*"
+        accept={FILE_ACCEPT[accept]}
         onChange={handleFileSelect}
         className="media-attachment__input"
         aria-label={STRINGS.PHOTO_SELECT_ARIA}

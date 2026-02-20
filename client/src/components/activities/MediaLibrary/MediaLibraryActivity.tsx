@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useMediaLibrary } from '../../../hooks/useMediaLibrary';
-import { usePhotoUpload } from '../../../hooks/usePhotoUpload';
+import { useMediaUpload } from '../../../hooks/useMediaUpload';
 import { PhotoGrid } from './PhotoGrid';
 import { SlideshowViewer } from './SlideshowViewer';
 import { STRINGS } from '../../../constants/strings';
@@ -45,7 +45,7 @@ export function MediaLibraryActivity({
     error: uploadError,
     upload,
     reset: resetUpload,
-  } = usePhotoUpload();
+  } = useMediaUpload({ accept: 'image', registerInDatabase: true });
 
   // Slideshow state
   const [slideshowOpen, setSlideshowOpen] = useState(false);

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { FriendLetter } from 'shared';
 import { saveFriendLetter, submitFriendLetter } from '../services/friendApi';
+import { AUTOSAVE_DELAY_MS } from '../constants/config';
 
 interface UseFriendLetterReturn {
   letter: FriendLetter | null;
@@ -13,7 +14,6 @@ interface UseFriendLetterReturn {
   submit: (title: string | null, content: string, mediaUrl: string | null, mediaType: string | null) => Promise<boolean>;
 }
 
-const AUTO_SAVE_DELAY_MS = 2000;
 
 /**
  * Hook for friend letter auto-save and submit
@@ -75,7 +75,7 @@ export function useFriendLetter(
             setIsSaving(false);
           }
         }
-      }, AUTO_SAVE_DELAY_MS);
+      }, AUTOSAVE_DELAY_MS);
     },
     [letterId, isSubmitted]
   );

@@ -114,8 +114,8 @@ describe('Rate Limit Middleware', () => {
     expect(next).toHaveBeenCalled();
   });
 
-  it('should track different fingerprints separately', async () => {
-    // Use up attempts for fingerprint 1
+  it('should rate limit by IP regardless of fingerprint', async () => {
+    // Use up attempts with fingerprint 1
     for (let i = 0; i < 5; i++) {
       const req = createMockRequest('192.168.1.20', 'fp-1');
       const res = createMockResponse();
@@ -123,13 +123,14 @@ describe('Rate Limit Middleware', () => {
       await pinRateLimiter(req, res, next);
     }
 
-    // Same IP but different fingerprint should still be allowed
+    // Same IP but different fingerprint should still be blocked
     const req = createMockRequest('192.168.1.20', 'fp-2');
     const res = createMockResponse();
     const next = createMockNext();
     await pinRateLimiter(req, res, next);
 
-    expect(next).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(429);
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('should handle missing fingerprint gracefully', async () => {

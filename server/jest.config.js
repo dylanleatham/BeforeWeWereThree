@@ -9,16 +9,18 @@ export default {
     '^shared$': '<rootDir>/../shared/dist/index.js',
   },
   transform: {
-    '^.+\\.tsx?$': [
+    '^.+\\.m?tsx?$': [
       'ts-jest',
       {
         useESM: true,
+        diagnostics: false,
         tsconfig: {
+          target: 'ES2022',
           module: 'ESNext',
           moduleResolution: 'bundler',
           esModuleInterop: true,
           allowSyntheticDefaultImports: true,
-          strict: false, // Relax for tests
+          strict: false,
         },
       },
     ],

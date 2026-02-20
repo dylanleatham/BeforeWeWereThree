@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useAutoSave } from '../../../hooks/useAutoSave';
-import { PhotoAttachment } from './PhotoAttachment';
+import { MediaAttachment } from '../../common/MediaAttachment';
 import { STRINGS } from '../../../constants/strings';
+import { AUTOSAVE_DELAY_MS, AUTOSAVE_MAX_WAIT_MS } from '../../../constants/config';
 import './WritingPhase.css';
 
 interface WritingPhaseProps {
@@ -52,8 +53,8 @@ export function WritingPhase({
     saveFn: async ({ content: c, photoUrl: p }) => {
       await onSave(c, p);
     },
-    delay: 1500,
-    maxWait: 5000,
+    delay: AUTOSAVE_DELAY_MS,
+    maxWait: AUTOSAVE_MAX_WAIT_MS,
   });
 
   /**
@@ -72,7 +73,7 @@ export function WritingPhase({
    * Handle photo change - save immediately
    */
   const handlePhotoChange = useCallback(
-    (newPhotoUrl: string | null) => {
+    (newPhotoUrl: string | null, _type: string | null) => {
       setPhotoUrl(newPhotoUrl);
       // Save immediately when photo changes
       onSave(content, newPhotoUrl);
@@ -128,10 +129,13 @@ export function WritingPhase({
 
       {/* Photo attachment */}
       <div className="letter-writing__photo">
-        <PhotoAttachment
-          photoUrl={photoUrl}
-          onPhotoChange={handlePhotoChange}
+        <MediaAttachment
+          mediaUrl={photoUrl}
+          mediaType={photoUrl ? 'image' : null}
+          onChange={handlePhotoChange}
           disabled={isSubmitting}
+          accept="image"
+          registerInDatabase
         />
       </div>
 

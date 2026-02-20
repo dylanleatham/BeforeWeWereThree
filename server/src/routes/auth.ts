@@ -48,31 +48,31 @@ router.post('/validate-pin', pinRateLimiter, async (req: Request, res: Response)
 
     const { pin, deviceFingerprint } = parseResult.data;
 
-    // Get stored PINs from database
-    const [guestPin, adminPin] = await Promise.all([getGuestPin(), getAdminPin()]);
+    // Run all lookups unconditionally to prevent timing side-channels
+    const [guestPin, adminPin, friend] = await Promise.all([
+      getGuestPin(),
+      getAdminPin(),
+      db.friend.findUnique({ where: { pin }, select: { id: true } }),
+    ]);
 
-    // Determine role based on PIN match (timing-safe comparison)
+    // Evaluate results (timing-safe comparison for admin/guest PINs)
+    const isAdmin = adminPin && safeCompare(pin, adminPin);
+    const isGuest = guestPin && safeCompare(pin, guestPin);
+
     let role: Role;
     let friendId: string | undefined;
 
-    if (adminPin && safeCompare(pin, adminPin)) {
+    if (isAdmin) {
       role = 'admin';
-    } else if (guestPin && safeCompare(pin, guestPin)) {
+    } else if (isGuest) {
       role = 'guest';
+    } else if (friend) {
+      role = 'friend';
+      friendId = friend.id;
     } else {
-      // Check friend PINs (DB lookup, already rate-limited above)
-      const friend = await db.friend.findUnique({
-        where: { pin },
-        select: { id: true },
-      });
-      if (friend) {
-        role = 'friend';
-        friendId = friend.id;
-      } else {
-        // Per CONTEXT.md: friendly message on wrong PIN
-        res.status(401).json(errorResponse('INVALID_PIN', "Hmm, that's not it. Try again?"));
-        return;
-      }
+      // Per CONTEXT.md: friendly message on wrong PIN
+      res.status(401).json(errorResponse('INVALID_PIN', "Hmm, that's not it. Try again?"));
+      return;
     }
 
     // Get or create participant

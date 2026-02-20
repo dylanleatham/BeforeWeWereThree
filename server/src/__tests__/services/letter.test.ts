@@ -192,8 +192,19 @@ describe('Letter Service', () => {
       ).rejects.toThrow('PROMPT_NOT_FOUND');
     });
 
+    it('should throw ALREADY_SUBMITTED if letter was already submitted', async () => {
+      mockGetPromptByEnvelopeId.mockResolvedValue(PROMPT);
+      mockGetLetterForParticipant.mockResolvedValue(LETTER_A); // has submittedAt set
+
+      await expect(
+        saveLetter('env-1', PARTICIPANT_A, 'updated content', null)
+      ).rejects.toThrow('ALREADY_SUBMITTED');
+      expect(mockCreateOrUpdateLetter).not.toHaveBeenCalled();
+    });
+
     it('should upsert letter content', async () => {
       mockGetPromptByEnvelopeId.mockResolvedValue(PROMPT);
+      mockGetLetterForParticipant.mockResolvedValue(null);
       mockCreateOrUpdateLetter.mockResolvedValue(LETTER_A);
 
       const result = await saveLetter('env-1', PARTICIPANT_A, 'Dear baby...', null);
@@ -209,6 +220,7 @@ describe('Letter Service', () => {
     it('should save letter with photo URL', async () => {
       const photoUrl = 'https://storage.blob.core.windows.net/photos/pic.jpg';
       mockGetPromptByEnvelopeId.mockResolvedValue(PROMPT);
+      mockGetLetterForParticipant.mockResolvedValue(null);
       mockCreateOrUpdateLetter.mockResolvedValue({ ...LETTER_A, photoUrl });
 
       await saveLetter('env-1', PARTICIPANT_A, 'Dear baby...', photoUrl);
@@ -222,6 +234,7 @@ describe('Letter Service', () => {
 
     it('should not broadcast via SignalR on auto-save', async () => {
       mockGetPromptByEnvelopeId.mockResolvedValue(PROMPT);
+      mockGetLetterForParticipant.mockResolvedValue(null);
       mockCreateOrUpdateLetter.mockResolvedValue(LETTER_A);
 
       await saveLetter('env-1', PARTICIPANT_A, 'content', null);

@@ -88,10 +88,23 @@ router.post('/register', authMiddleware, async (req: Request, res: Response) => 
     const photo = await registerPhoto(blobUrl, filename, contentType, participantId);
     res.status(201).json(successResponse({ photo }));
   } catch (error) {
-    // Check for unique constraint violation (blob URL already registered)
-    if (error instanceof Error && error.message.includes('Unique constraint')) {
-      res.status(409).json(errorResponse('PHOTO_EXISTS', 'This photo is already registered'));
-      return;
+    if (error instanceof Error) {
+      if (error.message === 'INVALID_BLOB_URL') {
+        res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid blob URL'));
+        return;
+      }
+      if (error.message === 'BLOB_NOT_FOUND') {
+        res.status(400).json(errorResponse('VALIDATION_ERROR', 'Blob does not exist in storage'));
+        return;
+      }
+      if (error.message === 'BLOB_TOO_LARGE') {
+        res.status(413).json(errorResponse('VALIDATION_ERROR', 'File exceeds maximum size of 10MB'));
+        return;
+      }
+      if (error.message.includes('Unique constraint')) {
+        res.status(409).json(errorResponse('PHOTO_EXISTS', 'This photo is already registered'));
+        return;
+      }
     }
     logger.error('Failed to register photo', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to register photo'));

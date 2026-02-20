@@ -21,6 +21,7 @@ import { logger } from '../utils/logger.js';
 // Constants
 const CONTAINER_NAME = 'photos';
 const SAS_EXPIRY_MINUTES = 10;
+const MAX_BLOB_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 /**
  * Get Azure Storage configuration from environment
@@ -157,7 +158,64 @@ export async function deletePhotoFromBlob(blobUrl: string): Promise<void> {
 }
 
 /**
+ * Validate that a blob URL points to our storage account
+ */
+function validateBlobUrl(blobUrl: string, accountName: string): void {
+  const expectedHost = `${accountName}.blob.core.windows.net`;
+  let parsed: URL;
+  try {
+    parsed = new URL(blobUrl);
+  } catch {
+    throw new Error('INVALID_BLOB_URL');
+  }
+  if (parsed.hostname !== expectedHost) {
+    throw new Error('INVALID_BLOB_URL');
+  }
+  if (parsed.protocol !== 'https:') {
+    throw new Error('INVALID_BLOB_URL');
+  }
+}
+
+/**
+ * Verify a blob exists in Azure Storage and check its size
+ * Returns the blob size in bytes
+ */
+async function verifyBlob(blobUrl: string): Promise<number> {
+  const { client, accountName } = createBlobServiceClient();
+  validateBlobUrl(blobUrl, accountName);
+
+  const url = new URL(blobUrl);
+  const pathParts = url.pathname.split('/').filter(Boolean);
+  const containerName = pathParts[0];
+  const blobName = pathParts.slice(1).join('/');
+
+  if (!containerName || !blobName) {
+    throw new Error('INVALID_BLOB_URL');
+  }
+
+  const containerClient = client.getContainerClient(containerName);
+  const blobClient = containerClient.getBlobClient(blobName);
+
+  const exists = await blobClient.exists();
+  if (!exists) {
+    throw new Error('BLOB_NOT_FOUND');
+  }
+
+  const properties = await blobClient.getProperties();
+  const size = properties.contentLength ?? 0;
+
+  if (size > MAX_BLOB_SIZE_BYTES) {
+    // Delete the oversized blob
+    await blobClient.deleteIfExists();
+    throw new Error('BLOB_TOO_LARGE');
+  }
+
+  return size;
+}
+
+/**
  * Register a photo in the database after successful upload
+ * Verifies blob existence and enforces size limits
  */
 export async function registerPhoto(
   blobUrl: string,
@@ -165,6 +223,9 @@ export async function registerPhoto(
   contentType: string,
   uploadedById: string
 ): Promise<Photo> {
+  // Verify blob exists and is within size limits
+  await verifyBlob(blobUrl);
+
   return createPhotoRecord({
     blobUrl,
     filename,

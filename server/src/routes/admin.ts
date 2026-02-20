@@ -27,12 +27,7 @@ router.post('/reset-session', adminMiddleware, async (_req: Request, res: Respon
   try {
     const result = await resetSession();
 
-    res.json(
-      successResponse<ResetSessionResult & { message: string }>({
-        message: 'Session reset successfully',
-        ...result,
-      })
-    );
+    res.json(successResponse<ResetSessionResult>(result));
   } catch (error) {
     logger.error('Reset session error', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to reset session'));

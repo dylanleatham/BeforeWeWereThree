@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { getUploadSas } from '../services/api';
+import { getUploadSas, registerPhoto } from '../services/api';
 import { uploadToBlob } from '../services/blobUpload';
 
 interface UploadState {
@@ -13,11 +13,40 @@ interface UseMediaUploadReturn extends UploadState {
   reset: () => void;
 }
 
+export interface UseMediaUploadOptions {
+  /** Which file types to accept. Defaults to 'all' (image/video/audio). */
+  accept?: 'image' | 'all';
+  /** Whether to register the upload in the Photo table. Defaults to false. */
+  registerInDatabase?: boolean;
+}
+
+type AcceptType = NonNullable<UseMediaUploadOptions['accept']>;
+
+const ACCEPT_VALIDATORS: Record<AcceptType, (type: string) => boolean> = {
+  image: (type) => type.startsWith('image/'),
+  all: (type) =>
+    type.startsWith('image/') ||
+    type.startsWith('video/') ||
+    type.startsWith('audio/'),
+};
+
+const ACCEPT_ERROR: Record<AcceptType, string> = {
+  image: 'Only image files are allowed',
+  all: 'Only image, video, and audio files are allowed',
+};
+
 /**
- * Hook for uploading media (photo/video/audio) directly to Azure Blob Storage
- * Extended from usePhotoUpload to accept video and audio files
+ * Hook for uploading media directly to Azure Blob Storage
+ *
+ * Flow:
+ * 1. Get SAS token from API
+ * 2. Upload file directly to Azure using XHR (for real progress tracking)
+ * 3. Optionally register in Photo table
+ * 4. Return blob URL on success
  */
-export function useMediaUpload(): UseMediaUploadReturn {
+export function useMediaUpload(options: UseMediaUploadOptions = {}): UseMediaUploadReturn {
+  const { accept = 'all', registerInDatabase = false } = options;
+
   const [state, setState] = useState<UploadState>({
     isUploading: false,
     progress: 0,
@@ -41,23 +70,15 @@ export function useMediaUpload(): UseMediaUploadReturn {
 
   const upload = useCallback(async (file: File): Promise<string | null> => {
     // Validate file type
-    const isValidType =
-      file.type.startsWith('image/') ||
-      file.type.startsWith('video/') ||
-      file.type.startsWith('audio/');
-
-    if (!isValidType) {
-      setState({
-        isUploading: false,
-        progress: 0,
-        error: 'Only image, video, and audio files are allowed',
-      });
+    const isValid = ACCEPT_VALIDATORS[accept];
+    if (!isValid(file.type)) {
+      setState({ isUploading: false, progress: 0, error: ACCEPT_ERROR[accept] });
       return null;
     }
 
     setState({ isUploading: true, progress: 0, error: null });
 
-    // Abort any in-progress upload
+    // Abort any in-progress upload before starting a new one
     if (xhrRef.current) {
       xhrRef.current.abort();
     }
@@ -76,13 +97,13 @@ export function useMediaUpload(): UseMediaUploadReturn {
       xhrRef.current = xhr;
 
       await promise;
-
       if (!mountedRef.current) return null;
 
-      // No registerPhoto call — friend letter and thank-you note media is stored
-      // directly in FriendLetter.mediaUrl / FriendThankYouNote.mediaUrl, not in the
-      // Photo table. Registering here would cause friend content to appear in the
-      // couple's media library.
+      // Optionally register in Photo table (couple's media library)
+      if (registerInDatabase) {
+        await registerPhoto(sasResponse.blobUrl, file.name, file.type);
+        if (!mountedRef.current) return null;
+      }
 
       setState({ isUploading: false, progress: 100, error: null });
       return sasResponse.blobUrl;
@@ -98,7 +119,7 @@ export function useMediaUpload(): UseMediaUploadReturn {
       setState({ isUploading: false, progress: 0, error: message });
       return null;
     }
-  }, []);
+  }, [accept, registerInDatabase]);
 
   const reset = useCallback(() => {
     if (xhrRef.current) {

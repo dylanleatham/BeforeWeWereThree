@@ -251,7 +251,7 @@ On Windows, the running dev server locks `query_engine-windows.dll.node`, making
 
 ### CSP and External Resources
 
-- **CSP must allow all external resource origins:** When adding features that load external resources (Azure Blob images, CDN scripts, etc.), update the `helmet` CSP directives in `server/src/index.ts`. The `imgSrc` directive must include `https://*.blob.core.windows.net` for Azure-hosted photos to display. The `connectSrc` directive must also include `https://*.blob.core.windows.net` for direct browser uploads to Azure Blob Storage — `img-src` alone is not enough.
+- **CSP must allow all external resource origins:** When adding features that load external resources (Azure Blob images, CDN scripts, etc.), update the `helmet` CSP directives in `server/src/index.ts`. The `imgSrc` directive must include `https://bwwtstorage.blob.core.windows.net` for Azure-hosted photos to display. The `connectSrc` directive must also include `https://bwwtstorage.blob.core.windows.net` for direct browser uploads to Azure Blob Storage — `img-src` alone is not enough. Use the specific storage account hostname, not a wildcard.
 
 ### API Response Consistency
 

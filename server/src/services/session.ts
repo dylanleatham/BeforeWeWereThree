@@ -9,9 +9,9 @@ import type { SessionPayload, Role, Designation } from 'shared';
  * Algorithm: HS256
  */
 
-// Fail fast if JWT_SECRET is not set in production
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('JWT_SECRET environment variable is required in production');
+// Fail fast if JWT_SECRET is not set outside development
+if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'development') {
+  throw new Error('JWT_SECRET environment variable is required');
 }
 const JWT_SECRET = process.env.JWT_SECRET ?? 'development-secret-change-in-production';
 const SESSION_DURATION_DAYS = 30;

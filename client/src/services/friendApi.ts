@@ -1,5 +1,4 @@
 import type {
-  ApiResponse,
   FriendDashboardResponse,
   FriendListResponse,
   FriendLettersResponse,
@@ -9,56 +8,7 @@ import type {
   FriendLetterRecipient,
   FriendLetterViewResponse,
 } from 'shared';
-
-const API_BASE = '/api';
-
-/**
- * Base fetch wrapper for friend API
- */
-async function apiFetch<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
-  const url = `${API_BASE}${endpoint}`;
-  try {
-    const response = await fetch(url, {
-      ...options,
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-
-    if (!response.ok) {
-      try {
-        const errorData = await response.json();
-        if (errorData && typeof errorData === 'object' && 'error' in errorData) {
-          if (errorData.error?.code === 'SESSION_EXPIRED') {
-            window.dispatchEvent(new CustomEvent('session-expired'));
-          }
-          return errorData as ApiResponse<T>;
-        }
-      } catch {
-        // Not JSON
-      }
-      return {
-        success: false,
-        error: {
-          code: `HTTP_${response.status}`,
-          message: response.statusText || `Request failed with status ${response.status}`,
-        },
-      };
-    }
-
-    return await response.json() as ApiResponse<T>;
-  } catch {
-    return {
-      success: false,
-      error: { code: 'NETWORK_ERROR', message: 'Unable to connect to server' },
-    };
-  }
-}
+import { apiFetch } from './fetchClient';
 
 // ============================================================
 // Friend Routes (for friend role)

@@ -105,7 +105,7 @@ router.post('/groups/join', authMiddleware, async (req, res) => {
     res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
     return;
   }
-  if (!/^activity:[a-z0-9]+$/.test(groupName)) {
+  if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
     res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
     return;
   }
@@ -131,7 +131,7 @@ router.post('/groups/leave', authMiddleware, async (req, res) => {
     res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
     return;
   }
-  if (!/^activity:[a-z0-9]+$/.test(groupName)) {
+  if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
     res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
     return;
   }

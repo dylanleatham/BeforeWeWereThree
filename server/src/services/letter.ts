@@ -83,6 +83,12 @@ export async function saveLetter(
     throw new Error('PROMPT_NOT_FOUND');
   }
 
+  // Guard: don't overwrite already-submitted letters
+  const existing = await getLetterForParticipant(prompt.id, participantId);
+  if (existing?.submittedAt) {
+    throw new Error('ALREADY_SUBMITTED');
+  }
+
   // Use upsert pattern for auto-save
   const letter = await createOrUpdateLetter(prompt.id, participantId, {
     content,

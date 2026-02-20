@@ -4,7 +4,7 @@ import { logger } from '../utils/logger.js';
 
 /**
  * Rate limiting middleware for PIN validation
- * 5 attempts per 15 minutes per IP + fingerprint
+ * 5 attempts per 15 minutes per IP
  *
  * Supports two storage backends:
  * - In-memory (default): Suitable for single-instance deployment
@@ -198,13 +198,12 @@ const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
 /**
- * Generate rate limit key from IP and fingerprint
+ * Generate rate limit key from IP only
+ * Fingerprint is attacker-controlled and must not be part of the key
  */
 function getRateLimitKey(req: Request): string {
   const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
-  // Try to get fingerprint from body if available
-  const fingerprint = req.body?.deviceFingerprint ?? 'unknown';
-  return `ratelimit:pin:${ip}:${fingerprint}`;
+  return `ratelimit:pin:${ip}`;
 }
 
 // =============================================================================
@@ -213,7 +212,7 @@ function getRateLimitKey(req: Request): string {
 
 /**
  * PIN rate limiter middleware
- * 5 attempts per 15 minutes per IP+fingerprint
+ * 5 attempts per 15 minutes per IP
  */
 export async function pinRateLimiter(
   req: Request,
@@ -266,9 +265,9 @@ export async function pinRateLimiter(
 /**
  * Reset rate limit for a key (useful for testing)
  */
-export async function resetRateLimit(ip: string, fingerprint: string): Promise<void> {
+export async function resetRateLimit(ip: string): Promise<void> {
   const store = getStoreSync();
-  const key = `ratelimit:pin:${ip}:${fingerprint}`;
+  const key = `ratelimit:pin:${ip}`;
   await store.delete(key);
 }
 

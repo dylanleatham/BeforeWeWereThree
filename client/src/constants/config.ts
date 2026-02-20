@@ -36,3 +36,16 @@ export const SWIPE_THRESHOLD_PX = 80;
 
 /** Velocity threshold to count as fast swipe (overrides distance threshold) */
 export const FAST_SWIPE_VELOCITY = 0.5;
+
+/** Minimum distance in pixels for a fast swipe to register (prevents accidental taps) */
+export const FAST_SWIPE_MIN_DISTANCE_PX = 20;
+
+// =============================================================================
+// Auto-Save Configuration
+// =============================================================================
+
+/** Delay before auto-save triggers after typing stops, in milliseconds */
+export const AUTOSAVE_DELAY_MS = 1500;
+
+/** Maximum time between auto-saves regardless of activity, in milliseconds */
+export const AUTOSAVE_MAX_WAIT_MS = 5000;

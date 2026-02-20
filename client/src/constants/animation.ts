@@ -168,3 +168,22 @@ export const NAME_GAME_RESULT_STAGGER_S = 0.1;
 
 /** Duration of result card enter animation in seconds */
 export const NAME_GAME_RESULT_ENTER_DURATION_S = 0.3;
+
+// =============================================================================
+// Trivia
+// =============================================================================
+
+/** Duration of suspense animation before reveal in milliseconds */
+export const TRIVIA_SUSPENSE_DURATION_MS = 1200;
+
+/** Duration of result reveal animation in milliseconds */
+export const TRIVIA_REVEAL_DURATION_MS = 400;
+
+/** Delay after reveal before explanation fades in, in milliseconds */
+export const TRIVIA_EXPLANATION_DELAY_MS = 600;
+
+/** Delay before Next/See Results button appears, in milliseconds */
+export const TRIVIA_ADVANCE_BUTTON_DELAY_MS = 800;
+
+/** Stagger delay between review items in seconds */
+export const TRIVIA_REVIEW_ITEM_STAGGER_S = 0.1;

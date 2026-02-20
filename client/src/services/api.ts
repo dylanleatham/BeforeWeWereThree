@@ -25,75 +25,11 @@ import type {
   NameVoteChoice,
   NameGameMatchList,
   NameGameResults,
+  TriviaEnvelopeResponse,
+  TriviaAnswerResponse,
 } from 'shared';
+import { apiFetch } from './fetchClient';
 import { STRINGS } from '../constants/strings';
-
-/**
- * API client for Before We Were Three
- * Base fetch wrapper with credentials for cookie handling
- */
-
-const API_BASE = '/api';
-
-/**
- * Base fetch wrapper
- * Includes credentials for cookie handling and proper HTTP status checking
- */
-async function apiFetch<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
-  const url = `${API_BASE}${endpoint}`;
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      credentials: 'include', // Include cookies
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-
-    // Check if response is OK before parsing JSON
-    if (!response.ok) {
-      // Try to parse error response as JSON
-      try {
-        const errorData = await response.json();
-        if (errorData && typeof errorData === 'object' && 'error' in errorData) {
-          // Detect stale session after admin reset — notify app to return to PIN entry
-          if (errorData.error?.code === 'SESSION_EXPIRED') {
-            window.dispatchEvent(new CustomEvent('session-expired'));
-          }
-          return errorData as ApiResponse<T>;
-        }
-      } catch {
-        // Response is not JSON (e.g., HTML error page)
-      }
-
-      // Return generic error based on status code
-      return {
-        success: false,
-        error: {
-          code: `HTTP_${response.status}`,
-          message: response.statusText || `Request failed with status ${response.status}`,
-        },
-      };
-    }
-
-    const data = await response.json();
-    return data as ApiResponse<T>;
-  } catch (error) {
-    console.error('API error:', error);
-    return {
-      success: false,
-      error: {
-        code: 'NETWORK_ERROR',
-        message: STRINGS.API_ERROR_NETWORK,
-      },
-    };
-  }
-}
 
 /**
  * Validate PIN and create session
@@ -655,6 +591,39 @@ export async function getNameGameMatches(envelopeId: string): Promise<NameGameMa
   const response = await apiFetch<NameGameMatchList>(`/name-game/${envelopeId}/matches`);
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to fetch matches');
+  }
+  return response.data;
+}
+
+// ============================================================================
+// Trivia API
+// ============================================================================
+
+/**
+ * Get trivia envelope state (all questions with answer state)
+ */
+export async function getTriviaState(envelopeId: string): Promise<TriviaEnvelopeResponse> {
+  const response = await apiFetch<TriviaEnvelopeResponse>(`/trivia/${envelopeId}`);
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch trivia state');
+  }
+  return response.data;
+}
+
+/**
+ * Submit an answer for a trivia question
+ */
+export async function submitTriviaAnswer(
+  envelopeId: string,
+  questionId: string,
+  selectedIndex: number
+): Promise<TriviaAnswerResponse> {
+  const response = await apiFetch<TriviaAnswerResponse>(`/trivia/${envelopeId}/answer`, {
+    method: 'POST',
+    body: JSON.stringify({ questionId, selectedIndex }),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to submit trivia answer');
   }
   return response.data;
 }

@@ -255,6 +255,22 @@ export const STRINGS = {
     partner: 'Wife',
     baby: 'Baby',
   } as { readonly you: string; readonly partner: string; readonly baby: string },
+
+  // Trivia
+  TRIVIA_SUBMIT_BUTTON: 'Submit Answer',
+  TRIVIA_NEXT_BUTTON: 'Next',
+  TRIVIA_FINISH_BUTTON: 'See Results',
+  TRIVIA_CORRECT: 'Correct!',
+  TRIVIA_INCORRECT: 'Not quite!',
+  TRIVIA_DID_YOU_KNOW: 'Did you know?',
+  TRIVIA_COMPLETE_TITLE: 'All Done!',
+  TRIVIA_COMPLETE_MESSAGE: 'You learned some fun baby facts!',
+  TRIVIA_COMPLETE_CLOSE: 'Back to Envelopes',
+  TRIVIA_REVIEW_TITLE: 'Trivia Review',
+  TRIVIA_REVIEW_CLOSE: 'Back to Envelopes',
+  TRIVIA_ERROR_LOADING: 'Could not load trivia questions.',
+  TRIVIA_ERROR_SUBMITTING: 'Could not submit your answer. Please try again.',
+  TRIVIA_OPTION_LABEL: (letter: string) => letter,
 } as const;
 
 /**

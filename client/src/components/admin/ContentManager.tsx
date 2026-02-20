@@ -4,6 +4,7 @@ import { ContentTabs } from './ContentTabs';
 import { TriviaContentTab } from './TriviaContentTab';
 import { WyrContentTab } from './WyrContentTab';
 import { LetterContentTab } from './LetterContentTab';
+import { GenderRevealContentTab } from './GenderRevealContentTab';
 import { STRINGS } from '../../constants/strings';
 import './ContentManager.css';
 
@@ -11,12 +12,13 @@ const tabs = [
   { id: 'trivia', label: STRINGS.CONTENT_TAB_TRIVIA },
   { id: 'wyr', label: STRINGS.CONTENT_TAB_WYR },
   { id: 'letters', label: STRINGS.CONTENT_TAB_LETTERS },
+  { id: 'gender-reveal', label: STRINGS.CONTENT_TAB_GENDER_REVEAL },
 ];
 
 /**
  * Tabbed content management interface for admin.
- * Provides CRUD for trivia questions, WYR prompts, and letter prompts.
- * All three tabs fully implemented (ADMIN-06).
+ * Provides CRUD for trivia questions, WYR prompts, letter prompts,
+ * and gender reveal configuration (ADMIN-04, ADMIN-06).
  */
 export function ContentManager() {
   const [activeTab, setActiveTab] = useState('trivia');
@@ -58,6 +60,16 @@ export function ContentManager() {
           aria-labelledby="tab-letters"
         >
           <LetterContentTab />
+        </div>
+      )}
+
+      {activeTab === 'gender-reveal' && (
+        <div
+          role="tabpanel"
+          id="panel-gender-reveal"
+          aria-labelledby="tab-gender-reveal"
+        >
+          <GenderRevealContentTab />
         </div>
       )}
     </div>

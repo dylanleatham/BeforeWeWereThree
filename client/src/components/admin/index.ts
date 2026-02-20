@@ -7,3 +7,4 @@ export { TriviaQuestionForm } from './TriviaQuestionForm';
 export { TriviaEnvelopeAssigner } from './TriviaEnvelopeAssigner';
 export { WyrContentTab } from './WyrContentTab';
 export { LetterContentTab } from './LetterContentTab';
+export { GenderRevealContentTab } from './GenderRevealContentTab';

@@ -278,6 +278,7 @@ export const STRINGS = {
   CONTENT_TAB_TRIVIA: 'Trivia',
   CONTENT_TAB_WYR: 'Would You Rather',
   CONTENT_TAB_LETTERS: 'Letters',
+  CONTENT_TAB_GENDER_REVEAL: 'Gender Reveal',
 
   // Trivia Admin - Question Library
   TRIVIA_ADMIN_HEADING: 'Trivia Questions',

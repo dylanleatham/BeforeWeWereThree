@@ -17,8 +17,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Real-Time Sync & Would You Rather** - SignalR, presence, synchronized voting
 - [x] **Phase 4: Letters to Baby & Media** - Text input, photo uploads, media library
 - [x] **Phase 5: Baby Name Game & AI** - Anthropic API, voting, match detection
-- [ ] **Phase 6: Trivia Activity** - Simple Q&A demonstrating pattern reuse
-- [ ] **Phase 7: Gender Reveal Ceremony** - Two-key validation, secret protection, celebration
+- [x] **Phase 6: Trivia Activity** - Simple Q&A demonstrating pattern reuse
+- [x] **Phase 7: Gender Reveal Ceremony** - Two-key validation, secret protection, celebration
 
 ## Phase Details
 
@@ -144,9 +144,9 @@ Plans:
 **Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 07-01-PLAN.md — Backend: Prisma schema, shared types, queries, service (Serializable isolation), routes, reset (Wave 1)
-- [ ] 07-02-PLAN.md — Participant UI: useGenderReveal hook, key entry, waiting, ceremony animation, keepsake, BaseEnvelope wiring (Wave 2)
-- [ ] 07-03-PLAN.md — Admin UI: GenderRevealContentTab, ContentManager wiring (Wave 3)
+- [x] 07-01-PLAN.md — Backend: Prisma schema, shared types, queries, service (Serializable isolation), routes, reset (Wave 1) -- Completed 2026-02-20
+- [x] 07-02-PLAN.md — Participant UI: useGenderReveal hook, key entry, waiting, ceremony animation, keepsake, BaseEnvelope wiring (Wave 2) -- Completed 2026-02-20
+- [x] 07-03-PLAN.md — Admin UI: GenderRevealContentTab, ContentManager wiring (Wave 3) -- Completed 2026-02-20
 
 ## Progress
 
@@ -161,7 +161,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Letters & Media | 5/5 | Complete | 2026-02-08 |
 | 5. Baby Name Game & AI | 4/4 | Complete | 2026-02-15 |
 | 6. Trivia Activity | 4/4 | Complete | 2026-02-19 |
-| 7. Gender Reveal Ceremony | 0/3 | Not started | - |
+| 7. Gender Reveal Ceremony | 3/3 | Complete | 2026-02-20 |
 
 ---
 *Roadmap created: 2026-02-01*

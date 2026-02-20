@@ -66,11 +66,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Gender Reveal Activity
 
-- [ ] **REVEAL-01**: Admin configures gender value and two keys
-- [ ] **REVEAL-02**: Each participant enters their key
-- [ ] **REVEAL-03**: Reveal triggers only when both keys validated server-side
-- [ ] **REVEAL-04**: Full-screen ceremony with countdown and celebration
-- [ ] **REVEAL-05**: Gender value never sent to client until both keys valid
+- [x] **REVEAL-01**: Admin configures gender value and two keys
+- [x] **REVEAL-02**: Each participant enters their key
+- [x] **REVEAL-03**: Reveal triggers only when both keys validated server-side
+- [x] **REVEAL-04**: Full-screen ceremony with countdown and celebration
+- [x] **REVEAL-05**: Gender value never sent to client until both keys valid
 
 ### Media
 
@@ -84,8 +84,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **ADMIN-01**: Admin can set Guest PIN and Admin PIN (via database; UI in later phase)
 - [x] **ADMIN-02**: Admin can configure Spotify playlist URL
 - [x] **ADMIN-03**: Admin can upload and delete photos in media library
-- [ ] **ADMIN-04**: Admin can configure Gender Reveal (value + keys)
-- [ ] **ADMIN-05**: Admin can create/edit envelopes
+- [x] **ADMIN-04**: Admin can configure Gender Reveal (value + keys)
+- [x] **ADMIN-05**: Admin can create/edit envelopes
 - [x] **ADMIN-06**: Admin can create/edit WYR prompts, trivia questions, letter prompts
 
 ## v2 Requirements
@@ -170,12 +170,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TRIVIA-02 | Phase 6 | Complete |
 | TRIVIA-03 | Phase 6 | Complete |
 | ADMIN-06 | Phase 6 | Complete |
-| REVEAL-01 | Phase 7 | Pending |
-| REVEAL-02 | Phase 7 | Pending |
-| REVEAL-03 | Phase 7 | Pending |
-| REVEAL-04 | Phase 7 | Pending |
-| REVEAL-05 | Phase 7 | Pending |
-| ADMIN-04 | Phase 7 | Pending |
+| REVEAL-01 | Phase 7 | Complete |
+| REVEAL-02 | Phase 7 | Complete |
+| REVEAL-03 | Phase 7 | Complete |
+| REVEAL-04 | Phase 7 | Complete |
+| REVEAL-05 | Phase 7 | Complete |
+| ADMIN-04 | Phase 7 | Complete |
 
 **Coverage:**
 - v1 requirements: 42 total
@@ -184,4 +184,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-19 after Phase 6 completion*
+*Last updated: 2026-02-20 after Phase 7 completion*

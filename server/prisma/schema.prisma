@@ -35,6 +35,7 @@ model Participant {
   photos            Photo[]
   nameGameVotes     NameGameVote[]
   nameGameGuidance  NameGameGuidance[]
+  triviaAnswers     TriviaAnswer[]
 
   @@index([friendId])
   @@map("participants")
@@ -53,9 +54,10 @@ model Envelope {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   friendLetter   FriendLetter?  @relation(fields: [friendLetterId], references: [id], onDelete: Restrict)
-  wyrPrompts     WyrPrompt[]
-  letterPrompt   LetterPrompt?
-  nameGameRounds NameGameRound[]
+  wyrPrompts                WyrPrompt[]
+  letterPrompt              LetterPrompt?
+  nameGameRounds            NameGameRound[]
+  triviaEnvelopeQuestions   TriviaEnvelopeQuestion[]
 
   @@map("envelopes")
 }
@@ -88,7 +90,7 @@ model WyrVote {
   createdAt     DateTime @default(now()) @map("created_at")
 
   prompt      WyrPrompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
-  participant Participant @relation(fields: [participantId], references: [id])
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@unique([promptId, participantId])
   @@index([participantId])
@@ -122,7 +124,7 @@ model Letter {
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   prompt      LetterPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
-  participant Participant  @relation(fields: [participantId], references: [id])
+  participant Participant  @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@unique([promptId, participantId])
   @@index([participantId])
@@ -140,7 +142,7 @@ model Photo {
   uploadedById String   @map("uploaded_by_id")
   createdAt    DateTime @default(now()) @map("created_at")
 
-  uploadedBy Participant @relation(fields: [uploadedById], references: [id])
+  uploadedBy Participant @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
 
   @@index([uploadedById])
   @@map("photos")
@@ -191,7 +193,7 @@ model NameGameGuidance {
   guidance      String?
   createdAt     DateTime @default(now()) @map("created_at")
 
-  participant Participant @relation(fields: [participantId], references: [id])
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@unique([envelopeId, roundNumber, participantId])
   @@index([envelopeId, roundNumber])
@@ -208,7 +210,7 @@ model NameGameVote {
   createdAt     DateTime @default(now()) @map("created_at")
 
   name        NameGameName @relation(fields: [nameId], references: [id], onDelete: Cascade)
-  participant Participant  @relation(fields: [participantId], references: [id])
+  participant Participant  @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@unique([nameId, participantId])
   @@index([participantId])
@@ -263,4 +265,54 @@ model FriendLetter {
 
   @@index([friendId])
   @@map("friend_letters")
+}
+
+// Trivia question in content library
+// Questions are standalone and assigned to envelopes via TriviaEnvelopeQuestion
+model TriviaQuestion {
+  id           String   @id @default(uuid())
+  questionText String   @map("question_text")
+  options      Json     // Array of { text: string, isCorrect: boolean }
+  explanation  String?  // Optional "did you know" text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  envelopeAssignments TriviaEnvelopeQuestion[]
+
+  @@map("trivia_questions")
+}
+
+// Join table: assigns trivia questions to envelopes with sort order
+model TriviaEnvelopeQuestion {
+  id         String @id @default(uuid())
+  envelopeId String @map("envelope_id")
+  questionId String @map("question_id")
+  sortOrder  Int    @default(0) @map("sort_order")
+
+  envelope Envelope       @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  question TriviaQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([envelopeId, questionId])
+  @@unique([envelopeId, sortOrder])
+  @@index([envelopeId])
+  @@index([questionId])
+  @@map("trivia_envelope_questions")
+}
+
+// Trivia answer submitted by a participant
+model TriviaAnswer {
+  id            String   @id @default(uuid())
+  envelopeId    String   @map("envelope_id")
+  questionId    String   @map("question_id")
+  participantId String   @map("participant_id")
+  selectedIndex Int      @map("selected_index")
+  isCorrect     Boolean  @map("is_correct")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([envelopeId, questionId, participantId])
+  @@index([envelopeId])
+  @@index([participantId])
+  @@map("trivia_answers")
 }

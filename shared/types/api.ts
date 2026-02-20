@@ -29,6 +29,8 @@ export type ErrorCode =
   | 'TOO_MANY_REQUESTS'
   | 'SORT_ORDER_CONFLICT'
   | 'FRIEND_NOT_FOUND'
+  | 'LETTER_NOT_FOUND'
+  | 'NAME_NOT_FOUND'
   | 'PIN_ALREADY_EXISTS'
   | `HTTP_${number}`; // For HTTP status code errors
 
@@ -36,7 +38,7 @@ export type ErrorCode =
  * Standard API error shape
  */
 export interface ApiError {
-  code: ErrorCode | string; // Allow string for backwards compatibility
+  code: ErrorCode;
   message: string;
   details?: Record<string, unknown>;
 }
@@ -73,7 +75,7 @@ export function successResponse<T>(data: T): ApiSuccessResponse<T> {
  * Helper to create error response
  */
 export function errorResponse(
-  code: ErrorCode | string,
+  code: ErrorCode,
   message: string,
   details?: Record<string, unknown>
 ): ApiErrorResponse {
@@ -94,4 +96,5 @@ export interface ResetSessionResponse {
   nameNamesDeleted: number;
   nameRoundsDeleted: number;
   nameGuidanceDeleted: number;
+  triviaAnswersDeleted: number;
 }

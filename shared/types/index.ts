@@ -158,6 +158,29 @@ export {
   friendLetterRecipientSchema,
 } from './friend.js';
 
+// Re-export Trivia types
+export type {
+  TriviaOption,
+  TriviaPhase,
+  TriviaQuestion,
+  TriviaEnvelopeQuestion,
+  TriviaQuestionState,
+  TriviaEnvelopeResponse,
+  TriviaAnswerRequest,
+  TriviaAnswerResponse,
+  CreateTriviaQuestionRequest,
+  UpdateTriviaQuestionRequest,
+  AssignQuestionsRequest,
+  ReorderQuestionsRequest,
+} from './trivia.js';
+export {
+  triviaAnswerRequestSchema,
+  createTriviaQuestionSchema,
+  updateTriviaQuestionSchema,
+  assignQuestionsSchema,
+  reorderQuestionsSchema,
+} from './trivia.js';
+
 /**
  * Health check response data
  */

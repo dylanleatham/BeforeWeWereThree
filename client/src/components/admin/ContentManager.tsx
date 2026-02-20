@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Heading, Text } from '../common';
+import { Heading } from '../common';
 import { ContentTabs } from './ContentTabs';
 import { TriviaContentTab } from './TriviaContentTab';
+import { WyrContentTab } from './WyrContentTab';
+import { LetterContentTab } from './LetterContentTab';
 import { STRINGS } from '../../constants/strings';
 import './ContentManager.css';
 
@@ -14,7 +16,7 @@ const tabs = [
 /**
  * Tabbed content management interface for admin.
  * Provides CRUD for trivia questions, WYR prompts, and letter prompts.
- * Trivia tab is implemented now; WYR and Letters added in 06-04.
+ * All three tabs fully implemented (ADMIN-06).
  */
 export function ContentManager() {
   const [activeTab, setActiveTab] = useState('trivia');
@@ -45,7 +47,7 @@ export function ContentManager() {
           id="panel-wyr"
           aria-labelledby="tab-wyr"
         >
-          <Text color="muted">Coming soon</Text>
+          <WyrContentTab />
         </div>
       )}
 
@@ -55,7 +57,7 @@ export function ContentManager() {
           id="panel-letters"
           aria-labelledby="tab-letters"
         >
-          <Text color="muted">Coming soon</Text>
+          <LetterContentTab />
         </div>
       )}
     </div>

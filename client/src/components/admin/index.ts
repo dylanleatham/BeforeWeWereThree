@@ -5,3 +5,5 @@ export { ContentTabs } from './ContentTabs';
 export { TriviaContentTab } from './TriviaContentTab';
 export { TriviaQuestionForm } from './TriviaQuestionForm';
 export { TriviaEnvelopeAssigner } from './TriviaEnvelopeAssigner';
+export { WyrContentTab } from './WyrContentTab';
+export { LetterContentTab } from './LetterContentTab';

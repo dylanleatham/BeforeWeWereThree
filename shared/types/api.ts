@@ -32,6 +32,8 @@ export type ErrorCode =
   | 'LETTER_NOT_FOUND'
   | 'NAME_NOT_FOUND'
   | 'PIN_ALREADY_EXISTS'
+  | 'REVEAL_NOT_CONFIGURED'
+  | 'REVEAL_ALREADY_DONE'
   | `HTTP_${number}`; // For HTTP status code errors
 
 /**

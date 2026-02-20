@@ -18,6 +18,7 @@ export interface ResetSessionResult {
   nameRoundsDeleted: number;
   nameGuidanceDeleted: number;
   triviaAnswersDeleted: number;
+  genderRevealReset: number;
 }
 
 /**
@@ -71,6 +72,16 @@ export async function resetSession(): Promise<ResetSessionResult> {
     // 5. Delete trivia answers (FK to participants, preserves questions and assignments)
     const triviaAnswersDeleted = await tx.triviaAnswer.deleteMany({});
 
+    // 5.5. Reset gender reveal state (preserve config, clear validation)
+    // Gender value and keys are admin-created content — only clear reveal state
+    const genderRevealReset = await tx.genderRevealConfig.updateMany({
+      data: {
+        keyAValidated: false,
+        keyBValidated: false,
+        revealedAt: null,
+      },
+    });
+
     // 6. Delete all guest participants
     const participantsDeleted = await tx.participant.deleteMany({
       where: { role: 'guest' },
@@ -94,6 +105,7 @@ export async function resetSession(): Promise<ResetSessionResult> {
       nameRoundsDeleted: nameRoundsDeleted.count,
       nameGuidanceDeleted: nameGuidanceDeleted.count,
       triviaAnswersDeleted: triviaAnswersDeleted.count,
+      genderRevealReset: genderRevealReset.count,
     };
   });
 

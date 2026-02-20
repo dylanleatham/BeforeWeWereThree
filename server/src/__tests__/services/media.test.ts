@@ -14,6 +14,8 @@ const mockDeletePhotoById = jest.fn() as AnyMock;
 // Mock Azure SDK
 const mockGenerateBlobSASQueryParameters = jest.fn() as AnyMock;
 const mockDeleteIfExists = jest.fn() as AnyMock;
+const mockBlobExists = jest.fn() as AnyMock;
+const mockGetProperties = jest.fn() as AnyMock;
 
 jest.unstable_mockModule('../../db/queries/media.js', () => ({
   getPhotoById: mockGetPhotoById,
@@ -26,6 +28,8 @@ jest.unstable_mockModule('@azure/storage-blob', () => ({
     getContainerClient: jest.fn().mockReturnValue({
       getBlobClient: jest.fn().mockReturnValue({
         deleteIfExists: mockDeleteIfExists,
+        exists: mockBlobExists,
+        getProperties: mockGetProperties,
       }),
     }),
   })),
@@ -67,6 +71,8 @@ describe('Media Service', () => {
     process.env.AZURE_STORAGE_KEY = 'dGVzdGtleQ==';
     mockGenerateBlobSASQueryParameters.mockReturnValue({ toString: () => 'sas-token=abc' });
     mockDeleteIfExists.mockResolvedValue(undefined);
+    mockBlobExists.mockResolvedValue(true);
+    mockGetProperties.mockResolvedValue({ contentLength: 1024 });
   });
 
   afterEach(() => {

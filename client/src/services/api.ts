@@ -33,6 +33,8 @@ import type {
   UpdateTriviaQuestionRequest,
   GenderRevealStateResponse,
   ValidateKeyResponse,
+  GenderRevealAdminResponse,
+  ConfigureGenderRevealRequest,
 } from 'shared';
 import { apiFetch } from './fetchClient';
 import { STRINGS } from '../constants/strings';
@@ -815,4 +817,82 @@ export async function validateRevealKey(
     throw new Error(response.error?.message || 'Failed to validate reveal key');
   }
   return response.data;
+}
+
+// ============================================================================
+// Gender Reveal Admin API
+// ============================================================================
+
+/**
+ * Get gender reveal admin config for an envelope (admin only)
+ * Includes full config: gender value, keys, validation state
+ */
+export async function getGenderRevealAdminConfig(
+  envelopeId: string
+): Promise<GenderRevealAdminResponse> {
+  const response = await apiFetch<GenderRevealAdminResponse>(
+    `/gender-reveal/admin/${envelopeId}`
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch gender reveal config');
+  }
+  return response.data;
+}
+
+/**
+ * Configure gender reveal for an envelope (admin only)
+ * Creates or updates gender value and two unique keys
+ */
+export async function configureGenderReveal(
+  envelopeId: string,
+  data: ConfigureGenderRevealRequest
+): Promise<GenderRevealAdminResponse> {
+  const response = await apiFetch<GenderRevealAdminResponse>(
+    `/gender-reveal/admin/${envelopeId}/configure`,
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to configure gender reveal');
+  }
+  return response.data;
+}
+
+/**
+ * Re-seal gender reveal (admin only)
+ * Clears key validation state, preserves config (gender + keys)
+ * Used for retesting the ceremony
+ */
+export async function resealGenderReveal(
+  envelopeId: string
+): Promise<GenderRevealAdminResponse> {
+  const response = await apiFetch<GenderRevealAdminResponse>(
+    `/gender-reveal/admin/${envelopeId}/re-seal`,
+    {
+      method: 'POST',
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to re-seal gender reveal');
+  }
+  return response.data;
+}
+
+/**
+ * Delete gender reveal config entirely (admin only)
+ */
+export async function deleteGenderRevealConfig(
+  envelopeId: string
+): Promise<void> {
+  const response = await apiFetch<{ deleted: boolean }>(
+    `/gender-reveal/admin/${envelopeId}`,
+    {
+      method: 'DELETE',
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to delete gender reveal config');
+  }
 }

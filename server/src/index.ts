@@ -16,6 +16,7 @@ import { letterRouter } from './routes/letter.js';
 import { configRouter } from './routes/config.js';
 import { nameGameRouter } from './routes/nameGame.js';
 import { friendRouter } from './routes/friend.js';
+import { triviaRouter } from './routes/trivia.js';
 import { initializeRealtimeService } from './services/realtime.js';
 import { disconnectDatabase } from './db/connection.js';
 import { logger } from './utils/logger.js';
@@ -38,12 +39,14 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: process.env.NODE_ENV === 'development'
+          ? ["'self'", "'unsafe-inline'"]
+          : ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-        imgSrc: ["'self'", 'data:', 'blob:', 'https://*.blob.core.windows.net'],
-        mediaSrc: ["'self'", 'blob:', 'https://*.blob.core.windows.net'],
-        connectSrc: ["'self'", frontendUrl, 'wss:', 'ws:', 'https://*.blob.core.windows.net'],
+        imgSrc: ["'self'", 'data:', 'blob:', 'https://bwwtstorage.blob.core.windows.net'],
+        mediaSrc: ["'self'", 'blob:', 'https://bwwtstorage.blob.core.windows.net'],
+        connectSrc: ["'self'", frontendUrl, 'wss:', 'ws:', 'https://bwwtstorage.blob.core.windows.net'],
       },
     },
   })
@@ -73,6 +76,7 @@ app.use('/api/letters', letterRouter);
 app.use('/api/config', configRouter);
 app.use('/api/name-game', nameGameRouter);
 app.use('/api/friends', friendRouter);
+app.use('/api/trivia', triviaRouter);
 
 // Serve static files from client build
 // In production bundle, public/ is in the same directory as index.js

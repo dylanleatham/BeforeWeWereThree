@@ -7,6 +7,7 @@ import { db } from '../db/connection.js';
  */
 
 export interface ResetSessionResult {
+  message: string;
   participantsDeleted: number;
   envelopesReset: number;
   votesDeleted: number;
@@ -16,6 +17,7 @@ export interface ResetSessionResult {
   nameNamesDeleted: number;
   nameRoundsDeleted: number;
   nameGuidanceDeleted: number;
+  triviaAnswersDeleted: number;
 }
 
 /**
@@ -34,12 +36,14 @@ export interface ResetSessionResult {
  * 4. Name game votes (FK to participants and names)
  * 5. Name game names (FK to rounds)
  * 6. Name game rounds (FK to envelopes)
- * 7. Participants (FK target for letters, votes, photos, name votes)
- * 8. Envelopes (just status reset, no FK issues)
+ * 7. Trivia answers (FK to participants)
+ * 8. Participants (FK target for letters, votes, photos, name votes, trivia answers)
+ * 9. Envelopes (just status reset, no FK issues)
  *
  * NOT reset (by design):
  * - LetterPrompts (admin-created content, preserved)
  * - WyrPrompts (admin-created content, preserved)
+ * - TriviaQuestions and TriviaEnvelopeQuestions (admin-created content, preserved)
  *
  * IMPORTANT: When adding new features, include reset logic here.
  * See CLAUDE.md "Reset Capability" section.
@@ -64,6 +68,9 @@ export async function resetSession(): Promise<ResetSessionResult> {
     const nameRoundsDeleted = await tx.nameGameRound.deleteMany({});
     const nameGuidanceDeleted = await tx.nameGameGuidance.deleteMany({});
 
+    // 5. Delete trivia answers (FK to participants, preserves questions and assignments)
+    const triviaAnswersDeleted = await tx.triviaAnswer.deleteMany({});
+
     // 6. Delete all guest participants
     const participantsDeleted = await tx.participant.deleteMany({
       where: { role: 'guest' },
@@ -76,6 +83,7 @@ export async function resetSession(): Promise<ResetSessionResult> {
     });
 
     return {
+      message: 'Session reset successfully',
       participantsDeleted: participantsDeleted.count,
       envelopesReset: envelopesReset.count,
       votesDeleted: votesDeleted.count,
@@ -85,6 +93,7 @@ export async function resetSession(): Promise<ResetSessionResult> {
       nameNamesDeleted: nameNamesDeleted.count,
       nameRoundsDeleted: nameRoundsDeleted.count,
       nameGuidanceDeleted: nameGuidanceDeleted.count,
+      triviaAnswersDeleted: triviaAnswersDeleted.count,
     };
   });
 

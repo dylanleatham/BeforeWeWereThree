@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Two people, one screen each, sharing moments that matter.
-**Current focus:** Phase 6 complete - Trivia Activity
+**Current focus:** Phase 7 in progress - Gender Reveal Ceremony
 
 ## Current Position
 
-Phase: 6 of 7 (Trivia Activity)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-02-20 - Completed 06-04-PLAN.md
+Phase: 7 of 7 (Gender Reveal Ceremony)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-20 - Completed 07-01-PLAN.md
 
-Progress: [████████████████████] 100% (Phase 6)
-Overall:  [██████████████████████████████████████████████████] 100% (25/25 plans)
+Progress: [█████] 25% (Phase 7)
+Overall:  [██████████████████████████████████████████████████████] 100% (26/29 plans)
 
 Config:
 {
@@ -34,9 +34,9 @@ Config:
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
+- Total plans completed: 26
 - Average duration: ~17 min (including manual debugging)
-- Total execution time: ~7.0 hours
+- Total execution time: ~7.2 hours
 
 **By Phase:**
 
@@ -48,10 +48,11 @@ Config:
 | 04 | 5/5 | ~41 min | ~8 min |
 | 05 | 4/4 | ~27 min | ~7 min |
 | 06 | 4/4 | ~29 min | ~7 min |
+| 07 | 1/4 | ~12 min | ~12 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-04 (~9 min), 06-01 (~10 min), 06-02 (~6 min), 06-03 (~7 min), 06-04 (~6 min)
-- Trend: Consistent ~6-10 min per plan
+- Last 5 plans: 06-01 (~10 min), 06-02 (~6 min), 06-03 (~7 min), 06-04 (~6 min), 07-01 (~12 min)
+- Trend: Consistent ~6-12 min per plan
 
 *Updated after each plan completion*
 
@@ -129,6 +130,10 @@ Recent decisions affecting current work:
 | 06-03 | Envelope select dropdown for assignment | Admin picks one envelope at a time to assign questions |
 | 06-03 | Re-fetch after add/remove for referential integrity | Ensures Reorder.Item values maintain proper identity from server data |
 | 06-04 | Admin endpoint for letter prompt by envelope | GET /letters/prompt/envelope/:envelopeId for admin-only prompt lookup |
+| 07-01 | Single GenderRevealConfig model with boolean flags | Simpler than separate unlocks table for a fixed 2-key system |
+| 07-01 | Accept either key from either participant | Server doesn't enforce key-participant assignment, avoids edge cases |
+| 07-01 | Gender only returned when revealedAt is set | REVEAL-05 security requirement: gender never leaks before both keys validated |
+| 07-01 | Re-seal preserves config, clears validation | Admin can test ceremony multiple times without re-entering gender/keys |
 
 ### Pending Todos
 
@@ -219,13 +224,11 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 06-04-PLAN.md (Phase 6 complete)
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
 
-**Phase 6 Complete:**
-- [x] 06-01: Trivia Backend Foundation (complete, 2026-02-19)
-- [x] 06-02: Client UI Components (complete, 2026-02-20)
-- [x] 06-03: Admin Content Management (complete, 2026-02-20)
-- [x] 06-04: WYR and Letter Content Tabs (complete, 2026-02-20)
-
-**All phases complete (25/25 plans).** Project build complete.
+**Phase 7 In Progress:**
+- [x] 07-01: Gender Reveal Backend Foundation (complete, 2026-02-20)
+- [ ] 07-02: Client hooks and UI components
+- [ ] 07-03: Admin content tab
+- [ ] 07-04: Ceremony animation and integration

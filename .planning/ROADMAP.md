@@ -115,7 +115,7 @@ Plans:
 - [x] 05-04-PLAN.md — useNameGame hook, orchestrator, BaseEnvelope wiring, reset (Wave 3) -- Completed 2026-02-15
 
 ### Phase 6: Trivia Activity
-**Goal**: Users can play trivia within envelope framework
+**Goal**: Users can play solo trivia within envelope framework; admin manages content for all activity types
 **Depends on**: Phase 2 (envelope patterns)
 **Requirements**: TRIVIA-01, TRIVIA-02, TRIVIA-03, ADMIN-06
 **Success Criteria** (what must be TRUE):
@@ -123,12 +123,13 @@ Plans:
   2. User can submit answer and see correct answer revealed
   3. Envelope marks complete after answer revealed
   4. Admin can create and edit trivia questions (and WYR prompts, letter prompts)
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 06-01: Trivia data model and API
-- [ ] 06-02: Trivia UI with answer reveal
-- [ ] 06-03: Admin content management for all activity types
+- [ ] 06-01-PLAN.md — Prisma schema, migration, shared types, query layer, service, routes, reset (Wave 1)
+- [ ] 06-02-PLAN.md — Trivia UI: useTrivia hook, phase components, orchestrator, BaseEnvelope wiring (Wave 2)
+- [ ] 06-03-PLAN.md — Admin content manager: accessible tabs, trivia question CRUD, envelope assignment with drag-to-reorder (Wave 2, parallel)
+- [ ] 06-04-PLAN.md — WYR and Letter content tabs, wire ContentManager into admin view (Wave 3)
 
 ### Phase 7: Gender Reveal Ceremony
 **Goal**: Two-key unlock triggers dramatic reveal; secret never leaks
@@ -159,11 +160,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Real-Time Sync & WYR | 4/4 | Complete | 2026-02-06 |
 | 4. Letters & Media | 5/5 | Complete | 2026-02-08 |
 | 5. Baby Name Game & AI | 4/4 | Complete | 2026-02-15 |
-| 6. Trivia Activity | 0/3 | Not started | - |
+| 6. Trivia Activity | 0/4 | Not started | - |
 | 7. Gender Reveal Ceremony | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-01*
 *Depth: comprehensive*
 *Total phases: 7*
-*Total plans: 27*
+*Total plans: 28*

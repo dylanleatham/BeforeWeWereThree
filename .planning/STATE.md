@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 6 of 7 (Trivia Activity)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-20 - Completed 06-02-PLAN.md
+Last activity: 2026-02-20 - Completed 06-03-PLAN.md
 
-Progress: [██████████] 50% (Phase 6)
-Overall:  [███████████████████████████████████████████████] 92% (23/25 plans)
+Progress: [███████████████] 75% (Phase 6)
+Overall:  [████████████████████████████████████████████████] 96% (24/25 plans)
 
 Config:
 {
@@ -34,9 +34,9 @@ Config:
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: ~18 min (including manual debugging)
-- Total execution time: ~6.8 hours
+- Total execution time: ~6.9 hours
 
 **By Phase:**
 
@@ -47,11 +47,11 @@ Config:
 | 03 | 4/4 | ~238 min | ~60 min |
 | 04 | 5/5 | ~41 min | ~8 min |
 | 05 | 4/4 | ~27 min | ~7 min |
-| 06 | 2/4 | ~16 min | ~8 min |
+| 06 | 3/4 | ~23 min | ~8 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (~5 min), 05-03 (~7 min), 05-04 (~9 min), 06-01 (~10 min), 06-02 (~6 min)
-- Trend: Consistent ~5-10 min per plan
+- Last 5 plans: 05-03 (~7 min), 05-04 (~9 min), 06-01 (~10 min), 06-02 (~6 min), 06-03 (~7 min)
+- Trend: Consistent ~6-10 min per plan
 
 *Updated after each plan completion*
 
@@ -125,6 +125,9 @@ Recent decisions affecting current work:
 | 06-02 | Solo activity hook pattern (no SignalR) | useTrivia has no SignalR, no partner state, no optimistic updates |
 | 06-02 | Separate local selection from submission | Two-step answer flow prevents accidental answers |
 | 06-02 | No progress indicator per CONTEXT.md | Questions just flow, no "2 of 5" counter |
+| 06-03 | ContentManager below EnvelopeManager | Rendered as separate section in admin view, no router needed |
+| 06-03 | Envelope select dropdown for assignment | Admin picks one envelope at a time to assign questions |
+| 06-03 | Re-fetch after add/remove for referential integrity | Ensures Reorder.Item values maintain proper identity from server data |
 
 ### Pending Todos
 
@@ -165,20 +168,8 @@ Gotchas discovered during development that future phases should avoid:
 ### Testing Trivia Locally
 
 1. **Create envelope** with type `'trivia'` (use hyphens if needed!)
-2. **Create trivia question** via admin API:
-   ```bash
-   curl -X POST http://localhost:3000/api/trivia/admin/questions \
-     -H "Content-Type: application/json" \
-     -H "Cookie: session=<admin-cookie>" \
-     -d '{"questionText":"What year were you born?","options":[{"text":"1990","isCorrect":true},{"text":"1991","isCorrect":false}]}'
-   ```
-3. **Assign question to envelope** via admin API:
-   ```bash
-   curl -X PUT http://localhost:3000/api/trivia/admin/envelope/<envelope-id>/questions \
-     -H "Content-Type: application/json" \
-     -H "Cookie: session=<admin-cookie>" \
-     -d '{"questionIds":["<question-id>"]}'
-   ```
+2. **Create trivia question** via admin UI: Go to Content Library > Trivia tab > New Question
+3. **Assign question to envelope** via admin UI: Select envelope from dropdown in Envelope Assignment section, click Add
 4. **Get trivia state**: `GET /api/trivia/<envelope-id>`
 5. **Submit answer**: `POST /api/trivia/<envelope-id>/answer` with `{"questionId":"...","selectedIndex":0}`
 
@@ -227,21 +218,21 @@ Gotchas discovered during development that future phases should avoid:
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 06-02-PLAN.md
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None
 
 **Phase 6 In Progress:**
 - [x] 06-01: Trivia Backend Foundation (complete, 2026-02-19)
 - [x] 06-02: Client UI Components (complete, 2026-02-20)
-- [ ] 06-03: Client Integration and Wiring
-- [ ] 06-04: Admin Content Management
+- [x] 06-03: Admin Content Management (complete, 2026-02-20)
+- [ ] 06-04: WYR and Letter Content Tabs
 
-**Phase 6 Plan 02 Accomplishments:**
-- useTrivia hook with solo state machine (answering/revealing/complete/review)
-- QuestionPhase with A/B/C/D options, selection, submit
-- RevealPhase with suspense animation, correct/incorrect, explanation
-- CompletePhase warm completion screen
-- ReviewPhase read-only scrollable review
-- TriviaActivity orchestrator with phase switching
-- BaseEnvelope wired for trivia-type envelopes
-- API client functions and constants for trivia UI
+**Phase 6 Plan 03 Accomplishments:**
+- ContentTabs with WAI-ARIA keyboard navigation (ArrowRight/Left, Home/End)
+- ContentManager tabbed container (Trivia/WYR/Letters tabs)
+- TriviaQuestionForm with 2-4 dynamic options, correct answer radio, explanation
+- TriviaContentTab with question library CRUD and envelope assignment
+- TriviaEnvelopeAssigner with motion/react drag-to-reorder
+- 7 admin trivia API client functions
+- 20+ admin string constants
+- Admin view wiring in App.tsx

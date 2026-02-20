@@ -1,0 +1,12 @@
+.content-manager {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--space-4);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-light-linen);
+}
+
+.content-manager h2 {
+  margin-bottom: var(--space-4);
+}

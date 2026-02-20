@@ -3,7 +3,7 @@ import { useSession } from './hooks/useSession';
 import { useEnvelopes } from './hooks/useEnvelopes';
 import { PinEntry } from './components/auth/PinEntry';
 import { EnvelopePile } from './components/envelope';
-import { EnvelopeManager } from './components/admin';
+import { EnvelopeManager, ContentManager } from './components/admin';
 import { FriendDashboard } from './components/friend/FriendDashboard';
 import { Heading, Text, SpotifyButton } from './components/common';
 import { SignalRProvider } from './context/SignalRContext';
@@ -86,6 +86,7 @@ function AuthenticatedApp({
               onRefresh={refetch}
               isLoading={envelopesLoading}
             />
+            <ContentManager />
           </main>
         </div>
       </MotionConfig>

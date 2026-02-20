@@ -271,6 +271,41 @@ export const STRINGS = {
   TRIVIA_ERROR_LOADING: 'Could not load trivia questions.',
   TRIVIA_ERROR_SUBMITTING: 'Could not submit your answer. Please try again.',
   TRIVIA_OPTION_LABEL: (letter: string) => letter,
+
+  // Content Manager
+  CONTENT_MANAGER_HEADING: 'Content Library',
+  CONTENT_TAB_TRIVIA: 'Trivia',
+  CONTENT_TAB_WYR: 'Would You Rather',
+  CONTENT_TAB_LETTERS: 'Letters',
+
+  // Trivia Admin - Question Library
+  TRIVIA_ADMIN_HEADING: 'Trivia Questions',
+  TRIVIA_ADMIN_ADD: 'New Question',
+  TRIVIA_ADMIN_EMPTY: 'No trivia questions yet. Create your first one!',
+  TRIVIA_ADMIN_EDIT: 'Edit',
+  TRIVIA_ADMIN_DELETE: 'Delete',
+  TRIVIA_ADMIN_CONFIRM_DELETE: 'Delete?',
+  TRIVIA_ADMIN_CANCEL: 'Cancel',
+  TRIVIA_ADMIN_QUESTION_LABEL: 'Question',
+  TRIVIA_ADMIN_OPTION_LABEL: (n: number) => `Option ${n}`,
+  TRIVIA_ADMIN_CORRECT_LABEL: 'Correct answer',
+  TRIVIA_ADMIN_EXPLANATION_LABEL: 'Explanation (optional)',
+  TRIVIA_ADMIN_EXPLANATION_HINT: '"Did you know?" text shown after answer reveal',
+  TRIVIA_ADMIN_ADD_OPTION: 'Add Option',
+  TRIVIA_ADMIN_REMOVE_OPTION: 'Remove',
+  TRIVIA_ADMIN_SAVE: 'Save Question',
+  TRIVIA_ADMIN_SAVING: 'Saving...',
+
+  // Trivia Admin - Envelope Assignment
+  TRIVIA_ASSIGNER_HEADING: 'Assigned Questions',
+  TRIVIA_ASSIGNER_EMPTY: 'No questions assigned. Add from the library below.',
+  TRIVIA_ASSIGNER_AVAILABLE: 'Available Questions',
+  TRIVIA_ASSIGNER_ADD: 'Add',
+  TRIVIA_ASSIGNER_REMOVE: 'Remove',
+  TRIVIA_ASSIGNER_SAVE_ORDER: 'Save Order',
+  TRIVIA_ASSIGNER_SAVING: 'Saving...',
+  TRIVIA_ASSIGNER_SELECT_ENVELOPE: 'Select a trivia envelope to manage questions:',
+  TRIVIA_ASSIGNER_NO_ENVELOPES: 'No trivia envelopes exist. Create one in Envelope Management above.',
 } as const;
 
 /**

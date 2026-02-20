@@ -27,6 +27,10 @@ import type {
   NameGameResults,
   TriviaEnvelopeResponse,
   TriviaAnswerResponse,
+  TriviaQuestion,
+  TriviaEnvelopeQuestion,
+  CreateTriviaQuestionRequest,
+  UpdateTriviaQuestionRequest,
 } from 'shared';
 import { apiFetch } from './fetchClient';
 import { STRINGS } from '../constants/strings';
@@ -626,4 +630,121 @@ export async function submitTriviaAnswer(
     throw new Error(response.error?.message || 'Failed to submit trivia answer');
   }
   return response.data;
+}
+
+// ============================================================================
+// Trivia Admin API
+// ============================================================================
+
+/**
+ * Get all trivia questions from the content library (admin only)
+ */
+export async function getTriviaQuestions(): Promise<TriviaQuestion[]> {
+  const response = await apiFetch<{ questions: TriviaQuestion[] }>('/trivia/admin/questions');
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch trivia questions');
+  }
+  return response.data.questions;
+}
+
+/**
+ * Create a trivia question in the content library (admin only)
+ */
+export async function createTriviaQuestion(
+  data: CreateTriviaQuestionRequest
+): Promise<TriviaQuestion> {
+  const response = await apiFetch<{ question: TriviaQuestion }>('/trivia/admin/questions', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to create trivia question');
+  }
+  return response.data.question;
+}
+
+/**
+ * Update a trivia question in the content library (admin only)
+ */
+export async function updateTriviaQuestion(
+  id: string,
+  data: UpdateTriviaQuestionRequest
+): Promise<TriviaQuestion> {
+  const response = await apiFetch<{ question: TriviaQuestion }>(`/trivia/admin/questions/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to update trivia question');
+  }
+  return response.data.question;
+}
+
+/**
+ * Delete a trivia question from the content library (admin only)
+ */
+export async function deleteTriviaQuestion(id: string): Promise<void> {
+  const response = await apiFetch<{ deleted: boolean }>(`/trivia/admin/questions/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to delete trivia question');
+  }
+}
+
+/**
+ * Get trivia questions assigned to an envelope (admin only)
+ */
+export async function getEnvelopeTriviaQuestions(
+  envelopeId: string
+): Promise<TriviaEnvelopeQuestion[]> {
+  const response = await apiFetch<{ questions: TriviaEnvelopeQuestion[] }>(
+    `/trivia/admin/envelope/${envelopeId}/questions`
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch envelope trivia questions');
+  }
+  return response.data.questions;
+}
+
+/**
+ * Assign trivia questions to an envelope (admin only)
+ * Array order determines sort order
+ */
+export async function assignTriviaQuestions(
+  envelopeId: string,
+  questionIds: string[]
+): Promise<number> {
+  const response = await apiFetch<{ count: number }>(
+    `/trivia/admin/envelope/${envelopeId}/questions`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({ questionIds }),
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to assign trivia questions');
+  }
+  return response.data.count;
+}
+
+/**
+ * Reorder trivia questions within an envelope (admin only)
+ * Array order determines new sort order
+ */
+export async function reorderTriviaQuestions(
+  envelopeId: string,
+  questionIds: string[]
+): Promise<number> {
+  const response = await apiFetch<{ count: number }>(
+    `/trivia/admin/envelope/${envelopeId}/questions/reorder`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({ questionIds }),
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to reorder trivia questions');
+  }
+  return response.data.count;
 }

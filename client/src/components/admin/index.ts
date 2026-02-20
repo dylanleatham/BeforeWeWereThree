@@ -2,3 +2,6 @@ export { EnvelopeManager } from './EnvelopeManager';
 export { EnvelopeForm } from './EnvelopeForm';
 export { ContentManager } from './ContentManager';
 export { ContentTabs } from './ContentTabs';
+export { TriviaContentTab } from './TriviaContentTab';
+export { TriviaQuestionForm } from './TriviaQuestionForm';
+export { TriviaEnvelopeAssigner } from './TriviaEnvelopeAssigner';

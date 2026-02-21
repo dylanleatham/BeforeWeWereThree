@@ -1,335 +1,317 @@
-# Code Review: Before We Were Three
+# Code Review — Before We Were Three
 
-**Date:** 2026-02-17
-**Scope:** Full codebase (166 source files) — server, client, shared types, tests, configuration
-**Reviewed by:** 4 specialized agents (full codebase, server, client, types/tests/config)
-
----
-
-## Critical (fix immediately)
-
-### 1. Weak JWT secret fallback outside `production`
-
-**File:** `server/src/services/session.ts:13-16`
-
-JWT_SECRET is only enforced when `NODE_ENV === 'production'`. If `NODE_ENV` is `undefined`, `staging`, or anything else, the server runs with `'development-secret-change-in-production'`. An attacker who knows this string can forge any session token.
-
-```typescript
-// Current:
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('JWT_SECRET environment variable is required in production');
-}
-const JWT_SECRET = process.env.JWT_SECRET ?? 'development-secret-change-in-production';
-```
-
-**Fix:**
-```typescript
-if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'development') {
-  throw new Error('JWT_SECRET environment variable is required');
-}
-const JWT_SECRET = process.env.JWT_SECRET ?? 'development-secret-change-in-production';
-```
+**Date:** 2026-02-20
+**Codebase:** ~302 source files (client: 175, server: 63, shared: 26)
+**Previous review:** 2026-02-17 (items from that review marked with [PREV] if still open)
 
 ---
 
-## Important (fix soon)
+## Overall Assessment
 
-### 2. Rate limiter bypass via fingerprint rotation
+Strong engineering discipline: strict TypeScript throughout, consistent architectural patterns (typed queries, Zod validation, uniform API responses), proper separation of concerns, good accessibility. Issues are primarily edge cases in security-critical paths and async state management.
 
-**File:** `server/src/middleware/rateLimit.ts:203-208`
+---
 
-The rate limit key includes `req.body?.deviceFingerprint`, which is attacker-controlled. Sending a different fingerprint per request creates fresh buckets, completely bypassing the 5-attempt PIN limit.
+## Critical Issues
+
+### 1. Timing Attack on Gender Reveal Key Validation
+
+- **File:** `server/src/services/genderReveal.ts:112-122`
+- **Confidence:** HIGH
+
+Direct string comparison (`key === config.keyA`) is vulnerable to timing attacks. The gender value is the most sensitive data in this app.
+
+**Fix:** Use `crypto.timingSafeEqual()`:
 
 ```typescript
-// Current (bypassable):
-function getRateLimitKey(req: Request): string {
-  const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
-  const fingerprint = req.body?.deviceFingerprint ?? 'unknown';
-  return `ratelimit:pin:${ip}:${fingerprint}`;
-}
-```
+import { timingSafeEqual } from 'crypto';
 
-**Fix:** Remove fingerprint from the key; rate limit on IP alone:
-```typescript
-function getRateLimitKey(req: Request): string {
-  const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
-  return `ratelimit:pin:${ip}`;
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 ```
 
 ---
 
-### 3. Auto-save can overwrite already-submitted letters
+### 2. Socket.io Connection Accepts Unvalidated User IDs
 
-**File:** `server/src/services/letter.ts:75-93`
+- **File:** `server/src/services/realtime.ts:51-59`
+- **Confidence:** HIGH
 
-`saveLetter` doesn't check `submittedAt !== null`. A stale auto-save timer firing after submission silently overwrites the final content. The friend letter flow correctly guards against this (`server/src/services/friend.ts:192`), but the couple's letter flow doesn't.
+`userId` comes from `socket.handshake.auth.userId` with no session validation. Any client can impersonate any user.
 
-**Fix:** Add guard before the upsert:
-```typescript
-const existing = await getLetterForParticipant(prompt.id, participantId);
-if (existing?.submittedAt) {
-  throw new Error('ALREADY_SUBMITTED');
-}
-```
+**Fix:** Validate session cookie/token during Socket.io handshake and derive `userId` from verified session.
 
 ---
 
-### 4. Friend PIN lookup is not timing-safe
+### 3. Race Condition in Participant Role Conversion
 
-**File:** `server/src/routes/auth.ts:58-70`
+- **File:** `server/src/services/participant.ts:104-135`
+- **Confidence:** HIGH
 
-Admin/guest PINs use `timingSafeEqual`, but friend PIN lookup is a DB query that returns faster for non-existent records. Combined with the rate limiter bypass (#2), this creates a timing side-channel.
+Guest count query doesn't account for the record being converted, allowing duplicate designations from simultaneous conversions.
 
-```typescript
-// Current: DB query only runs if admin/guest PIN didn't match
-if (adminPin && safeCompare(pin, adminPin)) { ... }
-else if (guestPin && safeCompare(pin, guestPin)) { ... }
-else {
-  const friend = await db.friend.findUnique({ where: { pin } }); // timing leak
-}
-```
-
-**Fix:** Run all lookups unconditionally, then evaluate:
-```typescript
-const [guestPin, adminPin] = await Promise.all([getGuestPin(), getAdminPin()]);
-const friend = await db.friend.findUnique({ where: { pin }, select: { id: true } });
-
-const isAdmin = adminPin && safeCompare(pin, adminPin);
-const isGuest = guestPin && safeCompare(pin, guestPin);
-
-if (isAdmin) { role = 'admin'; }
-else if (isGuest) { role = 'guest'; }
-else if (friend) { role = 'friend'; friendId = friend.id; }
-else { /* invalid */ }
-```
+**Fix:** Exclude current record from count query: `where: { role: 'guest', id: { not: existing.id } }`.
 
 ---
 
-### 5. CSP `scriptSrc` includes `'unsafe-inline'`
+### 4. Memory Leak: SignalR Event Handler Cleanup
 
-**File:** `server/src/index.ts:41`
+- **File:** `client/src/hooks/useSignalREvent.ts:44-45`
+- **Confidence:** HIGH
 
-This weakens XSS protection. A Vite-built React SPA shouldn't need inline scripts in production.
+`wrappedHandler` is created fresh each effect run, so `connection.off()` receives a different reference than what was registered. Handlers accumulate forever.
 
-**Fix:** Make conditional:
-```typescript
-scriptSrc: process.env.NODE_ENV === 'development'
-  ? ["'self'", "'unsafe-inline'"]
-  : ["'self'"],
-```
-
----
-
-### 6. Missing `onDelete` cascade on 5 Participant FK relationships
-
-**File:** `server/prisma/schema.prisma:91,125,143,194,211`
-
-`WyrVote`, `Letter`, `Photo`, `NameGameGuidance`, and `NameGameVote` all have FK refs to `Participant` without `onDelete: Cascade`. Currently relying on manual deletion order in `resetSession()`, which is fragile.
-
-**Fix:** Add `onDelete: Cascade` to all five relations:
-```prisma
-participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-```
-
----
-
-### 7. `Participant.createdAt` typed as `Date` instead of `string`
-
-**File:** `shared/types/auth.ts:98`
-
-Every other shared type uses `string` for dates (correct for JSON transport). `Participant` uses `Date`, which is wrong — JSON serialization produces a string, not a `Date` object.
-
-**Fix:** Change to `createdAt: string`.
-
----
-
-## Code Duplication (CLAUDE.md #11 violations)
-
-### 8. Duplicated `apiFetch` wrapper
-
-**Files:**
-- `client/src/services/api.ts:42-96`
-- `client/src/services/friendApi.ts:18-61`
-
-Nearly identical fetch wrappers copy-pasted. A bug fix would need to be applied in two places.
-
-**Fix:** Extract shared `apiFetch` into `client/src/services/fetchClient.ts` and import in both.
-
----
-
-### 9. `PhotoAttachment` duplicates `MediaAttachment`
-
-**Files:**
-- `client/src/components/activities/Letter/PhotoAttachment.tsx` (141 lines)
-- `client/src/components/common/MediaAttachment.tsx` (157 lines)
-
-~85% identical. Only difference is file type acceptance (image-only vs all media).
-
-**Fix:**
-1. Delete `PhotoAttachment.tsx`
-2. Update `WritingPhase.tsx` to import `MediaAttachment` from `../../common/MediaAttachment`
-3. Add `accept` prop to `MediaAttachment` if image-only restriction needed
-
----
-
-### 10. `usePhotoUpload` duplicates `useMediaUpload`
-
-**Files:**
-- `client/src/hooks/usePhotoUpload.ts` (156 lines)
-- `client/src/hooks/useMediaUpload.ts` (113 lines)
-
-~90% identical. Same state management, XHR abort, progress tracking. Only differs in accepted MIME types and whether it calls `registerPhoto()`.
-
-**Fix:** Create unified hook with options:
-```typescript
-interface UseMediaUploadOptions {
-  accept?: 'image' | 'video' | 'audio' | 'all';
-  registerInDatabase?: boolean;
-}
-
-export function useMediaUpload(options: UseMediaUploadOptions = {}) {
-  const { accept = 'all', registerInDatabase = false } = options;
-  // ... shared implementation
-}
-```
-
----
-
-## Repo Hygiene
-
-### 11. Build artifacts committed
-
-**Directory:** `server/deploy/`
-
-100+ `.js`, `.js.map`, `.d.ts` files committed despite `deploy/` in `.gitignore`. Causes repo bloat and merge conflicts. Was likely committed before the gitignore rule was added.
-
-**Fix:**
-```bash
-git rm -r --cached server/deploy/
-git commit -m "fix: remove build artifacts from repository"
-```
-
----
-
-### 12. Windows artifact file
-
-**File:** `nul` in repo root
-
-Leftover from a failed Windows command redirect. Already in `.gitignore` but still tracked.
-
-**Fix:**
-```bash
-git rm nul
-git commit -m "fix: remove Windows nul artifact"
-```
-
----
-
-## Test Coverage Gaps
-
-### 13. Missing route tests
-
-Only **2 of 11** route files have tests (`auth.ts`, `admin.ts`). Missing tests for: `envelopes`, `wyr`, `letter`, `media`, `nameGame`, `friend`, `health`, `config`, `signalr`.
-
----
-
-### 14. Missing hook tests
-
-Only **7 of 15** hooks have tests. Untested: `useLetter`, `useWouldYouRather`, `useNameGame`, `useFriendLetter`, `useFriendDashboard`, `useSignalREvent`, `useSwipeNavigation`, `useMediaUpload`.
-
----
-
-### 15. Missing service tests
-
-`nameGame` and `friend` services have no tests despite being among the most complex features.
-
----
-
-## Minor / Nice-to-Have
-
-### 16. CSP allows wildcard `*.blob.core.windows.net`
-
-**File:** `server/src/index.ts:44-46`
-
-Should be restricted to `https://bwwtstorage.blob.core.windows.net`.
-
----
-
-### 17. `ErrorCode | string` in `ApiError` defeats type safety
-
-**File:** `shared/types/api.ts:39`
+**Fix:** Store wrapped handler in a ref:
 
 ```typescript
-// Current (defeats purpose of typed union):
-code: ErrorCode | string;
+const wrappedHandlerRef = useRef<((...args: unknown[]) => void) | null>(null);
 
-// Fix:
-code: ErrorCode;
+useEffect(() => {
+  if (!connection) return;
+  const wrappedHandler = (...args: unknown[]) => {
+    handlerRef.current(args[0] as T);
+  };
+  wrappedHandlerRef.current = wrappedHandler;
+  connection.on(eventName, wrappedHandler);
+  return () => {
+    if (wrappedHandlerRef.current) {
+      connection.off(eventName, wrappedHandlerRef.current);
+    }
+  };
+}, [connection, eventName]);
 ```
 
 ---
 
-### 18. Missing DB indexes on `Participant.friendId` and `Envelope.friendLetterId`
+## High Priority Issues
 
-**File:** `server/prisma/schema.prisma`
+### 5. Vote Guard Permanently Blocks After Error
 
-Other FKs are indexed; these two are not. Add `@@index([friendId])` and `@@index([friendLetterId])`.
+- **File:** `client/src/hooks/useNameGame.ts:351-390`
+- **Confidence:** HIGH
 
----
+`votingInFlightRef` prevents double-voting but if a network error occurs, the guard stays set permanently. User must refresh.
 
-### 19. `ResetSessionResult` / `ResetSessionResponse` type drift
-
-**Files:** `server/src/services/admin.ts` / `shared/types/api.ts`
-
-`ResetSessionResponse` includes `message: string` but `ResetSessionResult` doesn't. The route handler works around it with an intersection type, but they should be synchronized per CLAUDE.md.
+**Fix:** Clear guard in both success and error paths, not just `finally`.
 
 ---
 
-### 20. Auto-save delay inconsistency
+### 6. Friend PIN Uniqueness Has TOCTOU Race
 
-**Files:** `client/src/hooks/useFriendLetter.ts:16` (2000ms) / `client/src/components/activities/Letter/WritingPhase.tsx:55` (1500ms)
+- **File:** `server/src/services/friend.ts:72-86`
+- **Confidence:** HIGH
 
-Should be a shared constant in `client/src/constants/config.ts`.
+PIN uniqueness checked in separate queries before insert. Another transaction can insert same PIN between check and create.
 
----
-
-### 21. Magic number `20` (fast swipe min distance)
-
-**File:** `client/src/components/activities/NameGame/VotingPhase.tsx:73,86`
-
-Used twice without a named constant. Should be `FAST_SWIPE_MIN_DISTANCE_PX` in config.
+**Fix:** Rely on database unique constraint, catch `P2002` error.
 
 ---
 
-### 22. No blob existence verification on `POST /media/register`
+### 7. `useAutoSave` Flush Has Unstable Dependencies
 
-**File:** `server/src/routes/media.ts:68-99`
+- **File:** `client/src/hooks/useAutoSave.ts:121-139`
+- **Confidence:** HIGH
 
-Accepts any `blobUrl` without verifying the blob exists in Azure Storage. A user could register arbitrary URLs or URLs pointing to other users' blobs.
+`flush` includes `executeSave` in dependency array, causing recreation on every state change. Breaks memoization, risks infinite loops.
 
-**Fix:** Verify blob existence using Azure SDK before registering. Also validate the URL hostname matches the storage account.
-
----
-
-### 23. No max file size enforcement for direct blob uploads
-
-**File:** `server/src/services/media.ts`
-
-SAS tokens don't enforce file size. Uploads bypass Express (which has 1MB limit). Users could upload GB-sized files.
-
-**Fix:** Check blob size after registration via Azure API; delete if over limit (e.g., 10MB).
+**Fix:** Use ref pattern to remove `executeSave` from dependency array.
 
 ---
 
-## Priority Summary
+### 8. Missing Error Boundaries Around Activities
 
-| Priority | Issues | Description |
-|----------|--------|-------------|
-| Fix immediately | #1 | JWT secret fallback allows token forgery |
-| Fix soon | #2-4 | Rate limiter bypass, auto-save overwrite, timing side-channel |
-| Fix soon | #5-7 | CSP hardening, FK cascades, type fix |
-| Refactor | #8-10 | Consolidate duplicated code |
-| Repo cleanup | #11-12 | Remove committed artifacts |
-| Test coverage | #13-15 | Add missing tests |
-| Nice-to-have | #16-23 | Hardening, type safety, constants |
+- **File:** `client/src/components/envelope/BaseEnvelope.tsx:94-169`
+- **Confidence:** HIGH
+
+Activities render without error boundary. Any throw crashes entire app.
+
+**Fix:** Wrap activity render in `<ErrorBoundary>`:
+
+```tsx
+<div className="base-envelope__body">
+  <ErrorBoundary fallback={<ErrorFallback onRetry={handleClose} />}>
+    {renderActivityContent()}
+  </ErrorBoundary>
+</div>
+```
+
+---
+
+### 9. No Rate Limiting on Expensive Admin Endpoints
+
+- **Files:** `server/src/routes/admin.ts`, `genderReveal.ts`, `nameGame.ts`
+- **Confidence:** MEDIUM
+
+Reset session, AI name generation, and bulk operations have no rate limiting.
+
+**Fix:** Apply rate limiting middleware to admin endpoints that trigger expensive operations.
+
+---
+
+### 10. SignalR Group Join Doesn't Verify Envelope Access
+
+- **File:** `server/src/routes/signalr.ts:108-109`
+- **Confidence:** MEDIUM
+
+Regex accepts any group name matching `activity:[a-z0-9-]+` without checking participant access to that envelope.
+
+**Fix:** After extracting envelope ID from group name, verify it exists and participant has access.
+
+---
+
+### 11. `getAllPhotos` Has No Pagination
+
+- **File:** `server/src/routes/media.ts:118-126`
+- **Confidence:** MEDIUM
+
+`GET /media` returns all photos unbounded.
+
+**Fix:** Add `limit`/`offset` query params with reasonable defaults (e.g., 50, max 100).
+
+---
+
+### 12. Missing Abort Controller in Media Upload
+
+- **File:** `client/src/hooks/useMediaUpload.ts:71-122`
+- **Confidence:** MEDIUM
+
+XHR upload is aborted on unmount, but preceding SAS token fetch is not. Can cause state updates on unmounted components.
+
+**Fix:** Add `AbortController` for the SAS request, abort in cleanup.
+
+---
+
+## Medium Priority Issues
+
+### 13. Blob Deletion Inconsistency
+
+- **File:** `server/src/services/media.ts:248-257`
+
+If blob deletion fails, DB record is still deleted, creating orphaned blobs.
+
+**Fix:** Throw on blob failure or implement cleanup job.
+
+---
+
+### 14. Anthropic Error Message Leaks Implementation Details
+
+- **File:** `server/src/services/anthropic.ts:146-152`
+
+Error message includes console URL. Should be generic in production.
+
+**Fix:** Conditional message based on `NODE_ENV`.
+
+---
+
+### 15. Missing `aria-atomic` on Auto-Save Status
+
+- **File:** `client/src/components/activities/Letter/WritingPhase.tsx:116`
+
+Screen readers may miss rapid save status changes.
+
+**Fix:** Add `aria-atomic="true"` to the status `<div>`.
+
+---
+
+### 16. `useEnvelopes` updateStatus Recreated on Every State Change
+
+- **File:** `client/src/hooks/useEnvelopes.ts:47-76`
+
+`envelopes` in dependency array causes unnecessary re-renders.
+
+**Fix:** Use ref pattern for envelopes lookup inside callback.
+
+---
+
+## Shared Types / API Contract Issues
+
+### 17. Inline Response Types Not Enforced
+
+Many API calls use inline types (`apiFetch<{ questions: TriviaQuestion[] }>`) instead of shared named types. Server could change wrapper shape without TypeScript catching it.
+
+**Fix:** Create explicit response types in `shared/types/` for all endpoints, use on both sides.
+
+---
+
+### 18. Inconsistent DELETE Response Pattern
+
+Some DELETE endpoints return `Record<string, never>`, others `{ deleted: boolean }`. Pick one.
+
+**Fix:** Standardize on `{ deleted: true }` with a shared `DeleteResponse` type.
+
+---
+
+### 19. Missing Name Vote Response Type
+
+- **File:** `client/src/services/api.ts:607`
+
+`{ allVoted: boolean; results?: NameGameResults }` is inline, not a shared type.
+
+**Fix:** Add `SubmitNameVoteResponse` to `shared/types/nameGame.ts`.
+
+---
+
+## Previously Identified (2026-02-17) — Status Check Needed
+
+These were found in the prior review. Verify if already fixed:
+
+### [PREV-1] Weak JWT secret fallback outside production
+- **File:** `server/src/services/session.ts:13-16`
+- JWT_SECRET only enforced when `NODE_ENV === 'production'`. Should enforce for any non-development env.
+
+### [PREV-2] Rate limiter bypass via fingerprint rotation
+- **File:** `server/src/middleware/rateLimit.ts:203-208`
+- Rate limit key includes `req.body?.deviceFingerprint` which is attacker-controlled.
+
+### [PREV-3] Auto-save can overwrite already-submitted letters
+- **File:** `server/src/services/letter.ts:75-93`
+- `saveLetter` doesn't check `submittedAt !== null`.
+
+### [PREV-4] Friend PIN lookup is not timing-safe
+- **File:** `server/src/routes/auth.ts:58-70`
+- Admin/guest PINs use `timingSafeEqual`, but friend PIN is a DB query with timing leak.
+
+### [PREV-5] CSP `scriptSrc` includes `'unsafe-inline'`
+- **File:** `server/src/index.ts:41`
+
+### [PREV-6] Missing `onDelete` cascade on Participant FK relationships
+- **File:** `server/prisma/schema.prisma`
+
+### [PREV-7] `Participant.createdAt` typed as `Date` instead of `string`
+- **File:** `shared/types/auth.ts:98`
+
+### [PREV-8] Duplicated `apiFetch` wrapper
+- **Files:** `client/src/services/api.ts` / `client/src/services/friendApi.ts`
+
+### [PREV-9] `PhotoAttachment` duplicates `MediaAttachment`
+- **Files:** `client/src/components/activities/Letter/PhotoAttachment.tsx` / `client/src/components/common/MediaAttachment.tsx`
+
+### [PREV-10] `usePhotoUpload` duplicates `useMediaUpload`
+- **Files:** `client/src/hooks/usePhotoUpload.ts` / `client/src/hooks/useMediaUpload.ts`
+
+### [PREV-11] Build artifacts committed in `server/deploy/`
+
+### [PREV-12] Windows `nul` artifact in repo root
+
+### [PREV-13] Missing route tests (2 of 11 covered)
+
+### [PREV-14] Missing hook tests (7 of 15 covered)
+
+### [PREV-15] Missing service tests for nameGame and friend
+
+---
+
+## Recommended Fix Order
+
+1. Fix SignalR event handler cleanup (#4) — memory leak
+2. Fix timing attack on gender reveal keys (#1) — security
+3. Add Socket.io session validation (#2) — security
+4. Fix vote guard race condition (#5) — UX blocker
+5. Fix `useAutoSave` flush dependencies (#7) — stability
+6. Add error boundaries around activities (#8) — resilience
+7. Fix participant designation race condition (#3) — data integrity
+8. Fix friend PIN TOCTOU race (#6) — data integrity
+9. Add formal shared response types (#17) — maintainability
+10. Add pagination to photo endpoint (#11) — scalability

@@ -22,6 +22,7 @@ export function useSignalREvent<T>(
 ): void {
   const { connection } = useSignalRConnection();
   const handlerRef = useRef(handler);
+  const wrappedHandlerRef = useRef<((...args: unknown[]) => void) | null>(null);
 
   // Keep handler ref fresh without triggering effect
   useEffect(() => {
@@ -31,18 +32,20 @@ export function useSignalREvent<T>(
   useEffect(() => {
     if (!connection) return;
 
-    // Wrap handler to use current ref value
-    // Handler receives unknown args from connection, we cast first arg to T
+    // Wrap handler to use current ref value, store in ref for stable cleanup
     const wrappedHandler = (...args: unknown[]) => {
       handlerRef.current(args[0] as T);
     };
+    wrappedHandlerRef.current = wrappedHandler;
 
     // Subscribe to event
     connection.on(eventName, wrappedHandler);
 
-    // Cleanup: unsubscribe on unmount or connection change
+    // Cleanup: unsubscribe using the ref to ensure same reference
     return () => {
-      connection.off(eventName, wrappedHandler);
+      if (wrappedHandlerRef.current) {
+        connection.off(eventName, wrappedHandlerRef.current);
+      }
     };
   }, [connection, eventName]);
 }

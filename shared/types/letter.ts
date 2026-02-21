@@ -60,6 +60,20 @@ export interface LetterPromptResponse {
 }
 
 /**
+ * Response wrapping a saved/updated letter
+ */
+export interface SaveLetterResponse {
+  letter: Letter;
+}
+
+/**
+ * Response wrapping a single letter prompt (admin CRUD)
+ */
+export interface LetterPromptDetailResponse {
+  prompt: LetterPrompt;
+}
+
+/**
  * POST /api/letters/:envelopeId/save request body
  * Saves draft letter content (does not submit)
  */

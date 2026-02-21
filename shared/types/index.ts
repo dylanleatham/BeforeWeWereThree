@@ -10,6 +10,7 @@ export type {
   ApiSuccessResponse,
   ApiErrorResponse,
   ApiResponse,
+  DeleteResponse,
   ResetSessionResponse,
 } from './api.js';
 export { successResponse, errorResponse } from './api.js';
@@ -62,6 +63,8 @@ export type {
   CreateWYRPromptRequest,
   CreateWYRPromptsBulkRequest,
   UpdateWYRPromptRequest,
+  WYRPromptResponse,
+  WYRPromptsResponse,
 } from './wyr.js';
 export {
   wyrChoiceSchema,
@@ -85,6 +88,8 @@ export type {
   LetterRevealReadyMessage,
   CreateLetterPromptRequest,
   UpdateLetterPromptRequest,
+  SaveLetterResponse,
+  LetterPromptDetailResponse,
 } from './letter.js';
 export {
   saveLetterSchema,
@@ -98,6 +103,7 @@ export type {
   Photo,
   UploadSasResponse,
   PhotoListResponse,
+  PhotoResponse,
   RegisterPhotoRequest,
   GenerateSasRequest,
 } from './media.js';
@@ -120,6 +126,7 @@ export type {
   SubmitGuidanceRequest,
   SubmitGuidanceResponse,
   SubmitVoteRequest,
+  SubmitNameVoteResponse,
   NameVoteSubmittedMessage,
   NameRoundCompleteMessage,
   NameRoundGeneratedMessage,
@@ -148,6 +155,9 @@ export type {
   SubmitFriendLetterRequest,
   SaveFriendThankYouNoteRequest,
   FriendLetterViewResponse,
+  FriendResponse,
+  FriendLetterResponse,
+  FriendThankYouNoteResponse,
 } from './friend.js';
 export {
   createFriendSchema,
@@ -172,6 +182,10 @@ export type {
   UpdateTriviaQuestionRequest,
   AssignQuestionsRequest,
   ReorderQuestionsRequest,
+  TriviaQuestionsResponse,
+  TriviaQuestionResponse,
+  TriviaEnvelopeQuestionsResponse,
+  TriviaAssignResponse,
 } from './trivia.js';
 export {
   triviaAnswerRequestSchema,

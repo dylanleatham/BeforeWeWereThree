@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { SignJWT } from 'jose';
 import { authMiddleware } from '../middleware/auth.js';
 import { successResponse, errorResponse } from 'shared';
+import { getEnvelopeById } from '../db/queries/envelopes.js';
 import type { RealtimeNegotiateResponse } from 'shared';
 import { getTransport, getRealtimeService } from '../services/realtime.js';
 import { logger } from '../utils/logger.js';
@@ -107,6 +108,14 @@ router.post('/groups/join', authMiddleware, async (req, res) => {
   }
   if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
     res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
+    return;
+  }
+
+  // Verify the envelope exists before allowing group join
+  const envelopeId = groupName.replace('activity:', '');
+  const envelope = await getEnvelopeById(envelopeId);
+  if (!envelope) {
+    res.status(404).json(errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found'));
     return;
   }
 

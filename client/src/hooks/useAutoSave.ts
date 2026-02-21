@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 interface UseAutoSaveProps<T> {
@@ -61,6 +61,11 @@ export function useAutoSave<T>({
   const pendingContentRef = useRef<T | null>(null);
   // Track if flush was called while debounce was pending
   const flushResolveRef = useRef<(() => void) | null>(null);
+  // Ref for saveFn to keep executeSave stable across renders
+  const saveFnRef = useRef(saveFn);
+  useEffect(() => {
+    saveFnRef.current = saveFn;
+  }, [saveFn]);
 
   /**
    * Execute the actual save
@@ -71,7 +76,7 @@ export function useAutoSave<T>({
       setIsSaving(true);
       setError(null);
       try {
-        await saveFn(content);
+        await saveFnRef.current(content);
         setLastSavedAt(new Date());
         pendingContentRef.current = null;
         setIsPending(false);
@@ -88,7 +93,7 @@ export function useAutoSave<T>({
         }
       }
     },
-    [saveFn]
+    []
   );
 
   /**

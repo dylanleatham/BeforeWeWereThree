@@ -113,12 +113,15 @@ router.post('/register', authMiddleware, async (req: Request, res: Response) => 
 
 /**
  * GET /media
- * List all photos
+ * List photos with pagination (default: 50, max: 100)
+ * Query params: limit, offset
  */
-router.get('/', authMiddleware, async (_req: Request, res: Response) => {
+router.get('/', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const photos = await getAllPhotos();
-    res.json(successResponse({ photos }));
+    const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 50, 1), 100);
+    const offset = Math.max(parseInt(req.query.offset as string) || 0, 0);
+    const photos = await getAllPhotos(limit, offset);
+    res.json(successResponse({ photos, limit, offset }));
   } catch (error) {
     logger.error('Failed to list photos', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to list photos'));
@@ -161,7 +164,7 @@ router.delete('/:id', adminMiddleware, async (req: Request<{ id: string }>, res:
       return;
     }
 
-    res.json(successResponse({}));
+    res.json(successResponse({ deleted: true }));
   } catch (error) {
     logger.error('Failed to delete photo', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete photo'));

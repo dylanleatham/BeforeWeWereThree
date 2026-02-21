@@ -349,9 +349,10 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
 
       // Guard against double-submission for the same name
       if (votingInFlightRef.current === nameId) return;
-      votingInFlightRef.current = nameId;
 
       try {
+        votingInFlightRef.current = nameId;
+
         // Optimistic: advance to next name or waiting
         if (isLastName) {
           setPhase('waiting');
@@ -385,6 +386,8 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
           setPhase('voting');
         }
         setError(err instanceof Error ? err.message : 'Failed to submit vote');
+        // Clear guard on error so user can retry
+        votingInFlightRef.current = null;
       } finally {
         votingInFlightRef.current = null;
       }

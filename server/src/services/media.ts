@@ -244,19 +244,11 @@ export async function removePhoto(photoId: string): Promise<Photo | null> {
     return null;
   }
 
-  // Delete from blob storage
-  try {
-    await deletePhotoFromBlob(photo.blobUrl);
-  } catch (error) {
-    // Log but continue - blob might already be deleted
-    logger.warn('Failed to delete blob from storage', {
-      photoId,
-      blobUrl: photo.blobUrl,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
+  // Delete blob first — if this fails, keep DB record intact to avoid orphaned blobs.
+  // deleteIfExists() won't throw for missing blobs, so any error here is a real failure.
+  await deletePhotoFromBlob(photo.blobUrl);
 
-  // Delete from database
+  // Only delete DB record after blob is confirmed deleted
   return deletePhotoById(photoId);
 }
 

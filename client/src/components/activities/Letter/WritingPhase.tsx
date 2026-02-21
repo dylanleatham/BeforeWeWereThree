@@ -113,7 +113,7 @@ export function WritingPhase({
         />
 
         {/* Save status */}
-        <div className="letter-writing__status" aria-live="polite">
+        <div className="letter-writing__status" aria-live="polite" aria-atomic="true">
           {isSaving && (
             <span className="letter-writing__status-text letter-writing__status-text--saving">
               {STRINGS.LETTER_SAVING}

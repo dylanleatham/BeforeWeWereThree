@@ -104,8 +104,9 @@ export async function getOrCreateParticipant(
   if (existing) {
     const updatedParticipant = await db.$transaction(async (tx) => {
       // Count existing guest participants to determine designation
+      // Exclude the record being converted to prevent duplicate designations
       const guestCount = await tx.participant.count({
-        where: { role: 'guest' },
+        where: { role: 'guest', id: { not: existing.id } },
       });
 
       // Determine designation based on order

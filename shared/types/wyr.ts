@@ -97,6 +97,20 @@ export interface WYRRevealReadyMessage {
   envelopeComplete: boolean;
 }
 
+/**
+ * Response wrapping a single WYR prompt (admin CRUD)
+ */
+export interface WYRPromptResponse {
+  prompt: WYRPrompt;
+}
+
+/**
+ * Response wrapping a list of WYR prompts (admin list)
+ */
+export interface WYRPromptsResponse {
+  prompts: WYRPrompt[];
+}
+
 // ============================================================
 // Zod Schemas for validation
 // ============================================================

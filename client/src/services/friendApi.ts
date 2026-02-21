@@ -3,8 +3,12 @@ import type {
   FriendListResponse,
   FriendLettersResponse,
   FriendLetter,
-  FriendThankYouNote,
+  FriendLetterResponse,
   Friend,
+  FriendResponse,
+  FriendThankYouNote,
+  FriendThankYouNoteResponse,
+  DeleteResponse,
   FriendLetterRecipient,
   FriendLetterViewResponse,
 } from 'shared';
@@ -25,7 +29,7 @@ export async function getFriendDashboard(): Promise<FriendDashboardResponse> {
 export async function createFriendLetter(
   recipient: FriendLetterRecipient
 ): Promise<FriendLetter> {
-  const response = await apiFetch<{ letter: FriendLetter }>('/friends/me/letters', {
+  const response = await apiFetch<FriendLetterResponse>('/friends/me/letters', {
     method: 'POST',
     body: JSON.stringify({ recipient }),
   });
@@ -39,7 +43,7 @@ export async function saveFriendLetter(
   letterId: string,
   data: { title?: string | null; content?: string; mediaUrl?: string | null; mediaType?: string | null }
 ): Promise<FriendLetter> {
-  const response = await apiFetch<{ letter: FriendLetter }>(`/friends/me/letters/${letterId}`, {
+  const response = await apiFetch<FriendLetterResponse>(`/friends/me/letters/${letterId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
@@ -53,7 +57,7 @@ export async function submitFriendLetter(
   letterId: string,
   data: { title?: string | null; content?: string; mediaUrl?: string | null; mediaType?: string | null }
 ): Promise<FriendLetter> {
-  const response = await apiFetch<{ letter: FriendLetter }>(`/friends/me/letters/${letterId}/submit`, {
+  const response = await apiFetch<FriendLetterResponse>(`/friends/me/letters/${letterId}/submit`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -76,7 +80,7 @@ export async function getAdminFriendList(): Promise<FriendListResponse> {
 }
 
 export async function createFriend(data: { name: string; pin: string }): Promise<Friend> {
-  const response = await apiFetch<{ friend: Friend }>('/friends', {
+  const response = await apiFetch<FriendResponse>('/friends', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -87,7 +91,7 @@ export async function createFriend(data: { name: string; pin: string }): Promise
 }
 
 export async function deleteFriend(friendId: string): Promise<void> {
-  const response = await apiFetch<{ deleted: boolean }>(`/friends/${friendId}`, {
+  const response = await apiFetch<DeleteResponse>(`/friends/${friendId}`, {
     method: 'DELETE',
   });
   if (!response.success) {
@@ -99,7 +103,7 @@ export async function saveThankYouNote(
   friendId: string,
   data: { content: string; mediaUrl?: string | null; mediaType?: string | null }
 ): Promise<FriendThankYouNote> {
-  const response = await apiFetch<{ note: FriendThankYouNote }>(`/friends/${friendId}/thank-you`, {
+  const response = await apiFetch<FriendThankYouNoteResponse>(`/friends/${friendId}/thank-you`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });

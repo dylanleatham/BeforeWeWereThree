@@ -1,7 +1,7 @@
 import { db } from '../db/connection.js';
 import {
   getFriendById,
-  getFriendByPin,
+
   createFriend as dbCreateFriend,
   deleteFriend as dbDeleteFriend,
   getFriendLetters,
@@ -77,13 +77,15 @@ export async function createFriend(name: string, pin: string): Promise<Friend> {
     throw new Error('PIN_ALREADY_EXISTS');
   }
 
-  // Check PIN doesn't collide with existing friend PINs
-  const existingFriend = await getFriendByPin(pin);
-  if (existingFriend) {
-    throw new Error('PIN_ALREADY_EXISTS');
+  // Rely on DB unique constraint to prevent duplicate friend PINs (no TOCTOU race)
+  try {
+    return await dbCreateFriend(name, pin);
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && (error as { code: string }).code === 'P2002') {
+      throw new Error('PIN_ALREADY_EXISTS');
+    }
+    throw error;
   }
-
-  return dbCreateFriend(name, pin);
 }
 
 /**

@@ -11,22 +11,32 @@ import type {
   WYREnvelopeResponse,
   WYRVoteResponse,
   WYRPrompt,
+  WYRPromptResponse,
+  WYRPromptsResponse,
   ResetSessionResponse,
+  DeleteResponse,
   UploadSasResponse,
   Photo,
+  PhotoResponse,
   PhotoListResponse,
   LetterPromptResponse,
   Letter,
   LetterPrompt,
+  SaveLetterResponse,
+  LetterPromptDetailResponse,
   SubmitLetterResponse,
   AppConfig,
   NameGameStateResponse,
   SubmitGuidanceResponse,
   NameVoteChoice,
   NameGameMatchList,
-  NameGameResults,
+  SubmitNameVoteResponse,
   TriviaEnvelopeResponse,
   TriviaAnswerResponse,
+  TriviaQuestionsResponse,
+  TriviaQuestionResponse,
+  TriviaEnvelopeQuestionsResponse,
+  TriviaAssignResponse,
   TriviaQuestion,
   TriviaEnvelopeQuestion,
   CreateTriviaQuestionRequest,
@@ -169,7 +179,7 @@ export async function updateEnvelope(
  * Delete envelope (admin only)
  */
 export async function deleteEnvelope(id: string): Promise<void> {
-  const response = await apiFetch<Record<string, never>>(`/envelopes/${id}`, {
+  const response = await apiFetch<DeleteResponse>(`/envelopes/${id}`, {
     method: 'DELETE',
   });
 
@@ -271,7 +281,7 @@ export async function submitWyrVote(
  * Get WYR prompts for an envelope (admin only)
  */
 export async function getWyrPromptsForEnvelope(envelopeId: string): Promise<WYRPrompt[]> {
-  const response = await apiFetch<{ prompts: WYRPrompt[] }>(`/wyr/envelope/${envelopeId}/prompts`);
+  const response = await apiFetch<WYRPromptsResponse>(`/wyr/envelope/${envelopeId}/prompts`);
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to fetch WYR prompts');
   }
@@ -287,7 +297,7 @@ export async function createWyrPrompt(data: {
   optionB: string;
   sortOrder?: number;
 }): Promise<WYRPrompt> {
-  const response = await apiFetch<{ prompt: WYRPrompt }>('/wyr', {
+  const response = await apiFetch<WYRPromptResponse>('/wyr', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -304,7 +314,7 @@ export async function createWyrPromptsBulk(data: {
   envelopeId: string;
   prompts: Array<{ optionA: string; optionB: string }>;
 }): Promise<WYRPrompt[]> {
-  const response = await apiFetch<{ prompts: WYRPrompt[] }>('/wyr/bulk', {
+  const response = await apiFetch<WYRPromptsResponse>('/wyr/bulk', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -321,7 +331,7 @@ export async function updateWyrPrompt(
   id: string,
   data: { optionA?: string; optionB?: string }
 ): Promise<WYRPrompt> {
-  const response = await apiFetch<{ prompt: WYRPrompt }>(`/wyr/${id}`, {
+  const response = await apiFetch<WYRPromptResponse>(`/wyr/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
@@ -335,7 +345,7 @@ export async function updateWyrPrompt(
  * Delete WYR prompt (admin only)
  */
 export async function deleteWyrPrompt(id: string): Promise<void> {
-  const response = await apiFetch<Record<string, never>>(`/wyr/${id}`, {
+  const response = await apiFetch<DeleteResponse>(`/wyr/${id}`, {
     method: 'DELETE',
   });
   if (!response.success) {
@@ -354,11 +364,13 @@ export async function deleteWyrPrompt(id: string): Promise<void> {
  */
 export async function getUploadSas(
   filename: string,
-  contentType: string
+  contentType: string,
+  signal?: AbortSignal
 ): Promise<UploadSasResponse> {
   const response = await apiFetch<UploadSasResponse>('/media/sas', {
     method: 'POST',
     body: JSON.stringify({ filename, contentType }),
+    signal,
   });
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to get upload URL');
@@ -377,7 +389,7 @@ export async function registerPhoto(
   filename: string,
   contentType: string
 ): Promise<Photo> {
-  const response = await apiFetch<{ photo: Photo }>('/media/register', {
+  const response = await apiFetch<PhotoResponse>('/media/register', {
     method: 'POST',
     body: JSON.stringify({ blobUrl, filename, contentType }),
   });
@@ -402,7 +414,7 @@ export async function getPhotos(): Promise<Photo[]> {
  * Get a single photo by ID
  */
 export async function getPhoto(id: string): Promise<Photo> {
-  const response = await apiFetch<{ photo: Photo }>(`/media/${id}`);
+  const response = await apiFetch<PhotoResponse>(`/media/${id}`);
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to fetch photo');
   }
@@ -413,7 +425,7 @@ export async function getPhoto(id: string): Promise<Photo> {
  * Delete a photo (admin only)
  */
 export async function deletePhoto(id: string): Promise<void> {
-  const response = await apiFetch<Record<string, never>>(`/media/${id}`, {
+  const response = await apiFetch<DeleteResponse>(`/media/${id}`, {
     method: 'DELETE',
   });
   if (!response.success) {
@@ -444,7 +456,7 @@ export async function saveLetter(
   content: string,
   photoUrl: string | null
 ): Promise<Letter> {
-  const response = await apiFetch<{ letter: Letter }>(`/letters/${envelopeId}`, {
+  const response = await apiFetch<SaveLetterResponse>(`/letters/${envelopeId}`, {
     method: 'PUT',
     body: JSON.stringify({ content, photoUrl }),
   });
@@ -476,7 +488,7 @@ export async function submitLetter(
  * Get letter prompt for an envelope (admin only)
  */
 export async function getLetterPromptForEnvelope(envelopeId: string): Promise<LetterPrompt | null> {
-  const response = await apiFetch<{ prompt: LetterPrompt }>(`/letters/prompt/envelope/${envelopeId}`);
+  const response = await apiFetch<LetterPromptDetailResponse>(`/letters/prompt/envelope/${envelopeId}`);
   if (!response.success) {
     if (response.error?.code === 'PROMPT_NOT_FOUND') {
       return null;
@@ -493,7 +505,7 @@ export async function createLetterPrompt(data: {
   envelopeId: string;
   prompt: string;
 }): Promise<LetterPrompt> {
-  const response = await apiFetch<{ prompt: LetterPrompt }>('/letters/prompt', {
+  const response = await apiFetch<LetterPromptDetailResponse>('/letters/prompt', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -510,7 +522,7 @@ export async function updateLetterPrompt(
   id: string,
   data: { prompt?: string }
 ): Promise<LetterPrompt> {
-  const response = await apiFetch<{ prompt: LetterPrompt }>(`/letters/prompt/${id}`, {
+  const response = await apiFetch<LetterPromptDetailResponse>(`/letters/prompt/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
@@ -524,7 +536,7 @@ export async function updateLetterPrompt(
  * Delete letter prompt (admin only)
  */
 export async function deleteLetterPrompt(id: string): Promise<void> {
-  const response = await apiFetch<Record<string, never>>(`/letters/prompt/${id}`, {
+  const response = await apiFetch<DeleteResponse>(`/letters/prompt/${id}`, {
     method: 'DELETE',
   });
   if (!response.success) {
@@ -603,8 +615,8 @@ export async function submitNameGameGuidance(
 export async function submitNameVote(
   nameId: string,
   choice: NameVoteChoice
-): Promise<{ allVoted: boolean; results?: NameGameResults }> {
-  const response = await apiFetch<{ allVoted: boolean; results?: NameGameResults }>(
+): Promise<SubmitNameVoteResponse> {
+  const response = await apiFetch<SubmitNameVoteResponse>(
     `/name-game/${nameId}/vote`,
     {
       method: 'POST',
@@ -669,7 +681,7 @@ export async function submitTriviaAnswer(
  * Get all trivia questions from the content library (admin only)
  */
 export async function getTriviaQuestions(): Promise<TriviaQuestion[]> {
-  const response = await apiFetch<{ questions: TriviaQuestion[] }>('/trivia/admin/questions');
+  const response = await apiFetch<TriviaQuestionsResponse>('/trivia/admin/questions');
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to fetch trivia questions');
   }
@@ -682,7 +694,7 @@ export async function getTriviaQuestions(): Promise<TriviaQuestion[]> {
 export async function createTriviaQuestion(
   data: CreateTriviaQuestionRequest
 ): Promise<TriviaQuestion> {
-  const response = await apiFetch<{ question: TriviaQuestion }>('/trivia/admin/questions', {
+  const response = await apiFetch<TriviaQuestionResponse>('/trivia/admin/questions', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -699,7 +711,7 @@ export async function updateTriviaQuestion(
   id: string,
   data: UpdateTriviaQuestionRequest
 ): Promise<TriviaQuestion> {
-  const response = await apiFetch<{ question: TriviaQuestion }>(`/trivia/admin/questions/${id}`, {
+  const response = await apiFetch<TriviaQuestionResponse>(`/trivia/admin/questions/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
@@ -713,7 +725,7 @@ export async function updateTriviaQuestion(
  * Delete a trivia question from the content library (admin only)
  */
 export async function deleteTriviaQuestion(id: string): Promise<void> {
-  const response = await apiFetch<{ deleted: boolean }>(`/trivia/admin/questions/${id}`, {
+  const response = await apiFetch<DeleteResponse>(`/trivia/admin/questions/${id}`, {
     method: 'DELETE',
   });
   if (!response.success) {
@@ -727,7 +739,7 @@ export async function deleteTriviaQuestion(id: string): Promise<void> {
 export async function getEnvelopeTriviaQuestions(
   envelopeId: string
 ): Promise<TriviaEnvelopeQuestion[]> {
-  const response = await apiFetch<{ questions: TriviaEnvelopeQuestion[] }>(
+  const response = await apiFetch<TriviaEnvelopeQuestionsResponse>(
     `/trivia/admin/envelope/${envelopeId}/questions`
   );
   if (!response.success) {
@@ -744,7 +756,7 @@ export async function assignTriviaQuestions(
   envelopeId: string,
   questionIds: string[]
 ): Promise<number> {
-  const response = await apiFetch<{ count: number }>(
+  const response = await apiFetch<TriviaAssignResponse>(
     `/trivia/admin/envelope/${envelopeId}/questions`,
     {
       method: 'PUT',
@@ -765,7 +777,7 @@ export async function reorderTriviaQuestions(
   envelopeId: string,
   questionIds: string[]
 ): Promise<number> {
-  const response = await apiFetch<{ count: number }>(
+  const response = await apiFetch<TriviaAssignResponse>(
     `/trivia/admin/envelope/${envelopeId}/questions/reorder`,
     {
       method: 'PUT',
@@ -886,7 +898,7 @@ export async function resealGenderReveal(
 export async function deleteGenderRevealConfig(
   envelopeId: string
 ): Promise<void> {
-  const response = await apiFetch<{ deleted: boolean }>(
+  const response = await apiFetch<DeleteResponse>(
     `/gender-reveal/admin/${envelopeId}`,
     {
       method: 'DELETE',

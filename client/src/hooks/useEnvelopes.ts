@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Envelope, EnvelopeStatus } from 'shared';
 import {
   getEnvelopes,
@@ -21,6 +21,11 @@ export function useEnvelopes(): UseEnvelopesResult {
   const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const envelopesRef = useRef(envelopes);
+
+  useEffect(() => {
+    envelopesRef.current = envelopes;
+  }, [envelopes]);
 
   const fetchEnvelopes = useCallback(async () => {
     setIsLoading(true);
@@ -46,8 +51,8 @@ export function useEnvelopes(): UseEnvelopesResult {
   // Update envelope status (for opening/completing)
   const updateStatus = useCallback(
     async (id: string, status: EnvelopeStatus) => {
-      // Capture original status for rollback
-      const originalStatus = envelopes.find((env) => env.id === id)?.status;
+      // Capture original status for rollback (use ref to avoid stale closure)
+      const originalStatus = envelopesRef.current.find((env) => env.id === id)?.status;
 
       // Optimistic update
       setEnvelopes((prev) =>
@@ -72,7 +77,7 @@ export function useEnvelopes(): UseEnvelopesResult {
         throw err;
       }
     },
-    [envelopes]
+    []
   );
 
   return {

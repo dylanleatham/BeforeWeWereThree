@@ -92,6 +92,27 @@ export interface FriendLettersResponse {
   letters: FriendLetter[];
 }
 
+/**
+ * Response wrapping a single friend (admin CRUD)
+ */
+export interface FriendResponse {
+  friend: Friend;
+}
+
+/**
+ * Response wrapping a single friend letter
+ */
+export interface FriendLetterResponse {
+  letter: FriendLetter;
+}
+
+/**
+ * Response wrapping a single thank-you note
+ */
+export interface FriendThankYouNoteResponse {
+  note: FriendThankYouNote;
+}
+
 // ============================================================
 // Zod Schemas for validation
 // ============================================================

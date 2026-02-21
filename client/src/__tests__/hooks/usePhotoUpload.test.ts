@@ -87,7 +87,7 @@ describe('useMediaUpload (image + registerInDatabase)', () => {
     });
 
     // Verify the SAS token was requested and photo was registered
-    expect(mockGetUploadSas).toHaveBeenCalledWith('pic.jpg', 'image/jpeg');
+    expect(mockGetUploadSas).toHaveBeenCalledWith('pic.jpg', 'image/jpeg', expect.any(AbortSignal));
     expect(mockUploadToBlob).toHaveBeenCalledWith(
       'https://storage.blob.core.windows.net/photos/blob?sas=token',
       imageFile,

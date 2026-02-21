@@ -13,6 +13,7 @@ import {
 } from '../services/nameGame.js';
 import { getEnvelopeIdForName } from '../db/queries/nameGame.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { createRateLimiter } from '../middleware/rateLimit.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -25,6 +26,9 @@ import { logger } from '../utils/logger.js';
  */
 
 const router = Router();
+
+// Rate limit: 5 guidance submissions per minute per IP (triggers AI generation)
+const guidanceRateLimiter = createRateLimiter({ maxAttempts: 5, windowMs: 60 * 1000, keyPrefix: 'guidance' });
 
 /**
  * GET /name-game/:envelopeId
@@ -64,6 +68,7 @@ router.get(
 router.post(
   '/:envelopeId/guidance',
   authMiddleware,
+  guidanceRateLimiter,
   async (req: Request<{ envelopeId: string }>, res: Response) => {
     try {
       const { envelopeId } = req.params;

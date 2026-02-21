@@ -263,6 +263,57 @@ export async function pinRateLimiter(
 }
 
 /**
+ * Create a configurable rate limiter middleware.
+ * Use for endpoints that trigger expensive operations (AI generation, bulk resets, etc.)
+ */
+export function createRateLimiter(options: {
+  maxAttempts: number;
+  windowMs: number;
+  keyPrefix: string;
+}) {
+  const { maxAttempts, windowMs, keyPrefix } = options;
+
+  return async function rateLimiterMiddleware(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const store = getStoreSync();
+    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
+    const key = `ratelimit:${keyPrefix}:${ip}`;
+    const now = Date.now();
+
+    try {
+      let entry = await store.get(key);
+
+      if (!entry) {
+        entry = { count: 1, resetAt: now + windowMs };
+        await store.set(key, entry, windowMs);
+        next();
+        return;
+      }
+
+      const newCount = await store.increment(key);
+      entry.count = newCount || entry.count + 1;
+
+      if (entry.count > maxAttempts) {
+        const retryAfterSeconds = Math.ceil((entry.resetAt - now) / 1000);
+        res.setHeader('Retry-After', retryAfterSeconds.toString());
+        res.status(429).json(
+          errorResponse('TOO_MANY_REQUESTS', 'Too many requests. Please try again later.')
+        );
+        return;
+      }
+
+      next();
+    } catch (error) {
+      logger.error('Rate limit store error', { error, key });
+      next();
+    }
+  };
+}
+
+/**
  * Reset rate limit for a key (useful for testing)
  */
 export async function resetRateLimit(ip: string): Promise<void> {

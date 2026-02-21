@@ -3,6 +3,16 @@ import type { Server as HTTPServer } from 'http';
 import { SignJWT } from 'jose';
 import type { SignalRMessage, RealtimeTransport } from 'shared';
 import { logger } from '../utils/logger.js';
+import { verifySession } from './session.js';
+
+/**
+ * Extract a named cookie value from a raw Cookie header string.
+ */
+function getCookieValue(cookieHeader: string | undefined, name: string): string | null {
+  if (!cookieHeader) return null;
+  const match = new RegExp(`(?:^|;\\s*)${name}=([^;]*)`).exec(cookieHeader);
+  return match?.[1] ?? null;
+}
 
 /**
  * Realtime service abstraction
@@ -48,8 +58,29 @@ class SocketIOAdapter implements RealtimeAdapter {
   }
 
   private setupConnectionHandlers(): void {
+    // Validate session during handshake — derive userId from verified JWT
+    this.io.use(async (socket, next) => {
+      try {
+        const cookieHeader = socket.handshake.headers.cookie;
+        const sessionToken = getCookieValue(cookieHeader, 'session');
+
+        if (!sessionToken) {
+          next(new Error('Authentication required'));
+          return;
+        }
+
+        const session = await verifySession(sessionToken);
+        // Store verified userId on socket data so connection handler can trust it
+        socket.data.userId = session.participantId;
+        next();
+      } catch {
+        next(new Error('Invalid or expired session'));
+      }
+    });
+
     this.io.on('connection', (socket: Socket) => {
-      const userId = socket.handshake.auth.userId as string | undefined;
+      // userId is verified by the middleware above — never trust client-provided auth
+      const userId = socket.data.userId as string | undefined;
 
       if (userId) {
         // Track user's socket

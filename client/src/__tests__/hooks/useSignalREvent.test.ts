@@ -37,14 +37,16 @@ describe('useSignalREvent', () => {
     expect(mockConnection.on).toHaveBeenCalledWith('testEvent', expect.any(Function));
   });
 
-  it('should unsubscribe on unmount', () => {
+  it('should unsubscribe on unmount with the same handler reference', () => {
     const handler = vi.fn();
 
     const { unmount } = renderHook(() => useSignalREvent('testEvent', handler));
 
+    const registeredHandler = mockConnection.on.mock.calls[0][1];
     unmount();
 
-    expect(mockConnection.off).toHaveBeenCalledWith('testEvent', expect.any(Function));
+    // Verify off() is called with the exact same function reference as on()
+    expect(mockConnection.off).toHaveBeenCalledWith('testEvent', registeredHandler);
   });
 
   it('should call handler when event fires', () => {

@@ -39,6 +39,18 @@ jest.unstable_mockModule('../../middleware/rateLimit.js', () => ({
   pinRateLimiter: jest.fn((_req: unknown, _res: unknown, next: () => void) => next()),
   resetRateLimit: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
   getRemainingAttempts: jest.fn<() => Promise<number>>().mockResolvedValue(5),
+  createRateLimiter: jest.fn(() => (_req: unknown, _res: unknown, next: () => void) => next()),
+}));
+
+// Mock envelope queries (used by group join to verify envelope exists)
+const mockGetEnvelopeById = jest.fn() as AnyMock;
+jest.unstable_mockModule('../../db/queries/envelopes.js', () => ({
+  getAllEnvelopes: jest.fn().mockResolvedValue([]),
+  getEnvelopeById: mockGetEnvelopeById,
+  createEnvelope: jest.fn(),
+  updateEnvelope: jest.fn(),
+  deleteEnvelope: jest.fn(),
+  updateEnvelopeStatus: jest.fn(),
 }));
 
 // Mock realtime service
@@ -144,9 +156,24 @@ describe('SignalR Routes', () => {
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
     });
 
+    it('should return 404 if envelope does not exist', async () => {
+      const cookies = await getGuestCookies();
+      mockParticipant.findUnique.mockResolvedValue(mockGuestParticipant);
+      mockGetEnvelopeById.mockResolvedValue(null);
+
+      const res = await request(app)
+        .post('/api/signalr/groups/join')
+        .set('Cookie', cookies)
+        .send({ groupName: 'activity:test-123' });
+
+      expect(res.status).toBe(404);
+      expect(res.body.error.code).toBe('ENVELOPE_NOT_FOUND');
+    });
+
     it('should return 503 if realtime service is not available', async () => {
       const cookies = await getGuestCookies();
       mockParticipant.findUnique.mockResolvedValue(mockGuestParticipant);
+      mockGetEnvelopeById.mockResolvedValue({ id: 'test-123' });
       mockGetRealtimeService.mockReturnValue(null);
 
       const res = await request(app)
@@ -161,6 +188,7 @@ describe('SignalR Routes', () => {
     it('should join group successfully', async () => {
       const cookies = await getGuestCookies();
       mockParticipant.findUnique.mockResolvedValue(mockGuestParticipant);
+      mockGetEnvelopeById.mockResolvedValue({ id: 'test-123' });
       const mockAdapter = { addUserToGroup: (jest.fn() as AnyMock).mockResolvedValue(undefined) };
       mockGetRealtimeService.mockReturnValue(mockAdapter);
 

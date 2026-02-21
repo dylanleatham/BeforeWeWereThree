@@ -129,6 +129,7 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
           // Connect via Socket.io
           const socket = io(url, {
             auth: { userId },
+            withCredentials: true,
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionAttempts: 10,

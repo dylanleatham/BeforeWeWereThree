@@ -30,6 +30,13 @@ jest.unstable_mockModule('jose', () => ({
     setExpirationTime: jest.fn().mockReturnThis(),
     sign: jest.fn().mockResolvedValue('mock-jwt-token' as never),
   })),
+  jwtVerify: jest.fn().mockResolvedValue({ payload: {} } as never),
+}));
+
+// Mock session service (imported by realtime for Socket.io auth middleware)
+const mockVerifySession = jest.fn() as AnyMock;
+jest.unstable_mockModule('../../services/session.js', () => ({
+  verifySession: mockVerifySession,
 }));
 
 // Mock global fetch for Azure SignalR adapter
@@ -55,6 +62,7 @@ describe('Realtime Service', () => {
     mockSocketIOConstructor.mockReturnValue({
       on: mockOn,
       to: mockTo,
+      use: jest.fn(),
       sockets: {
         sockets: new Map(),
       },

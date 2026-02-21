@@ -85,6 +85,13 @@ export function errorResponse(
 }
 
 /**
+ * Standard DELETE endpoint response
+ */
+export interface DeleteResponse {
+  deleted: true;
+}
+
+/**
  * Reset session response - includes counts of what was reset
  */
 export interface ResetSessionResponse {

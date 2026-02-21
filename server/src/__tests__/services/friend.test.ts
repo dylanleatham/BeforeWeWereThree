@@ -129,11 +129,12 @@ describe('Friend Service', () => {
       expect(mockDbCreateFriend).not.toHaveBeenCalled();
     });
 
-    it('should throw PIN_ALREADY_EXISTS if PIN matches existing friend', async () => {
-      mockGetFriendByPin.mockResolvedValue(FRIEND);
+    it('should throw PIN_ALREADY_EXISTS if PIN matches existing friend (DB unique constraint)', async () => {
+      const prismaError = Object.assign(new Error('Unique constraint failed'), { code: 'P2002' });
+      mockDbCreateFriend.mockRejectedValue(prismaError);
 
       await expect(createFriend('Bob', '11112222')).rejects.toThrow('PIN_ALREADY_EXISTS');
-      expect(mockDbCreateFriend).not.toHaveBeenCalled();
+      expect(mockDbCreateFriend).toHaveBeenCalled();
     });
   });
 

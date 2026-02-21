@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { successResponse, errorResponse } from 'shared';
 import { adminMiddleware } from '../middleware/auth.js';
+import { createRateLimiter } from '../middleware/rateLimit.js';
 import { resetSession, ResetSessionResult } from '../services/admin.js';
 import { logger } from '../utils/logger.js';
 
@@ -11,6 +12,9 @@ import { logger } from '../utils/logger.js';
  */
 
 const router = Router();
+
+// Rate limit: 3 resets per minute per IP
+const resetRateLimiter = createRateLimiter({ maxAttempts: 3, windowMs: 60 * 1000, keyPrefix: 'admin-reset' });
 
 /**
  * POST /reset-session
@@ -23,7 +27,7 @@ const router = Router();
  *
  * Note: Admin remains logged in after reset.
  */
-router.post('/reset-session', adminMiddleware, async (_req: Request, res: Response) => {
+router.post('/reset-session', adminMiddleware, resetRateLimiter, async (_req: Request, res: Response) => {
   try {
     const result = await resetSession();
 

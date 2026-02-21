@@ -79,6 +79,14 @@ export interface NameGameStateResponse {
   pendingGuidance?: PendingGuidanceState;
 }
 
+/**
+ * POST /api/name-game/:nameId/vote response
+ */
+export interface SubmitNameVoteResponse {
+  allVoted: boolean;
+  results?: NameGameResults;
+}
+
 // ============================================================
 // Zod Schemas for request validation
 // ============================================================

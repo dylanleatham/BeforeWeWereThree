@@ -208,16 +208,14 @@ describe('Media Service', () => {
       expect(mockDeletePhotoById).toHaveBeenCalledWith('photo-1');
     });
 
-    it('should continue deleting from DB even if blob deletion fails', async () => {
+    it('should throw and not delete DB record if blob deletion fails', async () => {
       mockGetPhotoById.mockResolvedValue(PHOTO);
-      mockDeleteIfExists.mockRejectedValue(new Error('Blob not found'));
-      mockDeletePhotoById.mockResolvedValue(PHOTO);
+      mockDeleteIfExists.mockRejectedValue(new Error('Blob deletion failed'));
 
-      const result = await removePhoto('photo-1');
+      await expect(removePhoto('photo-1')).rejects.toThrow('Blob deletion failed');
 
-      // Should still delete from DB despite blob failure
-      expect(result).toEqual(PHOTO);
-      expect(mockDeletePhotoById).toHaveBeenCalledWith('photo-1');
+      // DB record should NOT be deleted when blob deletion fails
+      expect(mockDeletePhotoById).not.toHaveBeenCalled();
     });
   });
 });

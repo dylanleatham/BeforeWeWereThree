@@ -19,7 +19,11 @@ import {
 import { deleteConfig } from '../db/queries/genderReveal.js';
 import { getRealtimeService } from '../services/realtime.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+import { createRateLimiter } from '../middleware/rateLimit.js';
 import { logger } from '../utils/logger.js';
+
+// Rate limit: 5 configure attempts per minute per IP
+const configureRateLimiter = createRateLimiter({ maxAttempts: 5, windowMs: 60 * 1000, keyPrefix: 'gr-configure' });
 
 /**
  * Gender Reveal routes for Before We Were Three
@@ -68,6 +72,7 @@ router.get(
 router.post(
   '/admin/:envelopeId/configure',
   adminMiddleware,
+  configureRateLimiter,
   async (req: Request<{ envelopeId: string }>, res: Response) => {
     try {
       const { envelopeId } = req.params;

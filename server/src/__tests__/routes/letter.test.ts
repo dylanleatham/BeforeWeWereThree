@@ -41,6 +41,7 @@ jest.unstable_mockModule('../../middleware/rateLimit.js', () => ({
   pinRateLimiter: jest.fn((_req: unknown, _res: unknown, next: () => void) => next()),
   resetRateLimit: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
   getRemainingAttempts: jest.fn<() => Promise<number>>().mockResolvedValue(5),
+  createRateLimiter: jest.fn(() => (_req: unknown, _res: unknown, next: () => void) => next()),
 }));
 
 // Mock letter service

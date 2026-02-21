@@ -16,6 +16,7 @@ import { NameGameActivity } from '../activities/NameGame';
 import { TriviaActivity } from '../activities/Trivia';
 import { GenderRevealActivity } from '../activities/GenderReveal/GenderRevealActivity';
 import { FriendLetterView } from '../friend/FriendLetterView';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 import { STRINGS } from '../../constants/strings';
 import { ANIMATION_DURATION_MS, CONTENT_REVEAL_DURATION } from '../../constants/animation';
 import './BaseEnvelope.css';
@@ -227,7 +228,18 @@ export function BaseEnvelope({
 
           {/* Activity content */}
           <div className="base-envelope__body">
-            {renderActivityContent()}
+            <ErrorBoundary
+              fallback={
+                <div className="base-envelope__error">
+                  <p>{STRINGS.ERROR_BOUNDARY_MESSAGE}</p>
+                  <button type="button" onClick={handleClose}>
+                    {STRINGS.ENVELOPE_CLOSE_ARIA}
+                  </button>
+                </div>
+              }
+            >
+              {renderActivityContent()}
+            </ErrorBoundary>
           </div>
 
           {/* Partner indicator */}

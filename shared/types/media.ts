@@ -38,6 +38,13 @@ export interface PhotoListResponse {
 }
 
 /**
+ * Response wrapping a single photo
+ */
+export interface PhotoResponse {
+  photo: Photo;
+}
+
+/**
  * POST /api/media/register request
  * After uploading to blob storage, register the photo in the database
  */

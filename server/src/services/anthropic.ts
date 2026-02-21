@@ -145,11 +145,10 @@ const NAME_JSON_SCHEMA = {
 export async function generateNames(params: GenerateNamesParams): Promise<AINameResponse> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    throw new Error(
-      'ANTHROPIC_API_KEY environment variable is not set. ' +
-      'Get an API key from the Anthropic Console (console.anthropic.com) ' +
-      'and add it to your server/.env file.'
-    );
+    const message = process.env.NODE_ENV === 'production'
+      ? 'AI name generation is not available. Please contact the administrator.'
+      : 'ANTHROPIC_API_KEY environment variable is not set. Add it to your server/.env file.';
+    throw new Error(message);
   }
 
   const client = new Anthropic({ apiKey });

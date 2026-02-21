@@ -55,6 +55,7 @@ export function useMediaUpload(options: UseMediaUploadOptions = {}): UseMediaUpl
 
   const mountedRef = useRef(true);
   const xhrRef = useRef<XMLHttpRequest | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Track mount state — must set true in effect body for React strict mode,
   // which runs cleanup between the double-mount cycle in development.
@@ -62,6 +63,9 @@ export function useMediaUpload(options: UseMediaUploadOptions = {}): UseMediaUpl
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
       if (xhrRef.current) {
         xhrRef.current.abort();
       }
@@ -79,12 +83,18 @@ export function useMediaUpload(options: UseMediaUploadOptions = {}): UseMediaUpl
     setState({ isUploading: true, progress: 0, error: null });
 
     // Abort any in-progress upload before starting a new one
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     if (xhrRef.current) {
       xhrRef.current.abort();
     }
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
-      const sasResponse = await getUploadSas(file.name, file.type);
+      const sasResponse = await getUploadSas(file.name, file.type, controller.signal);
       if (!mountedRef.current) return null;
 
       // Upload directly to Azure Blob Storage using XHR for real progress
@@ -122,6 +132,10 @@ export function useMediaUpload(options: UseMediaUploadOptions = {}): UseMediaUpl
   }, [accept, registerInDatabase]);
 
   const reset = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
     if (xhrRef.current) {
       xhrRef.current.abort();
       xhrRef.current = null;

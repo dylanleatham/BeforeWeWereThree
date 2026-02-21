@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto';
 import { db } from '../db/connection.js';
 import {
   getConfig,
@@ -13,6 +14,21 @@ import type {
   ConfigureGenderRevealRequest,
   GenderValue,
 } from 'shared';
+
+/**
+ * Timing-safe string comparison to prevent timing attacks on key validation.
+ * Always compares both buffers fully, even if lengths differ.
+ */
+function safeCompare(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) {
+    // Compare against itself to maintain constant time, then return false
+    timingSafeEqual(bufA, bufA);
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
+}
 
 /**
  * Gender Reveal service
@@ -105,17 +121,20 @@ export async function validateKey(
       };
     }
 
-    // Check which key matches
+    // Check which key matches (timing-safe: always evaluate both comparisons)
+    const matchesA = safeCompare(key, config.keyA);
+    const matchesB = safeCompare(key, config.keyB);
+
     let keyField: 'keyAValidated' | 'keyBValidated' | null = null;
     let otherKeyValidated = false;
 
-    if (key === config.keyA && !config.keyAValidated) {
+    if (matchesA && !config.keyAValidated) {
       keyField = 'keyAValidated';
       otherKeyValidated = config.keyBValidated;
-    } else if (key === config.keyB && !config.keyBValidated) {
+    } else if (matchesB && !config.keyBValidated) {
       keyField = 'keyBValidated';
       otherKeyValidated = config.keyAValidated;
-    } else if (key !== config.keyA && key !== config.keyB) {
+    } else if (!matchesA && !matchesB) {
       return { status: 'invalid_key' as const };
     } else {
       // Key matches but already validated

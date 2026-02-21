@@ -83,6 +83,34 @@ export interface TriviaAnswerResponse {
   envelopeComplete: boolean;
 }
 
+/**
+ * Response wrapping a list of trivia questions (admin content library)
+ */
+export interface TriviaQuestionsResponse {
+  questions: TriviaQuestion[];
+}
+
+/**
+ * Response wrapping a single trivia question (admin CRUD)
+ */
+export interface TriviaQuestionResponse {
+  question: TriviaQuestion;
+}
+
+/**
+ * Response wrapping trivia questions assigned to an envelope
+ */
+export interface TriviaEnvelopeQuestionsResponse {
+  questions: TriviaEnvelopeQuestion[];
+}
+
+/**
+ * Response for assignment/reorder operations returning affected count
+ */
+export interface TriviaAssignResponse {
+  count: number;
+}
+
 // ============================================================
 // Zod Schemas for validation
 // ============================================================

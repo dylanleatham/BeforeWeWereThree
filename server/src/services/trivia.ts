@@ -40,11 +40,11 @@ export async function getEnvelopeState(
   let foundUnanswered = false;
 
   for (let i = 0; i < questions.length; i++) {
-    const question = questions[i]!;
-    const answer = answerMap.get(question.id);
+    const item = questions[i]!;
+    const answer = answerMap.get(item.questionId);
 
     questionStates.push({
-      question,
+      question: item.question,
       selectedIndex: answer?.selectedIndex ?? null,
       isCorrect: answer?.isCorrect ?? null,
       answered: answer !== undefined,
@@ -85,7 +85,7 @@ export async function submitAnswer(
 
   // Validate the question is assigned to this envelope
   const assignedQuestions = await getQuestionsByEnvelopeId(envelopeId);
-  const isAssigned = assignedQuestions.some((q) => q.id === questionId);
+  const isAssigned = assignedQuestions.some((q) => q.questionId === questionId);
   if (!isAssigned) {
     throw new Error('QUESTION_NOT_FOUND');
   }

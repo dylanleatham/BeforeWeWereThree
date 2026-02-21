@@ -9,15 +9,23 @@ import {
   getEnvelopes,
 } from '../../services/api';
 import { STRINGS } from '../../constants/strings';
+import { PIN_LENGTH, PIN_DISPLAY_MAX_LENGTH } from '../../constants/config';
 import './GenderRevealContentTab.css';
+
+/** Format 8-digit date string as MM/DD/YYYY for display */
+function formatDateDisplay(value: string): string {
+  if (value.length <= 2) return value;
+  if (value.length <= 4) return `${value.slice(0, 2)}/${value.slice(2)}`;
+  return `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`;
+}
 
 /**
  * Admin content tab for configuring gender reveal envelopes.
- * Provides full CRUD: configure gender + two unique keys, view status,
+ * Provides full CRUD: configure gender + two unique dates, view status,
  * re-seal revealed envelopes, and delete configuration entirely.
  *
- * Keys are displayed in plain text for the admin to share manually
- * (text, whisper, physical card). The app does NOT send keys to participants.
+ * Dates are displayed in plain text for the admin to share manually
+ * (text, whisper, physical card). The app does NOT send dates to participants.
  */
 export function GenderRevealContentTab() {
   const [revealEnvelopes, setRevealEnvelopes] = useState<Envelope[]>([]);
@@ -27,7 +35,7 @@ export function GenderRevealContentTab() {
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Form state
+  // Form state — stored as raw digits (e.g., "01152026")
   const [genderValue, setGenderValue] = useState<GenderValue>('boy');
   const [keyA, setKeyA] = useState('');
   const [keyB, setKeyB] = useState('');
@@ -110,27 +118,27 @@ export function GenderRevealContentTab() {
     setFormError(null);
   }, []);
 
-  const validateForm = useCallback((): boolean => {
-    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+  /** Handle date input — strip non-digits, limit to PIN_LENGTH */
+  const handleDateInput = useCallback(
+    (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const digits = e.target.value.replace(/\D/g, '').slice(0, PIN_LENGTH);
+      setter(digits);
+      setFormError(null);
+    },
+    []
+  );
 
-    if (keyA.length < 6 || keyA.length > 8) {
-      setFormError('Key A must be 6-8 characters');
+  const validateForm = useCallback((): boolean => {
+    if (keyA.length !== PIN_LENGTH) {
+      setFormError('Date A must be 8 digits (MM/DD/YYYY)');
       return false;
     }
-    if (!alphanumericRegex.test(keyA)) {
-      setFormError('Key A must be alphanumeric');
-      return false;
-    }
-    if (keyB.length < 6 || keyB.length > 8) {
-      setFormError('Key B must be 6-8 characters');
-      return false;
-    }
-    if (!alphanumericRegex.test(keyB)) {
-      setFormError('Key B must be alphanumeric');
+    if (keyB.length !== PIN_LENGTH) {
+      setFormError('Date B must be 8 digits (MM/DD/YYYY)');
       return false;
     }
     if (keyA === keyB) {
-      setFormError('Keys must be different');
+      setFormError('Dates must be different');
       return false;
     }
 
@@ -238,7 +246,7 @@ export function GenderRevealContentTab() {
               </div>
             </div>
 
-            {/* Key A */}
+            {/* Date A */}
             <div className="gender-reveal-tab__field">
               <label
                 htmlFor="reveal-key-a"
@@ -249,22 +257,19 @@ export function GenderRevealContentTab() {
               <input
                 id="reveal-key-a"
                 type="text"
+                inputMode="numeric"
                 className="gender-reveal-tab__input"
-                value={keyA}
-                onChange={(e) => {
-                  setKeyA(e.target.value);
-                  setFormError(null);
-                }}
-                placeholder="e.g., BABY01"
-                minLength={6}
-                maxLength={8}
+                value={formatDateDisplay(keyA)}
+                onChange={handleDateInput(setKeyA)}
+                placeholder="MM/DD/YYYY"
+                maxLength={PIN_DISPLAY_MAX_LENGTH}
               />
               <span className="gender-reveal-tab__hint">
                 {STRINGS.REVEAL_ADMIN_KEY_HINT}
               </span>
             </div>
 
-            {/* Key B */}
+            {/* Date B */}
             <div className="gender-reveal-tab__field">
               <label
                 htmlFor="reveal-key-b"
@@ -275,15 +280,12 @@ export function GenderRevealContentTab() {
               <input
                 id="reveal-key-b"
                 type="text"
+                inputMode="numeric"
                 className="gender-reveal-tab__input"
-                value={keyB}
-                onChange={(e) => {
-                  setKeyB(e.target.value);
-                  setFormError(null);
-                }}
-                placeholder="e.g., LOVE02"
-                minLength={6}
-                maxLength={8}
+                value={formatDateDisplay(keyB)}
+                onChange={handleDateInput(setKeyB)}
+                placeholder="MM/DD/YYYY"
+                maxLength={PIN_DISPLAY_MAX_LENGTH}
               />
               <span className="gender-reveal-tab__hint">
                 {STRINGS.REVEAL_ADMIN_KEY_HINT}
@@ -311,7 +313,7 @@ export function GenderRevealContentTab() {
                 variant="primary"
                 size="sm"
                 onClick={handleSave}
-                disabled={isSaving || !keyA || !keyB}
+                disabled={isSaving || keyA.length !== PIN_LENGTH || keyB.length !== PIN_LENGTH}
               >
                 {isSaving ? STRINGS.REVEAL_ADMIN_SAVING : STRINGS.REVEAL_ADMIN_SAVE}
               </Button>
@@ -419,7 +421,7 @@ export function GenderRevealContentTab() {
                     <Card className="gender-reveal-tab__card">
                       <div className="gender-reveal-tab__empty">
                         <Text color="muted">
-                          No configuration yet. Set up the gender and keys.
+                          No configuration yet. Set up the gender and dates.
                         </Text>
                         <div className="gender-reveal-tab__empty-action">
                           <Button
@@ -451,7 +453,7 @@ export function GenderRevealContentTab() {
                             {STRINGS.REVEAL_ADMIN_KEY_A_LABEL}
                           </span>
                           <span className="gender-reveal-tab__key-display">
-                            {config.keyA}
+                            {config.keyA ? formatDateDisplay(config.keyA) : ''}
                           </span>
                           {config.keyAValidated && (
                             <span className="gender-reveal-tab__validated-badge">
@@ -464,7 +466,7 @@ export function GenderRevealContentTab() {
                             {STRINGS.REVEAL_ADMIN_KEY_B_LABEL}
                           </span>
                           <span className="gender-reveal-tab__key-display">
-                            {config.keyB}
+                            {config.keyB ? formatDateDisplay(config.keyB) : ''}
                           </span>
                           {config.keyBValidated && (
                             <span className="gender-reveal-tab__validated-badge">

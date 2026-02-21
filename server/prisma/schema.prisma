@@ -325,8 +325,8 @@ model GenderRevealConfig {
   id            String    @id @default(uuid())
   envelopeId    String    @unique @map("envelope_id")
   genderValue   String    @map("gender_value")  // 'boy' | 'girl'
-  keyA          String    @map("key_a")          // 6-8 char alphanumeric
-  keyB          String    @map("key_b")          // 6-8 char alphanumeric
+  keyA          String    @map("key_a")          // 8-digit date (MMDDYYYY)
+  keyB          String    @map("key_b")          // 8-digit date (MMDDYYYY)
   keyAValidated Boolean   @default(false) @map("key_a_validated")
   keyBValidated Boolean   @default(false) @map("key_b_validated")
   revealedAt    DateTime? @map("revealed_at")

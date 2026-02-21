@@ -98,7 +98,7 @@ export function RevealPhase({
                   transition={{ delay: suspenseDelay, duration: 0.3 }}
                   aria-label="Correct answer"
                 >
-                  \u2713
+                  {'\u2713'}
                 </motion.span>
               )}
               {isWrongSelection && (
@@ -109,7 +109,7 @@ export function RevealPhase({
                   transition={{ delay: suspenseDelay, duration: 0.3 }}
                   aria-label="Incorrect answer"
                 >
-                  \u2717
+                  {'\u2717'}
                 </motion.span>
               )}
             </motion.div>

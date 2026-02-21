@@ -1,9 +1,9 @@
 /**
- * KeyEntryPhase — Ceremonial segmented code input
+ * KeyEntryPhase — Date-based input for gender reveal
  *
- * The key entry should feel intentional and ceremonial,
- * not like a security form. Warm tones, Fraunces display font
- * for the character boxes, and gentle animations.
+ * Matches the PinEntry aesthetic: warm, ceremonial feel
+ * with a centered date input and progress dots.
+ * Fraunces display font for the title, intimate not corporate.
  */
 
 .key-entry {
@@ -33,71 +33,64 @@
   line-height: 1.5;
 }
 
-/* Hidden input — visually hidden but focusable */
-.key-entry__hidden-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-  /* Keep accessible for screen readers and keyboard */
-  opacity: 0;
+/* =========================================
+ * INPUT — Visible date field (MM/DD/YYYY)
+ * ========================================= */
+.key-entry__input-wrapper {
+  margin-bottom: var(--space-4);
+  width: 100%;
+  max-width: 260px;
 }
 
-/* Character boxes container */
-.key-entry__boxes {
-  display: flex;
-  gap: var(--space-2);
-  cursor: text;
-  margin-bottom: var(--space-6);
-}
-
-/* Individual character box */
-.key-entry__box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 56px;
+.key-entry__input {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: var(--text-2xl);
+  font-family: var(--font-mono);
+  text-align: center;
   border: 2px solid rgba(var(--color-dusk-rose-rgb), 0.3);
   border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--duration-normal) var(--ease-default);
   background: var(--bg-card);
-  font-family: var(--font-display);
-  font-size: var(--text-2xl);
   color: var(--text-primary);
-  transition: border-color var(--duration-normal) var(--ease-default),
-    background-color var(--duration-normal) var(--ease-default),
-    box-shadow var(--duration-normal) var(--ease-default);
+  letter-spacing: 0.1em;
+  box-sizing: border-box;
 }
 
-/* Filled state */
-.key-entry__box--filled {
-  border-color: var(--color-dusk-rose);
-  background: rgba(var(--color-dusk-rose-rgb), 0.06);
-}
-
-/* Active (cursor position) — pulsing border */
-.key-entry__box--active {
+.key-entry__input:focus {
   border-color: var(--color-sunrise-gold);
-  box-shadow: 0 0 0 2px rgba(var(--color-sunrise-gold-rgb), 0.15);
-  animation: key-box-pulse 1.5s ease-in-out infinite;
 }
 
-@keyframes key-box-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 2px rgba(var(--color-sunrise-gold-rgb), 0.15);
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(var(--color-sunrise-gold-rgb), 0.25);
-  }
+.key-entry__input:disabled {
+  opacity: 0.6;
 }
 
-/* Error message — warm, not harsh */
+/* =========================================
+ * PROGRESS DOTS
+ * ========================================= */
+.key-entry__dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+}
+
+.key-entry__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background-color: rgba(var(--color-dusk-rose-rgb), 0.15);
+  transition: background-color var(--duration-normal) var(--ease-default);
+}
+
+.key-entry__dot--filled {
+  background-color: var(--color-dusk-rose);
+}
+
+/* =========================================
+ * ERROR & SUBMITTING MESSAGES
+ * ========================================= */
 .key-entry__error {
   font-family: var(--font-body);
   font-size: var(--text-sm);
@@ -107,10 +100,22 @@
   line-height: 1.4;
 }
 
-/* Submitting indicator */
 .key-entry__submitting {
   font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--text-muted);
   margin: 0;
+}
+
+/* =========================================
+ * SHAKE ANIMATION
+ * ========================================= */
+@keyframes key-entry-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+  20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+.key-entry__input-wrapper--shaking {
+  animation: key-entry-shake 0.5s var(--ease-default);
 }

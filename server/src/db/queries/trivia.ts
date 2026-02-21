@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import type { TriviaQuestion as PrismaTriviaQuestion } from '@prisma/client';
 import type {
   TriviaQuestion,
+  TriviaEnvelopeQuestion,
   TriviaOption,
   CreateTriviaQuestionRequest,
   UpdateTriviaQuestionRequest,
@@ -116,15 +117,21 @@ export async function deleteQuestion(id: string): Promise<boolean> {
 
 /**
  * Get all questions assigned to an envelope, ordered by sortOrder
- * Returns flattened TriviaQuestion array (not the join table shape)
+ * Returns TriviaEnvelopeQuestion[] with nested question data
  */
-export async function getQuestionsByEnvelopeId(envelopeId: string): Promise<TriviaQuestion[]> {
+export async function getQuestionsByEnvelopeId(envelopeId: string): Promise<TriviaEnvelopeQuestion[]> {
   const assignments = await db.triviaEnvelopeQuestion.findMany({
     where: { envelopeId },
     include: { question: true },
     orderBy: { sortOrder: 'asc' },
   });
-  return assignments.map((a) => toApiQuestion(a.question));
+  return assignments.map((a) => ({
+    id: a.id,
+    envelopeId: a.envelopeId,
+    questionId: a.questionId,
+    sortOrder: a.sortOrder,
+    question: toApiQuestion(a.question),
+  }));
 }
 
 /**

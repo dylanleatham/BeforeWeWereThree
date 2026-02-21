@@ -35,32 +35,30 @@ export type GenderRevealPhase =
 // ============================================================
 
 /**
- * Admin config request — set gender value and two unique keys
+ * Admin config request — set gender value and two unique dates (MMDDYYYY)
  */
 export const configureGenderRevealSchema = z.object({
   genderValue: z.enum(['boy', 'girl']),
   keyA: z.string()
-    .min(6, 'Key must be at least 6 characters')
-    .max(8, 'Key must be at most 8 characters')
-    .regex(/^[a-zA-Z0-9]+$/, 'Key must be alphanumeric'),
+    .length(8, 'Date must be 8 digits (MMDDYYYY)')
+    .regex(/^\d{8}$/, 'Date must be 8 digits'),
   keyB: z.string()
-    .min(6, 'Key must be at least 6 characters')
-    .max(8, 'Key must be at most 8 characters')
-    .regex(/^[a-zA-Z0-9]+$/, 'Key must be alphanumeric'),
+    .length(8, 'Date must be 8 digits (MMDDYYYY)')
+    .regex(/^\d{8}$/, 'Date must be 8 digits'),
 }).refine(data => data.keyA !== data.keyB, {
-  message: 'Keys must be different',
+  message: 'Dates must be different',
   path: ['keyB'],
 });
 
 export type ConfigureGenderRevealRequest = z.infer<typeof configureGenderRevealSchema>;
 
 /**
- * Key validation request — participant submits their key
+ * Date validation request — participant submits their date (MMDDYYYY)
  */
 export const validateRevealKeySchema = z.object({
   key: z.string()
-    .min(1, 'Key is required')
-    .max(8, 'Key is too long'),
+    .length(8, 'Date must be 8 digits')
+    .regex(/^\d{8}$/, 'Date must be numeric'),
 });
 
 export type ValidateRevealKeyRequest = z.infer<typeof validateRevealKeySchema>;

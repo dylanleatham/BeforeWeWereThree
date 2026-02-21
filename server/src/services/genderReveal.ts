@@ -189,6 +189,15 @@ export async function configureReveal(
   envelopeId: string,
   data: ConfigureGenderRevealRequest
 ): Promise<GenderRevealAdminResponse> {
+  // Verify envelope exists before creating config (FK constraint)
+  const envelope = await db.envelope.findUnique({
+    where: { id: envelopeId },
+    select: { id: true },
+  });
+  if (!envelope) {
+    throw new Error('ENVELOPE_NOT_FOUND');
+  }
+
   const existing = await getConfig(envelopeId);
 
   if (existing) {

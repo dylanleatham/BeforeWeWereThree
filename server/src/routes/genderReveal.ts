@@ -94,6 +94,12 @@ router.post(
       res.json(successResponse(config));
     } catch (error) {
       if (error instanceof Error) {
+        if (error.message === 'ENVELOPE_NOT_FOUND') {
+          res.status(404).json(
+            errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found. It may have been deleted during a session reset.')
+          );
+          return;
+        }
         if (error.message === 'REVEAL_ALREADY_DONE') {
           res.status(409).json(
             errorResponse('REVEAL_ALREADY_DONE', 'Cannot modify config after reveal. Re-seal first.')

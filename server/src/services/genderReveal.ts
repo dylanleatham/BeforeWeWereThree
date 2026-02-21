@@ -5,6 +5,8 @@ import {
   createConfig,
   updateConfig,
   resetRevealState,
+  findGenderRevealConfig,
+  setGenderValue,
 } from '../db/queries/genderReveal.js';
 import { logger } from '../utils/logger.js';
 import type {
@@ -56,7 +58,7 @@ export async function getRevealState(
 ): Promise<GenderRevealStateResponse> {
   const config = await getConfig(envelopeId);
 
-  if (!config) {
+  if (!config || !config.genderValue) {
     return {
       configured: false,
       keysValidated: 0,
@@ -110,6 +112,11 @@ export async function validateKey(
     });
 
     if (!config) {
+      throw new Error('REVEAL_NOT_CONFIGURED');
+    }
+
+    // Gender not yet set by friend keeper
+    if (!config.genderValue) {
       throw new Error('REVEAL_NOT_CONFIGURED');
     }
 
@@ -176,7 +183,7 @@ export async function validateKey(
 /**
  * Configure or update gender reveal for an envelope
  * Creates new config if none exists, updates if it does
- * Does NOT allow changing gender value after reveal
+ * Admin sets ONLY the two date keys — gender is set by the friend keeper
  */
 export async function configureReveal(
   envelopeId: string,
@@ -191,14 +198,13 @@ export async function configureReveal(
     }
 
     const updated = await updateConfig(envelopeId, {
-      genderValue: data.genderValue,
       keyA: data.keyA,
       keyB: data.keyB,
     });
 
     return {
       configured: true,
-      genderValue: updated.genderValue as GenderValue,
+      genderSet: updated.genderValue !== null,
       keyA: updated.keyA,
       keyB: updated.keyB,
       keyAValidated: updated.keyAValidated,
@@ -209,14 +215,13 @@ export async function configureReveal(
 
   const created = await createConfig(
     envelopeId,
-    data.genderValue,
     data.keyA,
     data.keyB
   );
 
   return {
     configured: true,
-    genderValue: created.genderValue as GenderValue,
+    genderSet: created.genderValue !== null,
     keyA: created.keyA,
     keyB: created.keyB,
     keyAValidated: created.keyAValidated,
@@ -226,8 +231,8 @@ export async function configureReveal(
 }
 
 /**
- * Get full admin config (includes gender value, keys, and state)
- * Admin-only endpoint — behind adminMiddleware
+ * Get admin config — NEVER includes the gender value itself
+ * Admin can see genderSet (boolean), keys, and state
  */
 export async function getAdminConfig(
   envelopeId: string
@@ -237,6 +242,7 @@ export async function getAdminConfig(
   if (!config) {
     return {
       configured: false,
+      genderSet: false,
       keyAValidated: false,
       keyBValidated: false,
     };
@@ -244,7 +250,7 @@ export async function getAdminConfig(
 
   return {
     configured: true,
-    genderValue: config.genderValue as GenderValue,
+    genderSet: config.genderValue !== null,
     keyA: config.keyA,
     keyB: config.keyB,
     keyAValidated: config.keyAValidated,
@@ -269,11 +275,33 @@ export async function resealReveal(
 
   return {
     configured: true,
-    genderValue: updated.genderValue as GenderValue,
+    genderSet: updated.genderValue !== null,
     keyA: updated.keyA,
     keyB: updated.keyB,
     keyAValidated: updated.keyAValidated,
     keyBValidated: updated.keyBValidated,
     revealedAt: updated.revealedAt?.toISOString(),
   };
+}
+
+/**
+ * Set gender value by a friend who is the designated gender keeper
+ * One-time, immutable operation
+ */
+export async function setGenderByFriend(
+  friendId: string,
+  genderValue: 'boy' | 'girl'
+): Promise<void> {
+  const config = await findGenderRevealConfig();
+
+  if (!config) {
+    throw new Error('REVEAL_NOT_CONFIGURED');
+  }
+
+  if (config.genderValue !== null) {
+    throw new Error('GENDER_ALREADY_SET');
+  }
+
+  await setGenderValue(config.envelopeId, genderValue, friendId);
+  logger.info('Gender set by friend keeper', { friendId, envelopeId: config.envelopeId });
 }

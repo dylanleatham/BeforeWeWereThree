@@ -220,15 +220,17 @@ model NameGameVote {
 
 // Friend - a friend of the couple who writes letters
 model Friend {
-  id        String   @id @default(uuid())
-  name      String
-  pin       String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  name           String
+  pin            String   @unique
+  isGenderKeeper Boolean  @default(false) @map("is_gender_keeper")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  participants  Participant[]
-  friendLetters FriendLetter[]
-  thankYouNote  FriendThankYouNote?
+  participants       Participant[]
+  friendLetters      FriendLetter[]
+  thankYouNote       FriendThankYouNote?
+  genderRevealConfigs GenderRevealConfig[]
 
   @@map("friends")
 }
@@ -322,18 +324,20 @@ model TriviaAnswer {
 // One config per envelope, stores gender value and two unique keys
 // Keys are validated by participants to trigger the reveal
 model GenderRevealConfig {
-  id            String    @id @default(uuid())
-  envelopeId    String    @unique @map("envelope_id")
-  genderValue   String    @map("gender_value")  // 'boy' | 'girl'
-  keyA          String    @map("key_a")          // 8-digit date (MMDDYYYY)
-  keyB          String    @map("key_b")          // 8-digit date (MMDDYYYY)
-  keyAValidated Boolean   @default(false) @map("key_a_validated")
-  keyBValidated Boolean   @default(false) @map("key_b_validated")
-  revealedAt    DateTime? @map("revealed_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id              String    @id @default(uuid())
+  envelopeId      String    @unique @map("envelope_id")
+  genderValue     String?   @map("gender_value")  // 'boy' | 'girl' | null (until friend sets it)
+  keyA            String    @map("key_a")          // 8-digit date (MMDDYYYY)
+  keyB            String    @map("key_b")          // 8-digit date (MMDDYYYY)
+  keyAValidated   Boolean   @default(false) @map("key_a_validated")
+  keyBValidated   Boolean   @default(false) @map("key_b_validated")
+  setByFriendId   String?   @map("set_by_friend_id")
+  revealedAt      DateTime? @map("revealed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  envelope Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  envelope    Envelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  setByFriend Friend?  @relation(fields: [setByFriendId], references: [id], onDelete: SetNull)
 
   @@map("gender_reveal_configs")
 }

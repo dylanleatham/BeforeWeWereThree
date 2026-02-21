@@ -17,8 +17,18 @@ export interface Friend {
   id: string;
   name: string;
   pin: string;
+  isGenderKeeper: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Gender keeper status for friend dashboard
+ * Only present when friend is the designated gender keeper
+ */
+export interface GenderKeeperStatus {
+  isGenderKeeper: true;
+  genderAlreadySet: boolean;
 }
 
 /**
@@ -75,6 +85,7 @@ export interface FriendDashboardResponse {
   friend: { id: string; name: string };
   thankYouNote: FriendThankYouNote | null;
   letters: FriendLetterCard[];
+  genderKeeperStatus: GenderKeeperStatus | null;
 }
 
 /**

@@ -35,10 +35,10 @@ export type GenderRevealPhase =
 // ============================================================
 
 /**
- * Admin config request — set gender value and two unique dates (MMDDYYYY)
+ * Admin config request — set two unique dates (MMDDYYYY)
+ * Gender value is NOT set by admin; it's set by the gender keeper friend
  */
 export const configureGenderRevealSchema = z.object({
-  genderValue: z.enum(['boy', 'girl']),
   keyA: z.string()
     .length(8, 'Date must be 8 digits (MMDDYYYY)')
     .regex(/^\d{8}$/, 'Date must be 8 digits'),
@@ -51,6 +51,15 @@ export const configureGenderRevealSchema = z.object({
 });
 
 export type ConfigureGenderRevealRequest = z.infer<typeof configureGenderRevealSchema>;
+
+/**
+ * Friend input request — gender keeper sets the gender value (one-time, immutable)
+ */
+export const setGenderValueSchema = z.object({
+  genderValue: z.enum(['boy', 'girl']),
+});
+
+export type SetGenderValueRequest = z.infer<typeof setGenderValueSchema>;
 
 /**
  * Date validation request — participant submits their date (MMDDYYYY)
@@ -93,11 +102,12 @@ export type ValidateKeyResponse =
 
 /**
  * GET /api/gender-reveal/admin/:envelopeId response
- * Admin-only — includes full config for editing
+ * Admin-only — includes config for editing but NEVER the gender value
+ * Admin can see whether gender has been set, but not what it is
  */
 export interface GenderRevealAdminResponse {
   configured: boolean;
-  genderValue?: GenderValue;
+  genderSet: boolean;
   keyA?: string;
   keyB?: string;
   keyAValidated: boolean;

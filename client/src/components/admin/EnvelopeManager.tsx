@@ -94,6 +94,11 @@ export function EnvelopeManager({
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
 
+  // Compute disabled types (singleton: gender-reveal)
+  const disabledTypes = envelopes.some((e) => e.type === 'gender-reveal')
+    ? ['gender-reveal']
+    : [];
+
   // Show form if in create/edit mode
   if (formMode.type !== 'closed') {
     return (
@@ -103,6 +108,7 @@ export function EnvelopeManager({
           onSubmit={formMode.type === 'create' ? handleCreate : handleUpdate}
           onCancel={() => setFormMode({ type: 'closed' })}
           isLoading={isSaving}
+          disabledTypes={formMode.type === 'create' ? disabledTypes : []}
         />
       </div>
     );

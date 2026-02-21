@@ -34,6 +34,35 @@ export async function getAllEnvelopes(): Promise<Envelope[]> {
 }
 
 /**
+ * Get envelopes visible to participants (couples/guests)
+ * Filters out gender-reveal envelopes where gender has not been set yet
+ */
+export async function getParticipantEnvelopes(): Promise<Envelope[]> {
+  const envelopes = await db.envelope.findMany({
+    orderBy: { order: 'asc' },
+    include: {
+      genderRevealConfig: {
+        select: { genderValue: true },
+      },
+    },
+  });
+
+  return envelopes
+    .filter((e) => {
+      // Hide gender-reveal envelopes that have no gender set yet
+      if (e.type === 'gender-reveal' && !e.genderRevealConfig?.genderValue) {
+        return false;
+      }
+      return true;
+    })
+    .map((e) => {
+      // Strip the include field before returning
+      const { genderRevealConfig: _config, ...envelope } = e;
+      return toApiEnvelope(envelope as PrismaEnvelope);
+    });
+}
+
+/**
  * Get single envelope by ID
  */
 export async function getEnvelopeById(id: string): Promise<Envelope | null> {

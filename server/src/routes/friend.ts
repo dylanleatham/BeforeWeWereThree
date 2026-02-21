@@ -21,6 +21,7 @@ import {
   submitFriendLetterAndCreateEnvelope,
   getFriendLetterForCouple,
 } from '../services/friend.js';
+import { setGenderKeeper, getFriendById } from '../db/queries/friend.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -90,6 +91,32 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
     }
     logger.error('Failed to create friend', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create friend'));
+  }
+});
+
+/**
+ * PUT /friends/gender-keeper
+ * Set or clear the gender keeper designation (admin only)
+ * Body: { friendId: string | null }
+ */
+router.put('/gender-keeper', adminMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { friendId } = req.body as { friendId: string | null };
+
+    // Validate friend exists if setting a keeper
+    if (friendId) {
+      const friend = await getFriendById(friendId);
+      if (!friend) {
+        res.status(404).json(errorResponse('FRIEND_NOT_FOUND', 'Friend not found'));
+        return;
+      }
+    }
+
+    await setGenderKeeper(friendId ?? null);
+    res.json(successResponse({ set: true }));
+  } catch (error) {
+    logger.error('Failed to set gender keeper', { error });
+    res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to set gender keeper'));
   }
 });
 

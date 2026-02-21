@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { GenderRevealAdminResponse, GenderValue, Envelope } from 'shared';
+import type { GenderRevealAdminResponse, Envelope } from 'shared';
 import { Button, Card, Text } from '../common';
 import {
   getGenderRevealAdminConfig,
@@ -36,7 +36,6 @@ export function GenderRevealContentTab() {
   const [isEditing, setIsEditing] = useState(false);
 
   // Form state — stored as raw digits (e.g., "01152026")
-  const [genderValue, setGenderValue] = useState<GenderValue>('boy');
   const [keyA, setKeyA] = useState('');
   const [keyB, setKeyB] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -53,20 +52,25 @@ export function GenderRevealContentTab() {
     };
   }, []);
 
-  // Load gender reveal envelopes
+  // Load gender reveal envelopes (auto-select if only one exists)
   useEffect(() => {
     async function loadEnvelopes() {
       try {
         const envelopes = await getEnvelopes();
         if (mountedRef.current) {
-          setRevealEnvelopes(envelopes.filter((e) => e.type === 'gender-reveal'));
+          const reveals = envelopes.filter((e) => e.type === 'gender-reveal');
+          setRevealEnvelopes(reveals);
+          const firstReveal = reveals[0];
+          if (reveals.length === 1 && firstReveal && !selectedEnvelopeId) {
+            setSelectedEnvelopeId(firstReveal.id);
+          }
         }
       } catch {
         // Silent error
       }
     }
     loadEnvelopes();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadConfig = useCallback(async (envelopeId: string) => {
     setIsLoading(true);
@@ -101,11 +105,9 @@ export function GenderRevealContentTab() {
 
   const openForm = useCallback((prefill?: GenderRevealAdminResponse) => {
     if (prefill?.configured) {
-      setGenderValue(prefill.genderValue ?? 'boy');
       setKeyA(prefill.keyA ?? '');
       setKeyB(prefill.keyB ?? '');
     } else {
-      setGenderValue('boy');
       setKeyA('');
       setKeyB('');
     }
@@ -153,7 +155,6 @@ export function GenderRevealContentTab() {
     setIsSaving(true);
     try {
       await configureGenderReveal(selectedEnvelopeId, {
-        genderValue,
         keyA,
         keyB,
       });
@@ -168,7 +169,7 @@ export function GenderRevealContentTab() {
         setIsSaving(false);
       }
     }
-  }, [selectedEnvelopeId, genderValue, keyA, keyB, validateForm, loadConfig]);
+  }, [selectedEnvelopeId, keyA, keyB, validateForm, loadConfig]);
 
   const handleReseal = useCallback(async () => {
     if (!selectedEnvelopeId) return;
@@ -221,31 +222,6 @@ export function GenderRevealContentTab() {
         </h3>
         <Card className="gender-reveal-tab__card">
           <div className="gender-reveal-tab__form">
-            {/* Gender selection */}
-            <div className="gender-reveal-tab__field">
-              <label className="gender-reveal-tab__label">
-                {STRINGS.REVEAL_ADMIN_GENDER_LABEL}
-              </label>
-              <div className="gender-reveal-tab__gender-toggle">
-                <button
-                  type="button"
-                  className={`gender-reveal-tab__gender-option ${genderValue === 'boy' ? 'gender-reveal-tab__gender-option--active-boy' : ''}`}
-                  onClick={() => setGenderValue('boy')}
-                  aria-pressed={genderValue === 'boy'}
-                >
-                  Boy
-                </button>
-                <button
-                  type="button"
-                  className={`gender-reveal-tab__gender-option ${genderValue === 'girl' ? 'gender-reveal-tab__gender-option--active-girl' : ''}`}
-                  onClick={() => setGenderValue('girl')}
-                  aria-pressed={genderValue === 'girl'}
-                >
-                  Girl
-                </button>
-              </div>
-            </div>
-
             {/* Date A */}
             <div className="gender-reveal-tab__field">
               <label
@@ -442,10 +418,12 @@ export function GenderRevealContentTab() {
                       <div className="gender-reveal-tab__config-display">
                         <div className="gender-reveal-tab__config-row">
                           <span className="gender-reveal-tab__config-label">
-                            {STRINGS.REVEAL_ADMIN_GENDER_LABEL}
+                            Gender
                           </span>
                           <span className="gender-reveal-tab__config-value">
-                            {config.genderValue === 'boy' ? 'Boy' : 'Girl'}
+                            {config.genderSet
+                              ? STRINGS.REVEAL_ADMIN_GENDER_SET
+                              : STRINGS.REVEAL_ADMIN_GENDER_NOT_SET}
                           </span>
                         </div>
                         <div className="gender-reveal-tab__config-row">

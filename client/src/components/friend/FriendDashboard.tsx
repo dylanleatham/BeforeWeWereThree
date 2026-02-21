@@ -7,6 +7,7 @@ import { useFriendDashboard } from '../../hooks/useFriendDashboard';
 import { FriendLetterCard } from './FriendLetterCard';
 import { FriendLetterActivity } from './FriendLetterActivity';
 import { ThankYouNoteView } from './ThankYouNoteView';
+import { GenderInput } from './GenderInput';
 import { createFriendLetter } from '../../services/friendApi';
 import { STRINGS } from '../../constants/strings';
 import './FriendDashboard.css';
@@ -152,6 +153,15 @@ export function FriendDashboard() {
             {STRINGS.FRIEND_SUBTITLE}
           </Text>
         </header>
+
+        {dashboard.genderKeeperStatus && (
+          <section className="friend-dashboard__gender-keeper">
+            <GenderInput
+              genderAlreadySet={dashboard.genderKeeperStatus.genderAlreadySet}
+              onGenderSet={refetch}
+            />
+          </section>
+        )}
 
         {dashboard.thankYouNote && (
           <section className="friend-dashboard__thank-you">

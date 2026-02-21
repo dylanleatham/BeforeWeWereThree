@@ -7,6 +7,7 @@ import {
 } from 'shared';
 import {
   getAllEnvelopes,
+  getParticipantEnvelopes,
   getEnvelopeById,
   createEnvelope,
   updateEnvelope,
@@ -29,11 +30,15 @@ const router = Router();
 
 /**
  * GET /envelopes
- * List all envelopes (requires authentication)
+ * List envelopes — admin sees all, participants see filtered
+ * Gender-reveal envelopes are hidden from participants until gender is set
  */
-router.get('/', authMiddleware, async (_req: Request, res: Response) => {
+router.get('/', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const envelopes = await getAllEnvelopes();
+    const role = req.session?.role;
+    const envelopes = role === 'admin'
+      ? await getAllEnvelopes()
+      : await getParticipantEnvelopes();
     res.json(successResponse({ envelopes }));
   } catch (error) {
     logger.error('Failed to fetch envelopes', { error });
@@ -63,6 +68,7 @@ router.get('/:id', authMiddleware, async (req: Request<{ id: string }>, res: Res
 /**
  * POST /envelopes
  * Create new envelope (admin only)
+ * Gender-reveal is a singleton — only one allowed
  */
 router.post('/', adminMiddleware, async (req: Request, res: Response) => {
   try {
@@ -74,6 +80,17 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
         })
       );
       return;
+    }
+
+    // Singleton check for gender-reveal envelopes
+    if (parsed.data.type === 'gender-reveal') {
+      const existing = await getAllEnvelopes();
+      if (existing.some((e) => e.type === 'gender-reveal')) {
+        res.status(409).json(
+          errorResponse('GENDER_REVEAL_SINGLETON', 'Only one gender reveal envelope is allowed')
+        );
+        return;
+      }
     }
 
     const envelope = await createEnvelope(parsed.data);

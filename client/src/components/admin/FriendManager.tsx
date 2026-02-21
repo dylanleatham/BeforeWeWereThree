@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, Heart, Eye } from 'lucide-react';
+import { Plus, Trash2, Heart, Eye, Shield } from 'lucide-react';
 import type { Friend, FriendThankYouNote, FriendLetter } from 'shared';
 import { Button, Card, Heading, Text } from '../common';
 import { ThankYouNoteEditor } from './ThankYouNoteEditor';
@@ -8,6 +8,7 @@ import {
   createFriend,
   deleteFriend,
   getAdminFriendLetters,
+  setGenderKeeper,
 } from '../../services/friendApi';
 import { STRINGS } from '../../constants/strings';
 import { PIN_LENGTH } from '../../constants/config';
@@ -82,6 +83,22 @@ export function FriendManager() {
         await fetchFriends();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to delete friend');
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [fetchFriends]
+  );
+
+  const handleToggleGenderKeeper = useCallback(
+    async (friendId: string, isCurrentlyKeeper: boolean) => {
+      setIsSaving(true);
+      setError(null);
+      try {
+        await setGenderKeeper(isCurrentlyKeeper ? null : friendId);
+        await fetchFriends();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to update gender keeper');
       } finally {
         setIsSaving(false);
       }
@@ -237,13 +254,28 @@ export function FriendManager() {
             <li key={friend.id} className="friend-manager__item">
               <Card className="friend-manager__card">
                 <div className="friend-manager__info">
-                  <span className="friend-manager__name">{friend.name}</span>
+                  <span className="friend-manager__name">
+                    {friend.name}
+                    {friend.isGenderKeeper && (
+                      <span className="friend-manager__keeper-badge">
+                        {STRINGS.GENDER_KEEPER_BADGE}
+                      </span>
+                    )}
+                  </span>
                   <span className="friend-manager__pin">PIN: {friend.pin}</span>
                   <Text variant="small" color="muted">
                     {STRINGS.FRIEND_MANAGER_LETTERS(friend.submittedCount)}
                   </Text>
                 </div>
                 <div className="friend-manager__actions">
+                  <button
+                    className={`friend-manager__btn${friend.isGenderKeeper ? ' friend-manager__btn--keeper-active' : ''}`}
+                    onClick={() => handleToggleGenderKeeper(friend.id, friend.isGenderKeeper)}
+                    title={STRINGS.GENDER_KEEPER_TOGGLE_TITLE}
+                    disabled={isSaving}
+                  >
+                    <Shield size={18} />
+                  </button>
                   <button
                     className="friend-manager__btn"
                     onClick={() =>

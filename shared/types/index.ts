@@ -158,6 +158,7 @@ export type {
   FriendResponse,
   FriendLetterResponse,
   FriendThankYouNoteResponse,
+  GenderKeeperStatus,
 } from './friend.js';
 export {
   createFriendSchema,
@@ -200,6 +201,7 @@ export type {
   GenderValue,
   GenderRevealPhase,
   ConfigureGenderRevealRequest,
+  SetGenderValueRequest,
   ValidateRevealKeyRequest,
   GenderRevealStateResponse,
   ValidateKeyResponse,
@@ -209,6 +211,7 @@ export type {
 } from './genderReveal.js';
 export {
   configureGenderRevealSchema,
+  setGenderValueSchema,
   validateRevealKeySchema,
 } from './genderReveal.js';
 

@@ -21,17 +21,16 @@ export async function getConfig(envelopeId: string) {
 
 /**
  * Create gender reveal config for an envelope
+ * Gender value is null until set by the gender keeper friend
  */
 export async function createConfig(
   envelopeId: string,
-  genderValue: string,
   keyA: string,
   keyB: string
 ) {
   return db.genderRevealConfig.create({
     data: {
       envelopeId,
-      genderValue,
       keyA,
       keyB,
     },
@@ -67,6 +66,31 @@ export async function deleteConfig(envelopeId: string): Promise<boolean> {
     }
     throw error;
   }
+}
+
+/**
+ * Find the singleton gender reveal config (for friend input)
+ * Returns the first (and should be only) gender reveal config
+ */
+export async function findGenderRevealConfig() {
+  return db.genderRevealConfig.findFirst();
+}
+
+/**
+ * Set the gender value on a config (one-time, by gender keeper friend)
+ */
+export async function setGenderValue(
+  envelopeId: string,
+  genderValue: string,
+  friendId: string
+) {
+  return db.genderRevealConfig.update({
+    where: { envelopeId },
+    data: {
+      genderValue,
+      setByFriendId: friendId,
+    },
+  });
 }
 
 /**

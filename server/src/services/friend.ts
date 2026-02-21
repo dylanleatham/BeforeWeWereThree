@@ -11,6 +11,7 @@ import {
   getThankYouNote,
   upsertThankYouNote as dbUpsertThankYouNote,
 } from '../db/queries/friend.js';
+import { findGenderRevealConfig } from '../db/queries/genderReveal.js';
 import { getGuestPin, getAdminPin } from '../db/queries/config.js';
 import type {
   FriendDashboardResponse,
@@ -21,6 +22,7 @@ import type {
   FriendLetterViewResponse,
   FriendThankYouNote,
   Friend,
+  GenderKeeperStatus,
 } from 'shared';
 
 /**
@@ -57,6 +59,7 @@ export async function getAllFriends(): Promise<FriendListResponse> {
     id: friend.id,
     name: friend.name,
     pin: friend.pin,
+    isGenderKeeper: friend.isGenderKeeper,
     createdAt: friend.createdAt.toISOString(),
     updatedAt: friend.updatedAt.toISOString(),
     letterCount: friend._count.friendLetters,
@@ -157,10 +160,21 @@ export async function getFriendDashboard(friendId: string): Promise<FriendDashbo
     submittedAt: letter.submittedAt,
   }));
 
+  // Check gender keeper status
+  let genderKeeperStatus: GenderKeeperStatus | null = null;
+  if (friend.isGenderKeeper) {
+    const config = await findGenderRevealConfig();
+    genderKeeperStatus = {
+      isGenderKeeper: true,
+      genderAlreadySet: config?.genderValue !== null && config?.genderValue !== undefined,
+    };
+  }
+
   return {
     friend: { id: friend.id, name: friend.name },
     thankYouNote,
     letters,
+    genderKeeperStatus,
   };
 }
 

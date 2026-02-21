@@ -348,20 +348,38 @@ export const STRINGS = {
   // Gender Reveal - Admin (for Plan 03)
   REVEAL_ADMIN_HEADING: 'Gender Reveal Configuration',
   REVEAL_ADMIN_SELECT_ENVELOPE: 'Select a Gender Reveal envelope to configure',
-  REVEAL_ADMIN_GENDER_LABEL: "Baby's Gender",
   REVEAL_ADMIN_KEY_A_LABEL: 'Date for Participant A',
   REVEAL_ADMIN_KEY_B_LABEL: 'Date for Participant B',
   REVEAL_ADMIN_KEY_HINT: 'A meaningful date (MM/DD/YYYY)',
   REVEAL_ADMIN_SAVE: 'Save Configuration',
   REVEAL_ADMIN_SAVING: 'Saving...',
   REVEAL_ADMIN_RESEAL: 'Re-seal Reveal',
-  REVEAL_ADMIN_RESEAL_CONFIRM: 'This will reset the reveal so both dates must be entered again. The gender and dates will be preserved.',
+  REVEAL_ADMIN_RESEAL_CONFIRM: 'This will reset the reveal so both dates must be entered again. The dates will be preserved.',
   REVEAL_ADMIN_DELETE: 'Delete Configuration',
   REVEAL_ADMIN_DELETE_CONFIRM: 'This will permanently delete the gender reveal configuration.',
   REVEAL_ADMIN_STATUS_NOT_CONFIGURED: 'Not configured',
   REVEAL_ADMIN_STATUS_CONFIGURED: 'Configured \u2014 awaiting dates',
   REVEAL_ADMIN_STATUS_REVEALED: 'Revealed',
   REVEAL_ADMIN_CANCEL: 'Cancel',
+  REVEAL_ADMIN_GENDER_SET: 'Gender has been set by the keeper',
+  REVEAL_ADMIN_GENDER_NOT_SET: 'Gender not yet set by keeper',
+
+  // Gender Keeper (Friend Dashboard)
+  GENDER_KEEPER_HEADING: 'Gender Reveal',
+  GENDER_KEEPER_DESCRIPTION: 'You have been entrusted with a very special secret. When you are ready, select the gender below.',
+  GENDER_KEEPER_CONFIRM_TITLE: 'Are you sure?',
+  GENDER_KEEPER_CONFIRM_MESSAGE: (gender: string) =>
+    `You are about to set the gender to "${gender}". This cannot be undone.`,
+  GENDER_KEEPER_CONFIRM_YES: 'Yes, set it',
+  GENDER_KEEPER_DONE_TITLE: 'Thank you!',
+  GENDER_KEEPER_DONE_MESSAGE: 'The secret is safe. The couple will discover it together during their ceremony.',
+
+  // Gender Keeper (Admin / Friend Manager)
+  GENDER_KEEPER_BADGE: 'Gender Keeper',
+  GENDER_KEEPER_TOGGLE_TITLE: 'Toggle gender keeper',
+
+  // Singleton error
+  GENDER_REVEAL_SINGLETON_ERROR: 'Only one gender reveal envelope is allowed',
 } as const;
 
 /**

@@ -4,6 +4,7 @@ import {
   errorResponse,
   validateRevealKeySchema,
   configureGenderRevealSchema,
+  setGenderValueSchema,
 } from 'shared';
 import type {
   GenderRevealKeyValidatedMessage,
@@ -15,10 +16,12 @@ import {
   configureReveal,
   getAdminConfig,
   resealReveal,
+  setGenderByFriend,
 } from '../services/genderReveal.js';
 import { deleteConfig } from '../db/queries/genderReveal.js';
+import { getGenderKeeper } from '../db/queries/friend.js';
 import { getRealtimeService } from '../services/realtime.js';
-import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+import { authMiddleware, adminMiddleware, friendMiddleware } from '../middleware/auth.js';
 import { createRateLimiter } from '../middleware/rateLimit.js';
 import { logger } from '../utils/logger.js';
 
@@ -151,6 +154,67 @@ router.delete(
     } catch (error) {
       logger.error('Failed to delete gender reveal config', { error });
       res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete gender reveal config'));
+    }
+  }
+);
+
+// ============================================================
+// Friend Routes (before param routes to avoid collision)
+// ============================================================
+
+/**
+ * POST /gender-reveal/set-gender
+ * Gender keeper friend sets the gender value (one-time, immutable)
+ */
+router.post(
+  '/set-gender',
+  friendMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const friendId = req.session?.friendId;
+      if (!friendId) {
+        res.status(401).json(errorResponse('UNAUTHORIZED', 'Friend ID missing from session'));
+        return;
+      }
+
+      // Verify friend is the designated keeper
+      const keeper = await getGenderKeeper();
+      if (!keeper || keeper.id !== friendId) {
+        res.status(403).json(
+          errorResponse('NOT_GENDER_KEEPER', 'You are not the designated gender keeper')
+        );
+        return;
+      }
+
+      const parsed = setGenderValueSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json(
+          errorResponse('VALIDATION_ERROR', 'Invalid gender value', {
+            issues: parsed.error.issues,
+          })
+        );
+        return;
+      }
+
+      await setGenderByFriend(friendId, parsed.data.genderValue);
+      res.json(successResponse({ set: true }));
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'REVEAL_NOT_CONFIGURED') {
+          res.status(404).json(
+            errorResponse('REVEAL_NOT_CONFIGURED', 'No gender reveal has been configured yet')
+          );
+          return;
+        }
+        if (error.message === 'GENDER_ALREADY_SET') {
+          res.status(409).json(
+            errorResponse('GENDER_ALREADY_SET', 'The gender has already been set and cannot be changed')
+          );
+          return;
+        }
+      }
+      logger.error('Failed to set gender by friend', { error });
+      res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to set gender'));
     }
   }
 );

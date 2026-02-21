@@ -45,7 +45,8 @@ jest.unstable_mockModule('../../middleware/rateLimit.js', () => ({
 // Mock envelope queries (used by group join to verify envelope exists)
 const mockGetEnvelopeById = jest.fn() as AnyMock;
 jest.unstable_mockModule('../../db/queries/envelopes.js', () => ({
-  getAllEnvelopes: jest.fn().mockResolvedValue([]),
+  getAllEnvelopes: jest.fn<() => Promise<unknown[]>>().mockResolvedValue([]),
+  getParticipantEnvelopes: jest.fn<() => Promise<unknown[]>>().mockResolvedValue([]),
   getEnvelopeById: mockGetEnvelopeById,
   createEnvelope: jest.fn(),
   updateEnvelope: jest.fn(),

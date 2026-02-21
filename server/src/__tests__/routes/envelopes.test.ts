@@ -44,6 +44,7 @@ jest.unstable_mockModule('../../middleware/rateLimit.js', () => ({
 
 // Mock envelope query functions
 const mockGetAllEnvelopes = jest.fn() as AnyMock;
+const mockGetParticipantEnvelopes = jest.fn() as AnyMock;
 const mockGetEnvelopeById = jest.fn() as AnyMock;
 const mockCreateEnvelope = jest.fn() as AnyMock;
 const mockUpdateEnvelope = jest.fn() as AnyMock;
@@ -51,6 +52,7 @@ const mockDeleteEnvelope = jest.fn() as AnyMock;
 
 jest.unstable_mockModule('../../db/queries/envelopes.js', () => ({
   getAllEnvelopes: mockGetAllEnvelopes,
+  getParticipantEnvelopes: mockGetParticipantEnvelopes,
   getEnvelopeById: mockGetEnvelopeById,
   createEnvelope: mockCreateEnvelope,
   updateEnvelope: mockUpdateEnvelope,
@@ -125,7 +127,7 @@ describe('Envelope Routes', () => {
     it('should return envelopes list for authenticated user', async () => {
       const cookies = await getGuestCookies();
       mockParticipant.findUnique.mockResolvedValue(mockGuestParticipant);
-      mockGetAllEnvelopes.mockResolvedValue([mockEnvelope]);
+      mockGetParticipantEnvelopes.mockResolvedValue([mockEnvelope]);
 
       const res = await request(app)
         .get('/api/envelopes')
@@ -140,7 +142,7 @@ describe('Envelope Routes', () => {
     it('should return 500 if query fails', async () => {
       const cookies = await getGuestCookies();
       mockParticipant.findUnique.mockResolvedValue(mockGuestParticipant);
-      mockGetAllEnvelopes.mockRejectedValue(new Error('DB error'));
+      mockGetParticipantEnvelopes.mockRejectedValue(new Error('DB error'));
 
       const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
 

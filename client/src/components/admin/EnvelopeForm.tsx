@@ -14,6 +14,8 @@ interface EnvelopeFormProps {
   onCancel: () => void;
   /** Loading state */
   isLoading?: boolean;
+  /** Envelope types that should be disabled in the type selector */
+  disabledTypes?: string[];
 }
 
 /**
@@ -25,6 +27,7 @@ export function EnvelopeForm({
   onSubmit,
   onCancel,
   isLoading = false,
+  disabledTypes = [],
 }: EnvelopeFormProps) {
   const [title, setTitle] = useState(envelope?.title || '');
   const [type, setType] = useState<EnvelopeType>(envelope?.type || 'would-you-rather');
@@ -104,7 +107,7 @@ export function EnvelopeForm({
           disabled={isLoading}
         >
           {ENVELOPE_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>
+            <option key={t.value} value={t.value} disabled={disabledTypes.includes(t.value)}>
               {t.label}
             </option>
           ))}

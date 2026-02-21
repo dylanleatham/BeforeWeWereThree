@@ -29,6 +29,7 @@ const DASHBOARD = {
       submittedAt: null,
     },
   ],
+  genderKeeperStatus: null,
 };
 
 describe('useFriendDashboard', () => {

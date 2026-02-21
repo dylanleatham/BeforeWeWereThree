@@ -25,6 +25,7 @@ function toApiFriend(friend: PrismaFriend): Friend {
     id: friend.id,
     name: friend.name,
     pin: friend.pin,
+    isGenderKeeper: friend.isGenderKeeper,
     createdAt: friend.createdAt.toISOString(),
     updatedAt: friend.updatedAt.toISOString(),
   };
@@ -83,6 +84,38 @@ export async function createFriend(name: string, pin: string): Promise<Friend> {
     data: { name, pin },
   });
   return toApiFriend(friend);
+}
+
+/**
+ * Get the friend designated as gender keeper (at most one)
+ */
+export async function getGenderKeeper(): Promise<Friend | null> {
+  const friend = await db.friend.findFirst({
+    where: { isGenderKeeper: true },
+  });
+  return friend ? toApiFriend(friend) : null;
+}
+
+/**
+ * Set a friend as the gender keeper (or clear all keepers if null)
+ * Transaction: clear all existing keepers, then set the new one
+ */
+export async function setGenderKeeper(friendId: string | null): Promise<void> {
+  await db.$transaction(async (tx) => {
+    // Clear all existing keepers
+    await tx.friend.updateMany({
+      where: { isGenderKeeper: true },
+      data: { isGenderKeeper: false },
+    });
+
+    // Set new keeper if provided
+    if (friendId) {
+      await tx.friend.update({
+        where: { id: friendId },
+        data: { isGenderKeeper: true },
+      });
+    }
+  });
 }
 
 export async function deleteFriend(id: string): Promise<boolean> {

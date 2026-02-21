@@ -146,3 +146,23 @@
   object-fit: cover;
   border-radius: 8px;
 }
+
+/* Gender Keeper */
+.friend-manager__keeper-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 4px;
+  background: var(--color-soft-sage, #9DB5A0);
+  color: #fff;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.friend-manager__btn--keeper-active {
+  color: var(--color-soft-sage, #9DB5A0);
+  background: rgba(157, 181, 160, 0.12);
+}

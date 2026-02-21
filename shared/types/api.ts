@@ -34,6 +34,9 @@ export type ErrorCode =
   | 'PIN_ALREADY_EXISTS'
   | 'REVEAL_NOT_CONFIGURED'
   | 'REVEAL_ALREADY_DONE'
+  | 'GENDER_ALREADY_SET'
+  | 'NOT_GENDER_KEEPER'
+  | 'GENDER_REVEAL_SINGLETON'
   | `HTTP_${number}`; // For HTTP status code errors
 
 /**

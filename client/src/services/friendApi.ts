@@ -11,6 +11,7 @@ import type {
   DeleteResponse,
   FriendLetterRecipient,
   FriendLetterViewResponse,
+  SetGenderValueRequest,
 } from 'shared';
 import { apiFetch } from './fetchClient';
 
@@ -119,6 +120,34 @@ export async function getAdminFriendLetters(friendId: string): Promise<FriendLet
     throw new Error(response.error?.message || 'Failed to fetch friend letters');
   }
   return response.data;
+}
+
+// ============================================================
+// Gender Keeper (friend sets gender)
+// ============================================================
+
+export async function setGender(data: SetGenderValueRequest): Promise<void> {
+  const response = await apiFetch<{ set: boolean }>('/gender-reveal/set-gender', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to set gender');
+  }
+}
+
+// ============================================================
+// Gender Keeper Admin (admin designates keeper)
+// ============================================================
+
+export async function setGenderKeeper(friendId: string | null): Promise<void> {
+  const response = await apiFetch<{ set: boolean }>('/friends/gender-keeper', {
+    method: 'PUT',
+    body: JSON.stringify({ friendId }),
+  });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to set gender keeper');
+  }
 }
 
 // ============================================================

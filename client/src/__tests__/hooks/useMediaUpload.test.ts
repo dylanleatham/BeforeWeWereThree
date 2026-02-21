@@ -61,6 +61,7 @@ describe('useMediaUpload', () => {
     mockGetUploadSas.mockResolvedValue({
       sasUrl: 'https://storage.blob.core.windows.net/photos/vid?token',
       blobUrl: 'https://storage.blob.core.windows.net/photos/vid',
+      expiresAt: '2026-01-01T01:00:00.000Z',
     });
     mockUploadToBlob.mockReturnValue({
       xhr: mockXhr as unknown as XMLHttpRequest,
@@ -82,6 +83,7 @@ describe('useMediaUpload', () => {
     mockGetUploadSas.mockResolvedValue({
       sasUrl: 'https://storage.blob.core.windows.net/photos/img?token',
       blobUrl: 'https://storage.blob.core.windows.net/photos/img',
+      expiresAt: '2026-01-01T01:00:00.000Z',
     });
     mockUploadToBlob.mockReturnValue({
       xhr: mockXhr as unknown as XMLHttpRequest,
@@ -105,6 +107,7 @@ describe('useMediaUpload', () => {
     mockGetUploadSas.mockResolvedValue({
       sasUrl: 'https://storage.blob.core.windows.net/photos/img?token',
       blobUrl: 'https://storage.blob.core.windows.net/photos/img',
+      expiresAt: '2026-01-01T01:00:00.000Z',
     });
     mockUploadToBlob.mockReturnValue({
       xhr: mockXhr as unknown as XMLHttpRequest,
@@ -132,6 +135,7 @@ describe('useMediaUpload', () => {
     mockGetUploadSas.mockResolvedValue({
       sasUrl: 'https://storage.blob.core.windows.net/photos/img?token',
       blobUrl: 'https://storage.blob.core.windows.net/photos/img',
+      expiresAt: '2026-01-01T01:00:00.000Z',
     });
     mockUploadToBlob.mockReturnValue({
       xhr: mockXhr as unknown as XMLHttpRequest,

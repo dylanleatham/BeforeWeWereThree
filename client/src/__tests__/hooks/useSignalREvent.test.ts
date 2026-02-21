@@ -42,7 +42,7 @@ describe('useSignalREvent', () => {
 
     const { unmount } = renderHook(() => useSignalREvent('testEvent', handler));
 
-    const registeredHandler = mockConnection.on.mock.calls[0][1];
+    const registeredHandler = mockConnection.on.mock.calls[0]![1];
     unmount();
 
     // Verify off() is called with the exact same function reference as on()
@@ -55,7 +55,7 @@ describe('useSignalREvent', () => {
     renderHook(() => useSignalREvent<{ value: string }>('testEvent', handler));
 
     // Get the registered wrapper function and call it
-    const registeredHandler = mockConnection.on.mock.calls[0][1];
+    const registeredHandler = mockConnection.on.mock.calls[0]![1];
     registeredHandler({ value: 'hello' });
 
     expect(handler).toHaveBeenCalledWith({ value: 'hello' });
@@ -80,7 +80,7 @@ describe('useSignalREvent', () => {
     expect(mockConnection.on).toHaveBeenCalledTimes(1);
 
     // But calling the registered handler should use handler2
-    const registeredHandler = mockConnection.on.mock.calls[0][1];
+    const registeredHandler = mockConnection.on.mock.calls[0]![1];
     registeredHandler('data');
 
     expect(handler1).not.toHaveBeenCalled();

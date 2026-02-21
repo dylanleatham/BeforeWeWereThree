@@ -4,6 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
+import type { FriendLetterRecipient } from 'shared';
 
 vi.mock('../../services/friendApi', () => ({
   getFriendDashboard: vi.fn(),
@@ -20,7 +21,7 @@ const DASHBOARD = {
   letters: [
     {
       id: 'l1',
-      recipient: 'baby',
+      recipient: 'baby' as FriendLetterRecipient,
       recipientName: 'Baby',
       title: null,
       status: 'draft' as const,
@@ -76,7 +77,7 @@ describe('useFriendDashboard', () => {
 
     const updated = {
       ...DASHBOARD,
-      letters: [...DASHBOARD.letters, { id: 'l2', recipient: 'you', recipientName: 'Dylan', title: null, status: 'submitted' as const, content: 'Done', submittedAt: '2026-01-02' }],
+      letters: [...DASHBOARD.letters, { id: 'l2', recipient: 'you' as FriendLetterRecipient, recipientName: 'Dylan', title: null, status: 'submitted' as const, content: 'Done', submittedAt: '2026-01-02' }],
     };
     mockGetDashboard.mockResolvedValue(updated);
 

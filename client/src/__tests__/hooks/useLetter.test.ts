@@ -70,7 +70,6 @@ describe('useLetter', () => {
   it('should load writing phase when no letter exists', async () => {
     mockGetLetterState.mockResolvedValue({
       prompt: PROMPT,
-      phase: 'writing',
       myLetter: null,
       partnerSubmitted: false,
       revealedLetters: [],
@@ -88,7 +87,6 @@ describe('useLetter', () => {
   it('should load waiting phase when letter is submitted', async () => {
     mockGetLetterState.mockResolvedValue({
       prompt: PROMPT,
-      phase: 'waiting',
       myLetter: { ...MY_LETTER, submittedAt: '2026-01-02' },
       partnerSubmitted: false,
       revealedLetters: [],
@@ -105,7 +103,6 @@ describe('useLetter', () => {
     const partnerLetter = { ...MY_LETTER, id: 'l2', participantId: 'partner', content: 'Partner content' };
     mockGetLetterState.mockResolvedValue({
       prompt: PROMPT,
-      phase: 'revealing',
       myLetter: { ...MY_LETTER, submittedAt: '2026-01-02' },
       partnerSubmitted: true,
       revealedLetters: [{ ...MY_LETTER, submittedAt: '2026-01-02' }, partnerLetter],
@@ -133,7 +130,6 @@ describe('useLetter', () => {
   it('should save letter content', async () => {
     mockGetLetterState.mockResolvedValue({
       prompt: PROMPT,
-      phase: 'writing',
       myLetter: MY_LETTER,
       partnerSubmitted: false,
       revealedLetters: [],
@@ -157,7 +153,6 @@ describe('useLetter', () => {
   it('should submit letter and transition to waiting phase', async () => {
     mockGetLetterState.mockResolvedValue({
       prompt: PROMPT,
-      phase: 'writing',
       myLetter: MY_LETTER,
       partnerSubmitted: false,
       revealedLetters: [],
@@ -179,7 +174,6 @@ describe('useLetter', () => {
   it('should transition to revealing on immediate reveal', async () => {
     mockGetLetterState.mockResolvedValue({
       prompt: PROMPT,
-      phase: 'writing',
       myLetter: MY_LETTER,
       partnerSubmitted: false,
       revealedLetters: [],
@@ -206,7 +200,6 @@ describe('useLetter', () => {
   it('should join and leave SignalR group', async () => {
     mockGetLetterState.mockResolvedValue({
       prompt: PROMPT,
-      phase: 'writing',
       myLetter: null,
       partnerSubmitted: false,
       revealedLetters: [],
@@ -226,7 +219,6 @@ describe('useLetter', () => {
   it('should advance to complete phase', async () => {
     mockGetLetterState.mockResolvedValue({
       prompt: PROMPT,
-      phase: 'writing',
       myLetter: null,
       partnerSubmitted: false,
       revealedLetters: [],

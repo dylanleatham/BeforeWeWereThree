@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Heading } from '../common';
-import { ContentTabs } from './ContentTabs';
+import { Heading, ContentTabs } from '../common';
 import { TriviaContentTab } from './TriviaContentTab';
 import { WyrContentTab } from './WyrContentTab';
 import { LetterContentTab } from './LetterContentTab';
@@ -31,6 +30,7 @@ export function ContentManager() {
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        ariaLabel="Content management"
       />
 
       {activeTab === 'trivia' && (

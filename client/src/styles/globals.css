@@ -240,6 +240,11 @@ a:hover {
   color: var(--color-deep-terracotta);
 }
 
+/* Center tabs in guest view */
+.app:not(.app--admin) .content-tabs {
+  justify-content: center;
+}
+
 /* Loading spinner */
 .app-loading {
   min-height: 100vh;

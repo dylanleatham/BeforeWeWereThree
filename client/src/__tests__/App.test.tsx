@@ -6,6 +6,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import App from '../App';
 
 // Mock useSession hook
@@ -243,6 +244,213 @@ describe('App', () => {
 
       expect(screen.getByText('Network error')).toBeInTheDocument();
       expect(screen.getByText('Try again')).toBeInTheDocument();
+    });
+
+    it('should show tabs when envelopes exist', () => {
+      mockUseSession.mockReturnValue({
+        isLoading: false,
+        isAuthenticated: true,
+        role: 'guest',
+        participantId: 'guest-id',
+        designation: 'A',
+        friendId: null,
+        error: null,
+        login: vi.fn(),
+        logout: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      mockUseEnvelopes.mockReturnValue({
+        envelopes: [
+          {
+            id: '1',
+            title: 'Trivia Time',
+            type: 'trivia',
+            status: 'sealed',
+            order: 1,
+            friendLetterId: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+        updateStatus: vi.fn(),
+      });
+
+      render(<App />);
+
+      expect(screen.getByRole('tab', { name: 'Activities' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: 'Friend Letters' })).toBeInTheDocument();
+    });
+
+    it('should not show tabs when no envelopes exist', () => {
+      mockUseSession.mockReturnValue({
+        isLoading: false,
+        isAuthenticated: true,
+        role: 'guest',
+        participantId: 'guest-id',
+        designation: 'A',
+        friendId: null,
+        error: null,
+        login: vi.fn(),
+        logout: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      render(<App />);
+
+      expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    });
+
+    it('should show only activity envelopes on Activities tab', () => {
+      mockUseSession.mockReturnValue({
+        isLoading: false,
+        isAuthenticated: true,
+        role: 'guest',
+        participantId: 'guest-id',
+        designation: 'A',
+        friendId: null,
+        error: null,
+        login: vi.fn(),
+        logout: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      mockUseEnvelopes.mockReturnValue({
+        envelopes: [
+          {
+            id: '1',
+            title: 'Trivia Time',
+            type: 'trivia',
+            status: 'sealed',
+            order: 1,
+            friendLetterId: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            title: 'Letter from Alice',
+            type: 'friend-letter',
+            status: 'sealed',
+            order: 2,
+            friendLetterId: 'fl-1',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+        updateStatus: vi.fn(),
+      });
+
+      render(<App />);
+
+      // Activities tab is active by default — activity envelope visible
+      expect(screen.getByText('Trivia Time')).toBeInTheDocument();
+      // Friend letter should not be visible
+      expect(screen.queryByText('Letter from Alice')).not.toBeInTheDocument();
+    });
+
+    it('should show only friend letter envelopes on Friend Letters tab', async () => {
+      const user = userEvent.setup();
+
+      mockUseSession.mockReturnValue({
+        isLoading: false,
+        isAuthenticated: true,
+        role: 'guest',
+        participantId: 'guest-id',
+        designation: 'A',
+        friendId: null,
+        error: null,
+        login: vi.fn(),
+        logout: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      mockUseEnvelopes.mockReturnValue({
+        envelopes: [
+          {
+            id: '1',
+            title: 'Trivia Time',
+            type: 'trivia',
+            status: 'sealed',
+            order: 1,
+            friendLetterId: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            title: 'Letter from Alice',
+            type: 'friend-letter',
+            status: 'sealed',
+            order: 2,
+            friendLetterId: 'fl-1',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+        updateStatus: vi.fn(),
+      });
+
+      render(<App />);
+
+      await user.click(screen.getByRole('tab', { name: 'Friend Letters' }));
+
+      // Friend letter visible
+      expect(screen.getByText('Letter from Alice')).toBeInTheDocument();
+      // Activity envelope should not be visible
+      expect(screen.queryByText('Trivia Time')).not.toBeInTheDocument();
+    });
+
+    it('should show friend letters empty state when no friend letters exist', async () => {
+      const user = userEvent.setup();
+
+      mockUseSession.mockReturnValue({
+        isLoading: false,
+        isAuthenticated: true,
+        role: 'guest',
+        participantId: 'guest-id',
+        designation: 'A',
+        friendId: null,
+        error: null,
+        login: vi.fn(),
+        logout: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      mockUseEnvelopes.mockReturnValue({
+        envelopes: [
+          {
+            id: '1',
+            title: 'Trivia Time',
+            type: 'trivia',
+            status: 'sealed',
+            order: 1,
+            friendLetterId: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+        updateStatus: vi.fn(),
+      });
+
+      render(<App />);
+
+      await user.click(screen.getByRole('tab', { name: 'Friend Letters' }));
+
+      expect(screen.getByText('No friend letters yet')).toBeInTheDocument();
+      expect(screen.getByText('Letters from friends will appear here.')).toBeInTheDocument();
     });
   });
 

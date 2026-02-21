@@ -25,3 +25,5 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { SpotifyButton } from './SpotifyButton';
 
 export { MediaAttachment } from './MediaAttachment';
+
+export { ContentTabs } from './ContentTabs';

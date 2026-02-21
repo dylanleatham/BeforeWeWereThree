@@ -10,6 +10,7 @@ interface ContentTabsProps {
   tabs: Tab[];
   activeTab: string;
   onTabChange: (id: string) => void;
+  ariaLabel: string;
 }
 
 /**
@@ -20,7 +21,7 @@ interface ContentTabsProps {
  * - Home: first tab
  * - End: last tab
  */
-export function ContentTabs({ tabs, activeTab, onTabChange }: ContentTabsProps) {
+export function ContentTabs({ tabs, activeTab, onTabChange, ariaLabel }: ContentTabsProps) {
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   const setTabRef = useCallback((id: string) => (el: HTMLButtonElement | null) => {
@@ -72,7 +73,7 @@ export function ContentTabs({ tabs, activeTab, onTabChange }: ContentTabsProps) 
   return (
     <div
       role="tablist"
-      aria-label="Content management"
+      aria-label={ariaLabel}
       className="content-tabs"
       onKeyDown={handleKeyDown}
     >

@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { MotionConfig } from 'motion/react';
 import { useSession } from './hooks/useSession';
 import { useEnvelopes } from './hooks/useEnvelopes';
@@ -5,7 +6,7 @@ import { PinEntry } from './components/auth/PinEntry';
 import { EnvelopePile } from './components/envelope';
 import { EnvelopeManager, ContentManager } from './components/admin';
 import { FriendDashboard } from './components/friend/FriendDashboard';
-import { Heading, Text, SpotifyButton } from './components/common';
+import { Heading, Text, SpotifyButton, ContentTabs } from './components/common';
 import { SignalRProvider } from './context/SignalRContext';
 import { STRINGS } from './constants/strings';
 import './styles/globals.css';
@@ -62,6 +63,25 @@ function AuthenticatedApp({
     refetch,
     updateStatus,
   } = useEnvelopes();
+
+  const [activeTab, setActiveTab] = useState('activities');
+
+  const activityEnvelopes = useMemo(
+    () => envelopes.filter((e) => e.type !== 'friend-letter'),
+    [envelopes],
+  );
+
+  const friendLetterEnvelopes = useMemo(
+    () => envelopes.filter((e) => e.type === 'friend-letter'),
+    [envelopes],
+  );
+
+  const guestTabs = useMemo(() => [
+    { id: 'activities', label: STRINGS.GUEST_TAB_ACTIVITIES },
+    { id: 'friend-letters', label: STRINGS.GUEST_TAB_FRIEND_LETTERS },
+  ], []);
+
+  const visibleEnvelopes = activeTab === 'activities' ? activityEnvelopes : friendLetterEnvelopes;
 
   // Loading state (checking session)
   if (sessionLoading) {
@@ -130,10 +150,42 @@ function AuthenticatedApp({
               </Text>
             </div>
           ) : (
-            <EnvelopePile
-              envelopes={envelopes}
-              onStatusChange={(id, status) => updateStatus(id, status)}
-            />
+            <>
+              <ContentTabs
+                tabs={guestTabs}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                ariaLabel={STRINGS.GUEST_TABS_ARIA}
+              />
+
+              <div
+                role="tabpanel"
+                id={`panel-${activeTab}`}
+                aria-labelledby={`tab-${activeTab}`}
+              >
+                {visibleEnvelopes.length === 0 ? (
+                  <div className="app__empty">
+                    {activeTab === 'friend-letters' ? (
+                      <>
+                        <Heading level={2}>{STRINGS.GUEST_EMPTY_FRIEND_LETTERS}</Heading>
+                        <Text color="muted">{STRINGS.GUEST_EMPTY_FRIEND_LETTERS_MESSAGE}</Text>
+                      </>
+                    ) : (
+                      <>
+                        <Heading level={2}>{STRINGS.APP_EMPTY_TITLE}</Heading>
+                        <Text color="muted">{STRINGS.APP_EMPTY_MESSAGE}</Text>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <EnvelopePile
+                    key={activeTab}
+                    envelopes={visibleEnvelopes}
+                    onStatusChange={(id, status) => updateStatus(id, status)}
+                  />
+                )}
+              </div>
+            </>
           )}
         </main>
 

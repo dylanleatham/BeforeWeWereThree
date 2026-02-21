@@ -14,6 +14,13 @@ export const STRINGS = {
   APP_EMPTY_TITLE: 'No envelopes yet',
   APP_EMPTY_MESSAGE: 'Ask your admin to add some activities!',
 
+  // Guest tabs
+  GUEST_TABS_ARIA: 'Envelope categories',
+  GUEST_TAB_ACTIVITIES: 'Activities',
+  GUEST_TAB_FRIEND_LETTERS: 'Friend Letters',
+  GUEST_EMPTY_FRIEND_LETTERS: 'No friend letters yet',
+  GUEST_EMPTY_FRIEND_LETTERS_MESSAGE: 'Letters from friends will appear here.',
+
   // PinEntry.tsx
   PIN_TITLE: 'Welcome',
   PIN_SUBTITLE: 'Enter your special date to begin',

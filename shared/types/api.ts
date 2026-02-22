@@ -95,6 +95,20 @@ export interface DeleteResponse {
 }
 
 /**
+ * Standard response for action confirmations (logout, reset, etc.)
+ */
+export interface MessageResponse {
+  message: string;
+}
+
+/**
+ * Standard response for setter endpoints (set-gender, gender-keeper, etc.)
+ */
+export interface SetResponse {
+  set: boolean;
+}
+
+/**
  * Reset session response - includes counts of what was reset
  */
 export interface ResetSessionResponse {

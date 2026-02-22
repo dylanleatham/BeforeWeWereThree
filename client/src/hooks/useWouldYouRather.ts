@@ -88,6 +88,16 @@ export function useWouldYouRather({
   // Track if we've loaded data (for retry)
   const loadedRef = useRef(false);
 
+  // Mounted ref for async safety (per CLAUDE.md: set true in effect body)
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   // Derived values
   const currentPrompt = prompts[currentIndex] ?? null;
   const totalPrompts = prompts.length;
@@ -119,6 +129,8 @@ export function useWouldYouRather({
     try {
       const data = await getWyrState(envelopeId);
 
+      if (!mountedRef.current) return;
+
       setPrompts(data.prompts);
       setCurrentIndex(data.currentPromptIndex);
       setAllComplete(data.allComplete);
@@ -135,10 +147,13 @@ export function useWouldYouRather({
 
       loadedRef.current = true;
     } catch (err) {
+      if (!mountedRef.current) return;
       console.error('Failed to load WYR state:', err);
       setError(STRINGS.WYR_ERROR_LOADING);
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [envelopeId]);
 
@@ -211,6 +226,8 @@ export function useWouldYouRather({
         // Submit to server
         const response = await submitWyrVote(promptId, choice);
 
+        if (!mountedRef.current) return;
+
         // Check if reveal is immediate (both voted)
         if (response.revealed && response.results) {
           setPrompts((prev) => {
@@ -226,6 +243,7 @@ export function useWouldYouRather({
           setPhase('revealing');
         }
       } catch (err) {
+        if (!mountedRef.current) return;
         console.error('Failed to submit vote:', err);
         // Revert optimistic update
         setPrompts((prev) => {

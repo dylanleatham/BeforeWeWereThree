@@ -198,19 +198,19 @@ export function FriendManager() {
     return (
       <section className="friend-manager">
         <Heading level={3}>
-          Letters from {viewMode.friendName}
+          {STRINGS.FRIEND_MANAGER_LETTERS_FROM(viewMode.friendName)}
         </Heading>
         {viewMode.letters.length === 0 ? (
-          <Text color="muted">No letters submitted yet.</Text>
+          <Text color="muted">{STRINGS.FRIEND_MANAGER_NO_LETTERS}</Text>
         ) : (
           <div className="friend-manager__letters">
             {viewMode.letters.map((letter) => (
               <Card key={letter.id} className="friend-manager__letter-card">
                 <Text className="friend-manager__letter-recipient">
-                  To {letter.recipient}
+                  {STRINGS.FRIEND_MANAGER_LETTER_TO(letter.recipient)}
                 </Text>
                 <Text variant="small" color="muted">
-                  {letter.submittedAt ? `Submitted ${new Date(letter.submittedAt).toLocaleDateString()}` : 'Draft'}
+                  {letter.submittedAt ? STRINGS.FRIEND_MANAGER_LETTER_SUBMITTED(new Date(letter.submittedAt).toLocaleDateString()) : STRINGS.FRIEND_MANAGER_LETTER_DRAFT}
                 </Text>
                 <p className="friend-manager__letter-content">{letter.content}</p>
                 {letter.mediaUrl && letter.mediaType === 'image' && (
@@ -245,7 +245,7 @@ export function FriendManager() {
       </header>
 
       {isLoading ? (
-        <Text color="muted">Loading...</Text>
+        <Text color="muted">{STRINGS.FRIEND_MANAGER_LOADING}</Text>
       ) : friends.length === 0 ? (
         <Text color="muted">{STRINGS.FRIEND_MANAGER_EMPTY}</Text>
       ) : (
@@ -262,7 +262,7 @@ export function FriendManager() {
                       </span>
                     )}
                   </span>
-                  <span className="friend-manager__pin">PIN: {friend.pin}</span>
+                  <span className="friend-manager__pin">{STRINGS.FRIEND_MANAGER_PIN_PREFIX(friend.pin)}</span>
                   <Text variant="small" color="muted">
                     {STRINGS.FRIEND_MANAGER_LETTERS(friend.submittedCount)}
                   </Text>

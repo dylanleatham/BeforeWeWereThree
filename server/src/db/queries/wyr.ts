@@ -228,3 +228,24 @@ export async function countVotesForPrompt(promptId: string): Promise<number> {
     where: { promptId },
   });
 }
+
+/**
+ * Get all votes for multiple prompts in a single query
+ * Returns votes indexed by promptId for efficient lookup
+ */
+export async function getVotesForPromptIds(
+  promptIds: string[]
+): Promise<Map<string, WYRVote[]>> {
+  const votes = await db.wyrVote.findMany({
+    where: { promptId: { in: promptIds } },
+  });
+
+  const votesByPrompt = new Map<string, WYRVote[]>();
+  for (const promptId of promptIds) {
+    votesByPrompt.set(promptId, []);
+  }
+  for (const vote of votes) {
+    votesByPrompt.get(vote.promptId)!.push(toApiVote(vote));
+  }
+  return votesByPrompt;
+}

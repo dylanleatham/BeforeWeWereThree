@@ -72,7 +72,7 @@ export function GenderInput({ genderAlreadySet, onGenderSet }: GenderInputProps)
           {STRINGS.GENDER_KEEPER_CONFIRM_TITLE}
         </Heading>
         <Text className="gender-input__message">
-          {STRINGS.GENDER_KEEPER_CONFIRM_MESSAGE(selectedGender === 'boy' ? 'Boy' : 'Girl')}
+          {STRINGS.GENDER_KEEPER_CONFIRM_MESSAGE(selectedGender === 'boy' ? STRINGS.GENDER_OPTION_BOY : STRINGS.GENDER_OPTION_GIRL)}
         </Text>
         {error && (
           <div className="gender-input__error" role="alert">{error}</div>
@@ -112,14 +112,14 @@ export function GenderInput({ genderAlreadySet, onGenderSet }: GenderInputProps)
           className="gender-input__option gender-input__option--boy"
           onClick={() => handleSelect('boy')}
         >
-          Boy
+          {STRINGS.GENDER_OPTION_BOY}
         </button>
         <button
           type="button"
           className="gender-input__option gender-input__option--girl"
           onClick={() => handleSelect('girl')}
         >
-          Girl
+          {STRINGS.GENDER_OPTION_GIRL}
         </button>
       </div>
     </Card>

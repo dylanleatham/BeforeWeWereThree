@@ -4,6 +4,7 @@ import { SignJWT } from 'jose';
 import type { SignalRMessage, RealtimeTransport } from 'shared';
 import { logger } from '../utils/logger.js';
 import { verifySession } from './session.js';
+import { getEnvelopeById } from '../db/queries/envelopes.js';
 
 /**
  * Extract a named cookie value from a raw Cookie header string.
@@ -89,14 +90,21 @@ class SocketIOAdapter implements RealtimeAdapter {
         }
         this.userSockets.get(userId)!.add(socket.id);
 
-        // Handle joining groups (activities)
-        socket.on('joinGroup', (groupName: string) => {
-          socket.join(groupName);
+        // Handle joining groups (activities) — validate format and verify envelope exists
+        socket.on('joinGroup', async (groupName: string) => {
+          if (!/^activity:[a-z0-9-]+$/i.test(groupName)) return;
+          const envelopeId = groupName.replace('activity:', '');
+          const envelope = await getEnvelopeById(envelopeId);
+          if (envelope) {
+            socket.join(groupName);
+          }
         });
 
-        // Handle leaving groups
+        // Handle leaving groups — validate group name format
         socket.on('leaveGroup', (groupName: string) => {
-          socket.leave(groupName);
+          if (/^activity:[a-z0-9-]+$/i.test(groupName)) {
+            socket.leave(groupName);
+          }
         });
 
         // Cleanup on disconnect
@@ -211,11 +219,9 @@ class AzureSignalRAdapter implements RealtimeAdapter {
     });
 
     if (!response.ok) {
-      logger.error('SignalR sendToGroup failed', {
-        status: response.status,
-        statusText: response.statusText,
-        groupName,
-      });
+      const details = { status: response.status, statusText: response.statusText, groupName };
+      logger.error('SignalR sendToGroup failed', details);
+      throw new Error(`SignalR sendToGroup failed: ${response.status} ${response.statusText}`);
     }
   }
 
@@ -233,11 +239,9 @@ class AzureSignalRAdapter implements RealtimeAdapter {
     });
 
     if (!response.ok) {
-      logger.error('SignalR sendToUser failed', {
-        status: response.status,
-        statusText: response.statusText,
-        userId,
-      });
+      const details = { status: response.status, statusText: response.statusText, userId };
+      logger.error('SignalR sendToUser failed', details);
+      throw new Error(`SignalR sendToUser failed: ${response.status} ${response.statusText}`);
     }
   }
 
@@ -253,12 +257,9 @@ class AzureSignalRAdapter implements RealtimeAdapter {
     });
 
     if (!response.ok) {
-      logger.error('SignalR addUserToGroup failed', {
-        status: response.status,
-        statusText: response.statusText,
-        userId,
-        groupName,
-      });
+      const details = { status: response.status, statusText: response.statusText, userId, groupName };
+      logger.error('SignalR addUserToGroup failed', details);
+      throw new Error(`SignalR addUserToGroup failed: ${response.status} ${response.statusText}`);
     }
   }
 
@@ -274,13 +275,37 @@ class AzureSignalRAdapter implements RealtimeAdapter {
     });
 
     if (!response.ok) {
-      logger.error('SignalR removeUserFromGroup failed', {
-        status: response.status,
-        statusText: response.statusText,
-        userId,
-        groupName,
-      });
+      const details = { status: response.status, statusText: response.statusText, userId, groupName };
+      logger.error('SignalR removeUserFromGroup failed', details);
+      throw new Error(`SignalR removeUserFromGroup failed: ${response.status} ${response.statusText}`);
     }
+  }
+}
+
+// =============================================================================
+// Warning Adapter (Fallback when initialization fails)
+// =============================================================================
+
+/**
+ * Fallback adapter that logs a warning on every broadcast attempt.
+ * Used when Azure SignalR initialization fails so the server can still start,
+ * but operators are alerted that real-time features are broken.
+ */
+class WarningAdapter implements RealtimeAdapter {
+  async sendToGroup(groupName: string): Promise<void> {
+    logger.warn('Real-time disabled: sendToGroup called but SignalR failed to initialize', { groupName });
+  }
+
+  async sendToUser(userId: string): Promise<void> {
+    logger.warn('Real-time disabled: sendToUser called but SignalR failed to initialize', { userId });
+  }
+
+  async addUserToGroup(userId: string, groupName: string): Promise<void> {
+    logger.warn('Real-time disabled: addUserToGroup called but SignalR failed to initialize', { userId, groupName });
+  }
+
+  async removeUserFromGroup(userId: string, groupName: string): Promise<void> {
+    logger.warn('Real-time disabled: removeUserFromGroup called but SignalR failed to initialize', { userId, groupName });
   }
 }
 
@@ -306,7 +331,9 @@ export function initializeRealtimeService(httpServer: HTTPServer): void {
       _transport = 'signalr';
       logger.info('Realtime service initialized', { transport: 'signalr' });
     } catch (error) {
-      logger.error('Failed to initialize Azure SignalR', { error });
+      logger.error('Failed to initialize Azure SignalR — all real-time features disabled', { error });
+      _realtimeAdapter = new WarningAdapter();
+      _transport = 'signalr';
     }
   } else {
     // Local development: Use Socket.io

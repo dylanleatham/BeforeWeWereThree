@@ -46,13 +46,16 @@ export async function getPhotoByBlobUrl(blobUrl: string): Promise<Photo | null> 
 /**
  * Get all photos with pagination
  */
-export async function getAllPhotos(limit = 50, offset = 0): Promise<Photo[]> {
-  const photos = await db.photo.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    skip: offset,
-  });
-  return photos.map(toApiPhoto);
+export async function getAllPhotos(limit = 50, offset = 0): Promise<{ photos: Photo[]; total: number }> {
+  const [photos, total] = await Promise.all([
+    db.photo.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+    }),
+    db.photo.count(),
+  ]);
+  return { photos: photos.map(toApiPhoto), total };
 }
 
 /**

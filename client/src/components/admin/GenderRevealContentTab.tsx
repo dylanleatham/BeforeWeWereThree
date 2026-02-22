@@ -39,6 +39,7 @@ export function GenderRevealContentTab() {
   const [keyA, setKeyA] = useState('');
   const [keyB, setKeyB] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Confirmation dialog
   const [confirmAction, setConfirmAction] = useState<'reseal' | 'delete' | null>(null);
@@ -56,6 +57,7 @@ export function GenderRevealContentTab() {
   useEffect(() => {
     async function loadEnvelopes() {
       try {
+        setLoadError(null);
         const envelopes = await getEnvelopes();
         if (mountedRef.current) {
           const reveals = envelopes.filter((e) => e.type === 'gender-reveal');
@@ -65,8 +67,10 @@ export function GenderRevealContentTab() {
             setSelectedEnvelopeId(firstReveal.id);
           }
         }
-      } catch {
-        // Silent error
+      } catch (error) {
+        if (mountedRef.current) {
+          setLoadError(error instanceof Error ? error.message : 'Failed to load envelopes');
+        }
       }
     }
     loadEnvelopes();
@@ -74,13 +78,15 @@ export function GenderRevealContentTab() {
 
   const loadConfig = useCallback(async (envelopeId: string) => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       const data = await getGenderRevealAdminConfig(envelopeId);
       if (mountedRef.current) {
         setConfig(data);
       }
-    } catch {
+    } catch (error) {
       if (mountedRef.current) {
+        setLoadError(error instanceof Error ? error.message : 'Failed to load configuration');
         setConfig(null);
       }
     } finally {
@@ -103,14 +109,10 @@ export function GenderRevealContentTab() {
     }
   }, [selectedEnvelopeId, loadConfig]);
 
-  const openForm = useCallback((prefill?: GenderRevealAdminResponse) => {
-    if (prefill?.configured) {
-      setKeyA(prefill.keyA ?? '');
-      setKeyB(prefill.keyB ?? '');
-    } else {
-      setKeyA('');
-      setKeyB('');
-    }
+  const openForm = useCallback(() => {
+    // Keys are hashed in DB and never returned — admin re-enters when editing
+    setKeyA('');
+    setKeyB('');
     setFormError(null);
     setIsEditing(true);
   }, []);
@@ -179,6 +181,11 @@ export function GenderRevealContentTab() {
       await resealGenderReveal(selectedEnvelopeId);
       await loadConfig(selectedEnvelopeId);
       setConfirmAction(null);
+    } catch (error) {
+      if (mountedRef.current) {
+        setFormError(error instanceof Error ? error.message : 'Failed to re-seal');
+        setConfirmAction(null);
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -196,6 +203,11 @@ export function GenderRevealContentTab() {
         setConfig(null);
         setConfirmAction(null);
         setIsEditing(false);
+      }
+    } catch (error) {
+      if (mountedRef.current) {
+        setFormError(error instanceof Error ? error.message : 'Failed to delete configuration');
+        setConfirmAction(null);
       }
     } finally {
       if (mountedRef.current) {
@@ -331,7 +343,7 @@ export function GenderRevealContentTab() {
                 disabled={isSaving}
               >
                 {isSaving
-                  ? (isReseal ? 'Re-sealing...' : 'Deleting...')
+                  ? (isReseal ? STRINGS.REVEAL_ADMIN_RESEALING : STRINGS.REVEAL_ADMIN_DELETING)
                   : (isReseal ? STRINGS.REVEAL_ADMIN_RESEAL : STRINGS.REVEAL_ADMIN_DELETE)}
               </Button>
             </div>
@@ -348,9 +360,13 @@ export function GenderRevealContentTab() {
         {STRINGS.REVEAL_ADMIN_HEADING}
       </h3>
 
-      {revealEnvelopes.length === 0 ? (
+      {loadError ? (
+        <div className="gender-reveal-tab__error" role="alert">
+          {loadError}
+        </div>
+      ) : revealEnvelopes.length === 0 ? (
         <Text color="muted">
-          No Gender Reveal envelopes exist. Create one in Envelope Management above.
+          {STRINGS.REVEAL_ADMIN_NO_ENVELOPES}
         </Text>
       ) : (
         <>
@@ -368,7 +384,7 @@ export function GenderRevealContentTab() {
               value={selectedEnvelopeId ?? ''}
               onChange={(e) => setSelectedEnvelopeId(e.target.value || null)}
             >
-              <option value="">Choose an envelope...</option>
+              <option value="">{STRINGS.REVEAL_ADMIN_CHOOSE_ENVELOPE}</option>
               {revealEnvelopes.map((env) => (
                 <option key={env.id} value={env.id}>
                   {env.title}
@@ -381,7 +397,7 @@ export function GenderRevealContentTab() {
             <>
               {isLoading ? (
                 <div className="gender-reveal-tab__loading">
-                  <Text color="muted">Loading configuration...</Text>
+                  <Text color="muted">{STRINGS.REVEAL_ADMIN_LOADING_CONFIG}</Text>
                 </div>
               ) : (
                 <>
@@ -392,12 +408,19 @@ export function GenderRevealContentTab() {
                     {status === 'revealed' && STRINGS.REVEAL_ADMIN_STATUS_REVEALED}
                   </div>
 
+                  {/* Action error (from reseal/delete failures) */}
+                  {formError && (
+                    <div className="gender-reveal-tab__error" role="alert">
+                      {formError}
+                    </div>
+                  )}
+
                   {/* Not configured state */}
                   {status === 'not-configured' && (
                     <Card className="gender-reveal-tab__card">
                       <div className="gender-reveal-tab__empty">
                         <Text color="muted">
-                          No configuration yet. Set up the gender and dates.
+                          {STRINGS.REVEAL_ADMIN_NOT_CONFIGURED_MESSAGE}
                         </Text>
                         <div className="gender-reveal-tab__empty-action">
                           <Button
@@ -405,7 +428,7 @@ export function GenderRevealContentTab() {
                             size="sm"
                             onClick={() => openForm()}
                           >
-                            Configure
+                            {STRINGS.REVEAL_ADMIN_CONFIGURE}
                           </Button>
                         </div>
                       </div>
@@ -418,7 +441,7 @@ export function GenderRevealContentTab() {
                       <div className="gender-reveal-tab__config-display">
                         <div className="gender-reveal-tab__config-row">
                           <span className="gender-reveal-tab__config-label">
-                            Gender
+                            {STRINGS.REVEAL_ADMIN_GENDER_LABEL}
                           </span>
                           <span className="gender-reveal-tab__config-value">
                             {config.genderSet
@@ -431,31 +454,25 @@ export function GenderRevealContentTab() {
                             {STRINGS.REVEAL_ADMIN_KEY_A_LABEL}
                           </span>
                           <span className="gender-reveal-tab__key-display">
-                            {config.keyA ? formatDateDisplay(config.keyA) : ''}
+                            {config.keyAValidated
+                              ? STRINGS.REVEAL_ADMIN_KEY_ENTERED
+                              : STRINGS.REVEAL_ADMIN_KEY_SET}
                           </span>
-                          {config.keyAValidated && (
-                            <span className="gender-reveal-tab__validated-badge">
-                              Entered
-                            </span>
-                          )}
                         </div>
                         <div className="gender-reveal-tab__config-row">
                           <span className="gender-reveal-tab__config-label">
                             {STRINGS.REVEAL_ADMIN_KEY_B_LABEL}
                           </span>
                           <span className="gender-reveal-tab__key-display">
-                            {config.keyB ? formatDateDisplay(config.keyB) : ''}
+                            {config.keyBValidated
+                              ? STRINGS.REVEAL_ADMIN_KEY_ENTERED
+                              : STRINGS.REVEAL_ADMIN_KEY_SET}
                           </span>
-                          {config.keyBValidated && (
-                            <span className="gender-reveal-tab__validated-badge">
-                              Entered
-                            </span>
-                          )}
                         </div>
                         {config.revealedAt && (
                           <div className="gender-reveal-tab__config-row">
                             <span className="gender-reveal-tab__config-label">
-                              Revealed
+                              {STRINGS.REVEAL_ADMIN_REVEALED_LABEL}
                             </span>
                             <span className="gender-reveal-tab__config-value">
                               {new Date(config.revealedAt).toLocaleDateString()}
@@ -469,10 +486,10 @@ export function GenderRevealContentTab() {
                         {!config.revealedAt && (
                           <button
                             className="gender-reveal-tab__btn"
-                            onClick={() => openForm(config)}
+                            onClick={() => openForm()}
                             disabled={isSaving}
                           >
-                            Edit
+                            {STRINGS.REVEAL_ADMIN_EDIT}
                           </button>
                         )}
                         {(config.keyAValidated || config.keyBValidated) && (

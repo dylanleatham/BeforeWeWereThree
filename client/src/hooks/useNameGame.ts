@@ -17,7 +17,6 @@ import {
   submitNameGameGuidance,
   submitNameVote,
 } from '../services/api';
-import { useSession } from './useSession';
 
 /**
  * Phase state machine for the Name Game activity
@@ -32,6 +31,7 @@ import { useSession } from './useSession';
  */
 export type NameGamePhase =
   | 'loading'
+  | 'error'
   | 'new-round'
   | 'generating'
   | 'waiting-for-guidance'
@@ -130,8 +130,9 @@ function shuffleNames(names: NameVoteState[], participantId: string | null): Nam
  * - Optimistic vote submission with rollback on error
  *
  * @param envelopeId - The envelope ID for this name game activity
+ * @param participantId - The current participant's ID (for deterministic name shuffling)
  */
-export function useNameGame(envelopeId: string): UseNameGameReturn {
+export function useNameGame(envelopeId: string, participantId: string | null): UseNameGameReturn {
   // Phase state
   const [phase, setPhase] = useState<NameGamePhase>('loading');
   const [currentRound, setCurrentRound] = useState<NameGameRoundResponse | null>(null);
@@ -145,11 +146,18 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
   // Connection state
   const { connection, isConnected } = useSignalRConnection();
 
-  // Get participantId for deterministic shuffle
-  const { participantId } = useSession();
-
   // Track loaded state for retry
   const loadedRef = useRef(false);
+
+  // Mounted ref for async safety (per CLAUDE.md: set true in effect body)
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Guard against double-vote submissions (e.g., rapid taps or gesture double-fire)
   const votingInFlightRef = useRef<string | null>(null);
@@ -177,6 +185,8 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
 
     try {
       const data = await getNameGameState(envelopeId);
+
+      if (!mountedRef.current) return;
 
       setRoundCount(data.roundCount);
       setAllMatches(data.allMatches);
@@ -224,9 +234,10 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
 
       loadedRef.current = true;
     } catch (err) {
+      if (!mountedRef.current) return;
       console.error('Failed to load name game state:', err);
       setError(err instanceof Error ? err.message : 'Failed to load name game');
-      setPhase('new-round');
+      setPhase('error');
     }
   }, [envelopeId, participantId]);
 
@@ -306,6 +317,8 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
       try {
         const result = await submitNameGameGuidance(envelopeId, guidance);
 
+        if (!mountedRef.current) return;
+
         if (result.status === 'waiting_for_partner') {
           setPhase('waiting-for-guidance');
         } else {
@@ -323,6 +336,7 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
           setPhase('voting');
         }
       } catch (err) {
+        if (!mountedRef.current) return;
         console.error('Failed to submit guidance:', err);
         setError(err instanceof Error ? err.message : 'Failed to submit guidance');
         setPhase('new-round');
@@ -364,6 +378,8 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
         // Submit to server
         const response = await submitNameVote(nameId, choice);
 
+        if (!mountedRef.current) return;
+
         // If both partners finished, show results immediately
         if (response.allVoted && response.results) {
           setResults(response.results);
@@ -379,6 +395,7 @@ export function useNameGame(envelopeId: string): UseNameGameReturn {
           setPhase('results');
         }
       } catch (err) {
+        if (!mountedRef.current) return;
         console.error('Failed to submit vote:', err);
         // Rollback optimistic update
         setCurrentNameIndex(votingIndex);

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { useNameGame } from '../../../hooks/useNameGame';
+import { useSession } from '../../../hooks/useSession';
 import { PartnerPresence } from '../WouldYouRather/PartnerPresence';
 import { VotingPhase } from './VotingPhase';
 import { WaitingPhase } from './WaitingPhase';
@@ -30,6 +31,7 @@ interface NameGameActivityProps {
  * so users can always return to play more rounds.
  */
 export function NameGameActivity({ envelopeId }: NameGameActivityProps) {
+  const { participantId } = useSession();
   const {
     phase,
     currentRound,
@@ -44,7 +46,7 @@ export function NameGameActivity({ envelopeId }: NameGameActivityProps) {
     vote,
     startNewRound,
     retry,
-  } = useNameGame(envelopeId);
+  } = useNameGame(envelopeId, participantId);
 
   // Loading state
   if (phase === 'loading') {

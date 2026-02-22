@@ -165,7 +165,7 @@
   color: var(--text-muted);
   font-size: var(--text-sm);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--tracking-wider);
 }
 
 .envelope-manager__tool-card {

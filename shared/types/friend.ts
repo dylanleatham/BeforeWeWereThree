@@ -142,6 +142,15 @@ export const createFriendSchema = z.object({
 export type CreateFriendRequest = z.infer<typeof createFriendSchema>;
 
 /**
+ * Set gender keeper (admin)
+ */
+export const setGenderKeeperSchema = z.object({
+  friendId: z.string().uuid('Invalid friend ID').nullable(),
+});
+
+export type SetGenderKeeperRequest = z.infer<typeof setGenderKeeperSchema>;
+
+/**
  * Save friend letter (auto-save)
  */
 export const saveFriendLetterSchema = z.object({

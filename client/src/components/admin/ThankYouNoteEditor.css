@@ -8,9 +8,9 @@
   width: 100%;
   min-height: 150px;
   padding: 12px;
-  border: 1px solid rgba(188, 108, 74, 0.2);
+  border: 1px solid var(--color-deep-terracotta-20);
   border-radius: 8px;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   line-height: 1.5;
   resize: vertical;

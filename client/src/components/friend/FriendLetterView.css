@@ -20,13 +20,13 @@
 }
 
 .friend-letter-view__from {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.2rem;
   color: var(--color-deep-terracotta, #BC6C4A);
 }
 
 .friend-letter-view__title {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.1rem;
   font-style: italic;
   color: var(--color-text, #333);
@@ -40,7 +40,7 @@
 }
 
 .friend-letter-view__text {
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.7;
   color: var(--color-text, #333);

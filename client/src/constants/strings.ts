@@ -3,6 +3,8 @@
  * Organized by component/domain prefix
  */
 
+import type { ResetSessionResponse } from 'shared';
+
 export const STRINGS = {
   // App.tsx
   APP_ADMIN_BADGE: 'Admin Mode',
@@ -66,8 +68,12 @@ export const STRINGS = {
     'Kick out all guests, reseal envelopes, and clear all votes and letters. Start fresh!',
   MANAGER_RESET_BUTTON: 'Reset Session',
   MANAGER_RESET_CONFIRM: 'Confirm Reset',
-  MANAGER_RESET_SUCCESS: (result: { participantsDeleted: number; envelopesReset: number; votesDeleted: number; lettersDeleted: number }) =>
-    `Session reset! ${result.participantsDeleted} guests kicked, ${result.envelopesReset} envelopes resealed, ${result.votesDeleted} votes cleared, ${result.lettersDeleted} letters deleted.`,
+  MANAGER_RESET_SUCCESS: (result: ResetSessionResponse) => {
+    const totalCleared = result.votesDeleted + result.lettersDeleted + result.photosDeleted
+      + result.nameVotesDeleted + result.nameNamesDeleted + result.nameRoundsDeleted
+      + result.nameGuidanceDeleted + result.triviaAnswersDeleted + result.genderRevealReset;
+    return `Session reset! ${result.participantsDeleted} guests kicked, ${result.envelopesReset} envelopes resealed, ${totalCleared} items cleared.`;
+  },
   MANAGER_RESET_ERROR: (msg: string) => `Failed to reset session: ${msg}`,
   MANAGER_ARIA_EDIT: (title: string) => `Edit ${title}`,
   MANAGER_ARIA_DELETE: (title: string) => `Delete ${title}`,
@@ -250,6 +256,13 @@ export const STRINGS = {
     submitted === 1 ? '1 letter sent' : `${submitted} letters sent`,
   FRIEND_MANAGER_THANK_YOU: 'Thank-you note',
   FRIEND_MANAGER_VIEW_LETTERS: 'View letters',
+  FRIEND_MANAGER_LETTERS_FROM: (name: string) => `Letters from ${name}`,
+  FRIEND_MANAGER_NO_LETTERS: 'No letters submitted yet.',
+  FRIEND_MANAGER_LETTER_TO: (recipient: string) => `To ${recipient}`,
+  FRIEND_MANAGER_LETTER_SUBMITTED: (date: string) => `Submitted ${date}`,
+  FRIEND_MANAGER_LETTER_DRAFT: 'Draft',
+  FRIEND_MANAGER_LOADING: 'Loading...',
+  FRIEND_MANAGER_PIN_PREFIX: (pin: string) => `PIN: ${pin}`,
   FRIEND_MANAGER_DELETE_CONFIRM:
     'This will permanently delete this friend and all their letters. This cannot be undone.',
   FRIEND_THANK_YOU_PLACEHOLDER: 'Write a personal thank-you note for this friend...',
@@ -342,7 +355,10 @@ export const STRINGS = {
   REVEAL_KEY_ENTRY_SUBTITLE: 'Enter the special date you were given',
   REVEAL_KEY_ENTRY_ARIA: 'Enter your reveal date',
   REVEAL_KEY_INVALID: "That doesn't look right \u2014 try again",
+  REVEAL_KEY_NETWORK_ERROR: 'Unable to connect \u2014 check your connection and try again',
   REVEAL_KEY_ALREADY_USED: 'This date has already been entered',
+  REVEAL_LOAD_ERROR: 'Unable to load the gender reveal \u2014 check your connection',
+  REVEAL_LOAD_ERROR_RETRY: 'Try Again',
   REVEAL_WAITING_TITLE: 'Almost There...',
   REVEAL_WAITING_SUBTITLE: 'Waiting for your partner to enter their date',
   REVEAL_NOT_CONFIGURED: "The reveal hasn't been set up yet",
@@ -352,12 +368,17 @@ export const STRINGS = {
   REVEAL_KEEPSAKE_MESSAGE: 'This is the moment you found out',
   REVEAL_KEEPSAKE_DATE: (date: string) => `Revealed on ${date}`,
 
+  // Gender Reveal - Key Entry
+  REVEAL_KEY_CHECKING: 'Checking...',
+
   // Gender Reveal - Admin (for Plan 03)
   REVEAL_ADMIN_HEADING: 'Gender Reveal Configuration',
   REVEAL_ADMIN_SELECT_ENVELOPE: 'Select a Gender Reveal envelope to configure',
   REVEAL_ADMIN_KEY_A_LABEL: 'Date for Participant A',
   REVEAL_ADMIN_KEY_B_LABEL: 'Date for Participant B',
   REVEAL_ADMIN_KEY_HINT: 'A meaningful date (MM/DD/YYYY)',
+  REVEAL_ADMIN_KEY_SET: 'Set',
+  REVEAL_ADMIN_KEY_ENTERED: 'Entered',
   REVEAL_ADMIN_SAVE: 'Save Configuration',
   REVEAL_ADMIN_SAVING: 'Saving...',
   REVEAL_ADMIN_RESEAL: 'Re-seal Reveal',
@@ -368,8 +389,22 @@ export const STRINGS = {
   REVEAL_ADMIN_STATUS_CONFIGURED: 'Configured \u2014 awaiting dates',
   REVEAL_ADMIN_STATUS_REVEALED: 'Revealed',
   REVEAL_ADMIN_CANCEL: 'Cancel',
+  REVEAL_ADMIN_RESEALING: 'Re-sealing...',
+  REVEAL_ADMIN_DELETING: 'Deleting...',
+  REVEAL_ADMIN_NO_ENVELOPES: 'No Gender Reveal envelopes exist. Create one in Envelope Management above.',
+  REVEAL_ADMIN_CHOOSE_ENVELOPE: 'Choose an envelope...',
+  REVEAL_ADMIN_LOADING_CONFIG: 'Loading configuration...',
+  REVEAL_ADMIN_NOT_CONFIGURED_MESSAGE: 'No configuration yet. Set up the gender and dates.',
+  REVEAL_ADMIN_CONFIGURE: 'Configure',
+  REVEAL_ADMIN_GENDER_LABEL: 'Gender',
+  REVEAL_ADMIN_REVEALED_LABEL: 'Revealed',
+  REVEAL_ADMIN_EDIT: 'Edit',
   REVEAL_ADMIN_GENDER_SET: 'Gender has been set by the keeper',
   REVEAL_ADMIN_GENDER_NOT_SET: 'Gender not yet set by keeper',
+
+  // Gender Input (Friend)
+  GENDER_OPTION_BOY: 'Boy',
+  GENDER_OPTION_GIRL: 'Girl',
 
   // Gender Keeper (Friend Dashboard)
   GENDER_KEEPER_HEADING: 'Gender Reveal',
@@ -384,6 +419,12 @@ export const STRINGS = {
   // Gender Keeper (Admin / Friend Manager)
   GENDER_KEEPER_BADGE: 'Gender Keeper',
   GENDER_KEEPER_TOGGLE_TITLE: 'Toggle gender keeper',
+
+  // SpotifyButton
+  SPOTIFY_BUTTON_ARIA: 'Open Spotify playlist',
+
+  // BaseEnvelope
+  LETTER_PARTNER_NAME: 'Partner',
 
   // Singleton error
   GENDER_REVEAL_SINGLETON_ERROR: 'Only one gender reveal envelope is allowed',

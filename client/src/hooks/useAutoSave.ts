@@ -119,6 +119,9 @@ export function useAutoSave<T>({
     [debouncedSave]
   );
 
+  // Ref for executeSave to keep flush stable across renders
+  const executeSaveRef = useRef(executeSave);
+
   /**
    * Immediately flush any pending save
    * Returns a promise that resolves when save completes
@@ -131,7 +134,7 @@ export function useAutoSave<T>({
     if (pendingContentRef.current !== null) {
       return new Promise<void>((resolve) => {
         flushResolveRef.current = resolve;
-        executeSave(pendingContentRef.current as T);
+        executeSaveRef.current(pendingContentRef.current as T);
       });
     }
 
@@ -141,7 +144,7 @@ export function useAutoSave<T>({
         flushResolveRef.current = resolve;
       });
     }
-  }, [debouncedSave, executeSave]);
+  }, [debouncedSave]);
 
   return {
     isSaving,

@@ -88,6 +88,7 @@ export function useSession(): UseSessionReturn {
           });
         }
       } catch {
+        // Network error — show error instead of silently showing PIN screen
         setState({
           isLoading: false,
           isAuthenticated: false,
@@ -95,7 +96,7 @@ export function useSession(): UseSessionReturn {
           participantId: null,
           designation: null,
           friendId: null,
-          error: null,
+          error: STRINGS.SESSION_ERROR_NETWORK,
         });
       }
     }
@@ -146,9 +147,12 @@ export function useSession(): UseSessionReturn {
 
   /**
    * Logout and clear session
+   * Clears local state immediately, then invalidates the server session.
+   * If the API call fails, clears the session cookie client-side to prevent
+   * auto-reauthentication on refresh.
    */
-  const logout = useCallback(() => {
-    // Clear local state immediately
+  const logout = useCallback(async () => {
+    // Clear local state immediately so UI updates instantly
     setState({
       isLoading: false,
       isAuthenticated: false,
@@ -159,8 +163,13 @@ export function useSession(): UseSessionReturn {
       error: null,
     });
 
-    // Call logout API (fire and forget)
-    apiLogout();
+    try {
+      await apiLogout();
+    } catch {
+      // Server session invalidation failed — clear cookie client-side
+      // so the user isn't auto-authenticated on next page load
+      document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+    }
   }, []);
 
   /**

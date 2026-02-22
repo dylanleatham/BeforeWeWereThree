@@ -54,7 +54,7 @@
   transition: border-color var(--duration-normal) var(--ease-default);
   background: var(--bg-card);
   color: var(--text-primary);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-widest);
   box-sizing: border-box;
 }
 

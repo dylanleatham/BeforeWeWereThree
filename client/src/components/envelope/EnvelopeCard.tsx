@@ -26,7 +26,14 @@ export function EnvelopeCard({
   const { status, title, type } = envelope;
   const isSealed = status === 'sealed';
   const isCompleted = status === 'completed';
-  const isClickable = !isCompleted; // Both sealed and opened can be clicked
+  // Types with completed-state views (summary, keepsake, review) remain clickable
+  const hasCompletedView =
+    type === 'would-you-rather' ||
+    type === 'trivia' ||
+    type === 'friend-letter' ||
+    type === 'gender-reveal' ||
+    type === 'name-game';
+  const isClickable = !isCompleted || hasCompletedView;
 
   // Format activity type for display
   const typeLabel = type
@@ -36,7 +43,7 @@ export function EnvelopeCard({
 
   return (
     <motion.article
-      className={clsx('envelope-card', `envelope-card--${status}`)}
+      className={clsx('envelope-card', `envelope-card--${status}`, `envelope-card--type-${type}`)}
       onClick={isClickable ? onClick : undefined}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}

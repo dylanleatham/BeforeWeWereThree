@@ -367,7 +367,7 @@ describe('Media Routes', () => {
     it('should return photos list for authenticated user', async () => {
       const cookies = await getGuestCookies();
       mockParticipant.findUnique.mockResolvedValue(mockGuestParticipant);
-      mockGetAllPhotos.mockResolvedValue([mockPhoto]);
+      mockGetAllPhotos.mockResolvedValue({ photos: [mockPhoto], total: 1 });
 
       const res = await request(app)
         .get('/api/media')

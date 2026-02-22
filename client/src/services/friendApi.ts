@@ -9,6 +9,7 @@ import type {
   FriendThankYouNote,
   FriendThankYouNoteResponse,
   DeleteResponse,
+  SetResponse,
   FriendLetterRecipient,
   FriendLetterViewResponse,
   SetGenderValueRequest,
@@ -127,7 +128,7 @@ export async function getAdminFriendLetters(friendId: string): Promise<FriendLet
 // ============================================================
 
 export async function setGender(data: SetGenderValueRequest): Promise<void> {
-  const response = await apiFetch<{ set: boolean }>('/gender-reveal/set-gender', {
+  const response = await apiFetch<SetResponse>('/gender-reveal/set-gender', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -141,7 +142,7 @@ export async function setGender(data: SetGenderValueRequest): Promise<void> {
 // ============================================================
 
 export async function setGenderKeeper(friendId: string | null): Promise<void> {
-  const response = await apiFetch<{ set: boolean }>('/friends/gender-keeper', {
+  const response = await apiFetch<SetResponse>('/friends/gender-keeper', {
     method: 'PUT',
     body: JSON.stringify({ friendId }),
   });

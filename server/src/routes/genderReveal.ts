@@ -28,6 +28,15 @@ import { logger } from '../utils/logger.js';
 // Rate limit: 5 configure attempts per minute per IP
 const configureRateLimiter = createRateLimiter({ maxAttempts: 5, windowMs: 60 * 1000, keyPrefix: 'gr-configure' });
 
+// Rate limit: 10 key validation attempts per 15 minutes per IP (brute-force protection)
+const validateKeyRateLimiter = createRateLimiter({ maxAttempts: 10, windowMs: 15 * 60 * 1000, keyPrefix: 'gr-validate-key' });
+
+// Rate limit: 5 set-gender attempts per minute per IP
+const setGenderRateLimiter = createRateLimiter({ maxAttempts: 5, windowMs: 60 * 1000, keyPrefix: 'gr-set-gender' });
+
+// Rate limit: 5 re-seal/delete attempts per minute per IP
+const adminMutationRateLimiter = createRateLimiter({ maxAttempts: 5, windowMs: 60 * 1000, keyPrefix: 'gr-admin-mutate' });
+
 /**
  * Gender Reveal routes for Before We Were Three
  *
@@ -121,6 +130,7 @@ router.post(
 router.post(
   '/admin/:envelopeId/re-seal',
   adminMiddleware,
+  adminMutationRateLimiter,
   async (req: Request<{ envelopeId: string }>, res: Response) => {
     try {
       const { envelopeId } = req.params;
@@ -146,6 +156,7 @@ router.post(
 router.delete(
   '/admin/:envelopeId',
   adminMiddleware,
+  adminMutationRateLimiter,
   async (req: Request<{ envelopeId: string }>, res: Response) => {
     try {
       const { envelopeId } = req.params;
@@ -175,6 +186,7 @@ router.delete(
 router.post(
   '/set-gender',
   friendMiddleware,
+  setGenderRateLimiter,
   async (req: Request, res: Response) => {
     try {
       const friendId = req.session?.friendId;
@@ -264,6 +276,7 @@ router.get(
 router.post(
   '/:envelopeId/validate-key',
   authMiddleware,
+  validateKeyRateLimiter,
   async (req: Request<{ envelopeId: string }>, res: Response) => {
     try {
       const { envelopeId } = req.params;

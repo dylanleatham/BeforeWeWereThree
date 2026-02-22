@@ -115,7 +115,7 @@ export function BaseEnvelope({
           <LetterActivity
             envelopeId={envelope.id}
             onComplete={handleActivityComplete}
-            partnerName="Partner"
+            partnerName={STRINGS.LETTER_PARTNER_NAME}
           />
         );
 
@@ -184,7 +184,7 @@ export function BaseEnvelope({
   return (
     <MotionConfig reducedMotion="user">
       <motion.article
-        className={clsx('base-envelope', `base-envelope--${envelope.status}`)}
+        className={clsx('base-envelope', `base-envelope--${envelope.status}`, `envelope-card--type-${envelope.type}`)}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}

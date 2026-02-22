@@ -1,5 +1,6 @@
 import { Music } from 'lucide-react';
 import { useConfig } from '../../hooks/useConfig';
+import { STRINGS } from '../../constants/strings';
 import './SpotifyButton.css';
 
 /**
@@ -24,7 +25,7 @@ export function SpotifyButton() {
       target="_blank"
       rel="noopener noreferrer"
       className="spotify-button"
-      aria-label="Open Spotify playlist"
+      aria-label={STRINGS.SPOTIFY_BUTTON_ARIA}
     >
       <Music size={24} strokeWidth={2} />
     </a>

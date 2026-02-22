@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { FriendLetterViewResponse } from 'shared';
 import { Text, Button } from '../common';
 import { getFriendLetterView } from '../../services/friendApi';
+import { STRINGS } from '../../constants/strings';
 import './FriendLetterView.css';
 
 interface FriendLetterViewProps {
@@ -47,11 +48,9 @@ export function FriendLetterView({ friendLetterId, onComplete }: FriendLetterVie
     );
   }
 
-  const recipientLabel = {
-    you: 'Dylan',
-    partner: 'Wife',
-    baby: 'Baby',
-  }[letterView.recipient] ?? letterView.recipient;
+  const recipientLabel =
+    STRINGS.RECIPIENT_NAMES[letterView.recipient as keyof typeof STRINGS.RECIPIENT_NAMES]
+    ?? letterView.recipient;
 
   return (
     <div className="friend-letter-view">

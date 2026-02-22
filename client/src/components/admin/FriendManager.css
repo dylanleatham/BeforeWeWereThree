@@ -62,12 +62,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
 }
 
 .friend-manager__btn:hover {
-  background: rgba(188, 108, 74, 0.08);
+  background: var(--color-deep-terracotta-8);
 }
 
 .friend-manager__btn--danger {
@@ -75,7 +75,7 @@
 }
 
 .friend-manager__btn--danger:hover {
-  background: rgba(224, 122, 95, 0.08);
+  background: var(--color-dusk-rose-8);
 }
 
 /* Form */
@@ -100,9 +100,9 @@
 
 .friend-manager__input {
   padding: 10px 12px;
-  border: 1px solid rgba(188, 108, 74, 0.2);
+  border: 1px solid var(--color-deep-terracotta-20);
   border-radius: 8px;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   background: var(--color-warm-sand, #FAF3E8);
 }
@@ -159,10 +159,10 @@
   color: #fff;
   vertical-align: middle;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: var(--tracking-wide);
 }
 
 .friend-manager__btn--keeper-active {
   color: var(--color-soft-sage, #9DB5A0);
-  background: rgba(157, 181, 160, 0.12);
+  background: var(--color-soft-sage-12);
 }

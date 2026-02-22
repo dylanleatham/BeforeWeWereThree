@@ -11,9 +11,8 @@ type AnyMock = jest.Mock<any>;
 const mockGetPromptsByEnvelopeId = jest.fn() as AnyMock;
 const mockGetPromptById = jest.fn() as AnyMock;
 const mockGetVoteForParticipant = jest.fn() as AnyMock;
-const mockGetVotesForPrompt = jest.fn() as AnyMock;
 const mockCountVotesForPrompt = jest.fn() as AnyMock;
-const mockUpdateEnvelopeStatus = jest.fn() as AnyMock;
+const mockGetVotesForPromptIds = jest.fn() as AnyMock;
 
 // Mock realtime service
 const mockSendToGroup = jest.fn() as AnyMock;
@@ -21,21 +20,20 @@ const mockGetRealtimeService = jest.fn() as AnyMock;
 
 // Mock Prisma transaction
 const mockWyrPromptFindUnique = jest.fn() as AnyMock;
+const mockWyrPromptFindMany = jest.fn() as AnyMock;
 const mockWyrVoteFindUnique = jest.fn() as AnyMock;
+const mockWyrVoteFindMany = jest.fn() as AnyMock;
 const mockWyrVoteCreate = jest.fn() as AnyMock;
 const mockWyrVoteCount = jest.fn() as AnyMock;
+const mockEnvelopeUpdate = jest.fn() as AnyMock;
 const mockTransaction = jest.fn() as AnyMock;
 
 jest.unstable_mockModule('../../db/queries/wyr.js', () => ({
   getPromptsByEnvelopeId: mockGetPromptsByEnvelopeId,
   getPromptById: mockGetPromptById,
   getVoteForParticipant: mockGetVoteForParticipant,
-  getVotesForPrompt: mockGetVotesForPrompt,
   countVotesForPrompt: mockCountVotesForPrompt,
-}));
-
-jest.unstable_mockModule('../../db/queries/envelopes.js', () => ({
-  updateEnvelopeStatus: mockUpdateEnvelopeStatus,
+  getVotesForPromptIds: mockGetVotesForPromptIds,
 }));
 
 jest.unstable_mockModule('../../services/realtime.js', () => ({
@@ -90,16 +88,23 @@ describe('WYR Service', () => {
       sendToGroup: mockSendToGroup,
     });
     mockSendToGroup.mockResolvedValue(undefined);
-    mockUpdateEnvelopeStatus.mockResolvedValue(null);
+    mockEnvelopeUpdate.mockResolvedValue(null);
 
-    // Default transaction implementation
+    // Default transaction implementation — includes all models used inside submitVote
     mockTransaction.mockImplementation((callback: (tx: unknown) => Promise<unknown>) => {
       return callback({
-        wyrPrompt: { findUnique: mockWyrPromptFindUnique },
+        wyrPrompt: {
+          findUnique: mockWyrPromptFindUnique,
+          findMany: mockWyrPromptFindMany,
+        },
         wyrVote: {
           findUnique: mockWyrVoteFindUnique,
+          findMany: mockWyrVoteFindMany,
           create: mockWyrVoteCreate,
           count: mockWyrVoteCount,
+        },
+        envelope: {
+          update: mockEnvelopeUpdate,
         },
       });
     });
@@ -119,8 +124,9 @@ describe('WYR Service', () => {
 
     it('should return single prompt with no votes', async () => {
       mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1]);
-      mockGetVoteForParticipant.mockResolvedValue(null);
-      mockGetVotesForPrompt.mockResolvedValue([]);
+      mockGetVotesForPromptIds.mockResolvedValue(
+        new Map([['prompt-1', []]])
+      );
 
       const result = await getEnvelopeState('env-1', PARTICIPANT_A);
 
@@ -138,20 +144,16 @@ describe('WYR Service', () => {
 
     it('should handle 3 prompts at various stages', async () => {
       mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1, PROMPT_2, PROMPT_3]);
-
-      // Prompt 1: both voted
-      mockGetVoteForParticipant
-        .mockResolvedValueOnce({ choice: 'option_a' }) // prompt 1 my vote
-        .mockResolvedValueOnce(null) // prompt 2 my vote
-        .mockResolvedValueOnce(null); // prompt 3 my vote
-
-      mockGetVotesForPrompt
-        .mockResolvedValueOnce([ // prompt 1 votes
-          { participantId: PARTICIPANT_A, choice: 'option_a' },
-          { participantId: PARTICIPANT_B, choice: 'option_b' },
+      mockGetVotesForPromptIds.mockResolvedValue(
+        new Map([
+          ['prompt-1', [
+            { participantId: PARTICIPANT_A, choice: 'option_a' },
+            { participantId: PARTICIPANT_B, choice: 'option_b' },
+          ]],
+          ['prompt-2', []],
+          ['prompt-3', []],
         ])
-        .mockResolvedValueOnce([]) // prompt 2 votes
-        .mockResolvedValueOnce([]); // prompt 3 votes
+      );
 
       const result = await getEnvelopeState('env-1', PARTICIPANT_A);
 
@@ -173,21 +175,18 @@ describe('WYR Service', () => {
 
     it('should set allComplete when all prompts have results', async () => {
       mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1, PROMPT_2]);
-
-      // Both prompts: both voted
-      mockGetVoteForParticipant
-        .mockResolvedValueOnce({ choice: 'option_a' })
-        .mockResolvedValueOnce({ choice: 'option_b' });
-
-      mockGetVotesForPrompt
-        .mockResolvedValueOnce([
-          { participantId: PARTICIPANT_A, choice: 'option_a' },
-          { participantId: PARTICIPANT_B, choice: 'option_a' },
+      mockGetVotesForPromptIds.mockResolvedValue(
+        new Map([
+          ['prompt-1', [
+            { participantId: PARTICIPANT_A, choice: 'option_a' },
+            { participantId: PARTICIPANT_B, choice: 'option_a' },
+          ]],
+          ['prompt-2', [
+            { participantId: PARTICIPANT_A, choice: 'option_b' },
+            { participantId: PARTICIPANT_B, choice: 'option_a' },
+          ]],
         ])
-        .mockResolvedValueOnce([
-          { participantId: PARTICIPANT_A, choice: 'option_b' },
-          { participantId: PARTICIPANT_B, choice: 'option_a' },
-        ]);
+      );
 
       const result = await getEnvelopeState('env-1', PARTICIPANT_A);
 
@@ -198,22 +197,18 @@ describe('WYR Service', () => {
 
     it('should set currentPromptIndex to first incomplete prompt', async () => {
       mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1, PROMPT_2, PROMPT_3]);
-
-      // Prompt 1: complete, Prompt 2: I voted but partner didn't, Prompt 3: no votes
-      mockGetVoteForParticipant
-        .mockResolvedValueOnce({ choice: 'option_a' }) // prompt 1
-        .mockResolvedValueOnce({ choice: 'option_b' }) // prompt 2
-        .mockResolvedValueOnce(null); // prompt 3
-
-      mockGetVotesForPrompt
-        .mockResolvedValueOnce([ // prompt 1: both voted
-          { participantId: PARTICIPANT_A, choice: 'option_a' },
-          { participantId: PARTICIPANT_B, choice: 'option_b' },
+      mockGetVotesForPromptIds.mockResolvedValue(
+        new Map([
+          ['prompt-1', [
+            { participantId: PARTICIPANT_A, choice: 'option_a' },
+            { participantId: PARTICIPANT_B, choice: 'option_b' },
+          ]],
+          ['prompt-2', [
+            { participantId: PARTICIPANT_A, choice: 'option_b' },
+          ]],
+          ['prompt-3', []],
         ])
-        .mockResolvedValueOnce([ // prompt 2: only A voted
-          { participantId: PARTICIPANT_A, choice: 'option_b' },
-        ])
-        .mockResolvedValueOnce([]); // prompt 3: no votes
+      );
 
       const result = await getEnvelopeState('env-1', PARTICIPANT_A);
 
@@ -278,14 +273,13 @@ describe('WYR Service', () => {
       mockWyrVoteFindUnique.mockResolvedValue(null);
       mockWyrVoteCreate.mockResolvedValue({ id: 'new-vote' });
       mockWyrVoteCount.mockResolvedValue(2);
-      mockGetVotesForPrompt.mockResolvedValue([
+      // tx.wyrVote.findMany for this prompt's votes
+      mockWyrVoteFindMany.mockResolvedValue([
         { participantId: PARTICIPANT_A, choice: 'option_a' },
         { participantId: PARTICIPANT_B, choice: 'option_b' },
       ]);
-      // Single prompt envelope
-      mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1]);
-      // No other prompts to count
-      mockCountVotesForPrompt.mockResolvedValue(2);
+      // tx.wyrPrompt.findMany for all prompts in envelope
+      mockWyrPromptFindMany.mockResolvedValue([{ id: 'prompt-1' }]);
 
       const result = await submitVote('prompt-1', PARTICIPANT_A, 'option_a');
 
@@ -297,72 +291,87 @@ describe('WYR Service', () => {
       });
       expect(result.isLastPrompt).toBe(true);
       expect(result.envelopeComplete).toBe(true);
-      expect(mockUpdateEnvelopeStatus).toHaveBeenCalledWith('env-1', 'completed');
+      expect(mockEnvelopeUpdate).toHaveBeenCalledWith({
+        where: { id: 'env-1' },
+        data: { status: 'completed' },
+      });
     });
 
     it('should NOT complete envelope when only first of 3 prompts has both votes', async () => {
       mockWyrPromptFindUnique.mockResolvedValue(PROMPT_1);
       mockWyrVoteFindUnique.mockResolvedValue(null);
       mockWyrVoteCreate.mockResolvedValue({ id: 'new-vote' });
-      mockWyrVoteCount.mockResolvedValue(2);
-      mockGetVotesForPrompt.mockResolvedValue([
+      // tx.wyrVote.findMany for this prompt's votes
+      mockWyrVoteFindMany.mockResolvedValue([
         { participantId: PARTICIPANT_A, choice: 'option_a' },
         { participantId: PARTICIPANT_B, choice: 'option_a' },
       ]);
-      // 3-prompt envelope
-      mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1, PROMPT_2, PROMPT_3]);
-      // Completion check iterates all prompts — only prompt-1 has both votes
-      mockCountVotesForPrompt
-        .mockResolvedValueOnce(2) // prompt-1
-        .mockResolvedValueOnce(0); // prompt-2 — breaks out early
+      // tx.wyrPrompt.findMany: 3-prompt envelope
+      mockWyrPromptFindMany.mockResolvedValue([
+        { id: 'prompt-1' }, { id: 'prompt-2' }, { id: 'prompt-3' },
+      ]);
+      // tx.wyrVote.count: first call returns 2 (this prompt), second for prompt-1=2, third for prompt-2=0
+      mockWyrVoteCount
+        .mockResolvedValueOnce(2) // count for submitted prompt
+        .mockResolvedValueOnce(2) // completion check: prompt-1
+        .mockResolvedValueOnce(0); // completion check: prompt-2 — breaks early
 
       const result = await submitVote('prompt-1', PARTICIPANT_A, 'option_a');
 
       expect(result.revealed).toBe(true);
       expect(result.isLastPrompt).toBe(false);
       expect(result.envelopeComplete).toBe(false);
-      expect(mockCountVotesForPrompt).toHaveBeenCalled();
-      expect(mockUpdateEnvelopeStatus).not.toHaveBeenCalled();
+      expect(mockEnvelopeUpdate).not.toHaveBeenCalled();
     });
 
     it('should complete envelope when last prompt gets both votes and all prompts done', async () => {
       mockWyrPromptFindUnique.mockResolvedValue(PROMPT_3);
       mockWyrVoteFindUnique.mockResolvedValue(null);
       mockWyrVoteCreate.mockResolvedValue({ id: 'new-vote' });
-      mockWyrVoteCount.mockResolvedValue(2);
-      mockGetVotesForPrompt.mockResolvedValue([
+      // tx.wyrVote.findMany for this prompt's votes
+      mockWyrVoteFindMany.mockResolvedValue([
         { participantId: PARTICIPANT_A, choice: 'option_b' },
         { participantId: PARTICIPANT_B, choice: 'option_b' },
       ]);
-      // 3-prompt envelope
-      mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1, PROMPT_2, PROMPT_3]);
-      // All prompts have 2 votes
-      mockCountVotesForPrompt
-        .mockResolvedValueOnce(2) // prompt 1
-        .mockResolvedValueOnce(2) // prompt 2
-        .mockResolvedValueOnce(2); // prompt 3
+      // tx.wyrPrompt.findMany: 3-prompt envelope
+      mockWyrPromptFindMany.mockResolvedValue([
+        { id: 'prompt-1' }, { id: 'prompt-2' }, { id: 'prompt-3' },
+      ]);
+      // tx.wyrVote.count: first for submitted prompt=2, then completion check for all 3
+      mockWyrVoteCount
+        .mockResolvedValueOnce(2) // count for submitted prompt
+        .mockResolvedValueOnce(2) // completion check: prompt 1
+        .mockResolvedValueOnce(2) // completion check: prompt 2
+        .mockResolvedValueOnce(2); // completion check: prompt 3
 
       const result = await submitVote('prompt-3', PARTICIPANT_A, 'option_b');
 
       expect(result.revealed).toBe(true);
       expect(result.isLastPrompt).toBe(true);
       expect(result.envelopeComplete).toBe(true);
-      expect(mockUpdateEnvelopeStatus).toHaveBeenCalledWith('env-1', 'completed');
+      expect(mockEnvelopeUpdate).toHaveBeenCalledWith({
+        where: { id: 'env-1' },
+        data: { status: 'completed' },
+      });
     });
 
     it('should include isLastPrompt and envelopeComplete in SignalR broadcast', async () => {
       mockWyrPromptFindUnique.mockResolvedValue(PROMPT_2);
       mockWyrVoteFindUnique.mockResolvedValue(null);
       mockWyrVoteCreate.mockResolvedValue({ id: 'new-vote' });
-      mockWyrVoteCount.mockResolvedValue(2);
-      mockGetVotesForPrompt.mockResolvedValue([
+      // tx.wyrVote.findMany for this prompt's votes
+      mockWyrVoteFindMany.mockResolvedValue([
         { participantId: PARTICIPANT_A, choice: 'option_a' },
         { participantId: PARTICIPANT_B, choice: 'option_b' },
       ]);
-      mockGetPromptsByEnvelopeId.mockResolvedValue([PROMPT_1, PROMPT_2, PROMPT_3]);
-      // Completion check iterates all prompts — only prompt-2 has both votes
-      mockCountVotesForPrompt
-        .mockResolvedValueOnce(0); // prompt-1 — breaks out early
+      // tx.wyrPrompt.findMany: 3 prompts
+      mockWyrPromptFindMany.mockResolvedValue([
+        { id: 'prompt-1' }, { id: 'prompt-2' }, { id: 'prompt-3' },
+      ]);
+      // tx.wyrVote.count: submitted prompt=2, then completion check prompt-1=0 (breaks early)
+      mockWyrVoteCount
+        .mockResolvedValueOnce(2) // count for submitted prompt
+        .mockResolvedValueOnce(0); // completion check: prompt-1 — breaks out early
 
       await submitVote('prompt-2', PARTICIPANT_A, 'option_a');
 

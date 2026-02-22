@@ -248,8 +248,18 @@ export async function removePhoto(photoId: string): Promise<Photo | null> {
   // deleteIfExists() won't throw for missing blobs, so any error here is a real failure.
   await deletePhotoFromBlob(photo.blobUrl);
 
-  // Only delete DB record after blob is confirmed deleted
-  return deletePhotoById(photoId);
+  // Delete DB record after blob is confirmed deleted.
+  // If this fails, the blob is already gone — log the inconsistency so it can be cleaned up.
+  try {
+    return await deletePhotoById(photoId);
+  } catch (err) {
+    logger.error('DB record deletion failed after blob was already deleted — orphaned DB record', {
+      photoId,
+      blobUrl: photo.blobUrl,
+      error: err,
+    });
+    throw err;
+  }
 }
 
 /**

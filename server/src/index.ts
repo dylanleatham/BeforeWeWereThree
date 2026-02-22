@@ -146,14 +146,12 @@ if (process.env.NODE_ENV !== 'test') {
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-  // Handle uncaught errors (log but don't exit in production)
+  // Handle uncaught errors — always perform graceful shutdown
+  // Per Node.js docs, continuing after uncaughtException leaves the process
+  // in an undefined state. Drain connections and exit cleanly.
   process.on('uncaughtException', (error) => {
-    logger.error('Uncaught exception', { error });
-    // In production, we might want to continue running
-    // In development, we should crash to surface the issue
-    if (process.env.NODE_ENV === 'development') {
-      process.exit(1);
-    }
+    logger.error('Uncaught exception — initiating graceful shutdown', { error });
+    gracefulShutdown('uncaughtException');
   });
 
   process.on('unhandledRejection', (reason) => {

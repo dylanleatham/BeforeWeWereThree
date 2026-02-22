@@ -73,6 +73,16 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
   // Track if we've loaded data (for retry)
   const loadedRef = useRef(false);
 
+  // Mounted ref for async safety (per CLAUDE.md: set true in effect body)
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   /**
    * Join the activity group for real-time updates
    * This is required for Socket.io to receive broadcasts
@@ -97,6 +107,8 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
 
     try {
       const data = await getLetterState(envelopeId);
+
+      if (!mountedRef.current) return;
 
       setPrompt(data.prompt);
       setMyLetter(data.myLetter);
@@ -124,10 +136,13 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
 
       loadedRef.current = true;
     } catch (err) {
+      if (!mountedRef.current) return;
       console.error('Failed to load letter state:', err);
       setError(STRINGS.LETTER_ERROR_LOADING);
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [envelopeId]);
 
@@ -174,10 +189,13 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
       try {
         setError(null);
         const updatedLetter = await saveLetter(envelopeId, content, photoUrl);
+        if (!mountedRef.current) return;
         setMyLetter(updatedLetter);
       } catch (err) {
-        console.error('Failed to save letter:', err);
-        setError(STRINGS.LETTER_ERROR_SAVING);
+        if (mountedRef.current) {
+          console.error('Failed to save letter:', err);
+          setError(STRINGS.LETTER_ERROR_SAVING);
+        }
         throw err;
       }
     },
@@ -200,6 +218,8 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
       // Submit to server with current content from caller
       const response = await submitLetter(envelopeId, content, photoUrl);
 
+      if (!mountedRef.current) return;
+
       // Update local letter state to reflect submission
       setMyLetter((prev) => prev ? { ...prev, content, photoUrl, submittedAt: new Date().toISOString() } : prev);
 
@@ -216,8 +236,11 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
         setPhase('waiting');
       }
     } catch (err) {
-      console.error('Failed to submit letter:', err);
-      setError(STRINGS.LETTER_ERROR_SUBMITTING);
+      if (mountedRef.current) {
+        console.error('Failed to submit letter:', err);
+        setError(STRINGS.LETTER_ERROR_SUBMITTING);
+      }
+      throw err;
     }
   }, [prompt, envelopeId, myLetter]);
 

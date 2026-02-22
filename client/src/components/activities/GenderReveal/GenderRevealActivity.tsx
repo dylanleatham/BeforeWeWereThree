@@ -43,6 +43,7 @@ export function GenderRevealActivity({
     isSubmitting,
     submitKey,
     onCeremonyComplete,
+    retry,
   } = useGenderReveal({ envelopeId });
 
   const renderPhase = () => {
@@ -68,6 +69,21 @@ export function GenderRevealActivity({
             <p className="gender-reveal__message-subtitle">
               {STRINGS.REVEAL_NOT_CONFIGURED_SUBTITLE}
             </p>
+          </div>
+        );
+
+      case 'error':
+        return (
+          <div className="gender-reveal__not-configured">
+            <h2 className="gender-reveal__message-title">
+              {error ?? STRINGS.REVEAL_LOAD_ERROR}
+            </h2>
+            <button
+              className="gender-reveal__retry-btn"
+              onClick={retry}
+            >
+              {STRINGS.REVEAL_LOAD_ERROR_RETRY}
+            </button>
           </div>
         );
 

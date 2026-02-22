@@ -11,6 +11,8 @@ export type {
   ApiErrorResponse,
   ApiResponse,
   DeleteResponse,
+  MessageResponse,
+  SetResponse,
   ResetSessionResponse,
 } from './api.js';
 export { successResponse, errorResponse } from './api.js';
@@ -162,6 +164,7 @@ export type {
 } from './friend.js';
 export {
   createFriendSchema,
+  setGenderKeeperSchema,
   createFriendLetterSchema,
   saveFriendLetterSchema,
   submitFriendLetterSchema,

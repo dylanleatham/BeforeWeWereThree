@@ -1,33 +1,33 @@
 .gender-input {
-  margin-bottom: var(--space-lg, 1.5rem);
+  margin-bottom: var(--space-6);
 }
 
 .gender-input__title {
-  margin-bottom: var(--space-xs, 0.5rem);
+  margin-bottom: var(--space-2);
 }
 
 .gender-input__description {
-  margin-bottom: var(--space-md, 1rem);
+  margin-bottom: var(--space-4);
 }
 
 .gender-input__message {
-  margin-bottom: var(--space-md, 1rem);
+  margin-bottom: var(--space-4);
 }
 
 .gender-input__options {
   display: flex;
-  gap: var(--space-md, 1rem);
+  gap: var(--space-4);
   justify-content: center;
 }
 
 .gender-input__option {
   min-width: 120px;
   min-height: 56px;
-  padding: var(--space-sm, 0.75rem) var(--space-lg, 1.5rem);
-  border: 2px solid var(--color-border, #d4c5b0);
-  border-radius: var(--radius-md, 12px);
-  background: var(--color-surface, #fff);
-  font-family: var(--font-display, 'Fraunces', serif);
+  padding: var(--space-3) var(--space-6);
+  border: 2px solid var(--color-warm-charcoal-12);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  font-family: var(--font-display);
   font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
@@ -39,29 +39,29 @@
 }
 
 .gender-input__option--boy:hover {
-  border-color: var(--color-accent-blue, #5b9bd5);
-  background: rgba(91, 155, 213, 0.08);
+  border-color: var(--reveal-boy-primary);
+  background: rgba(var(--reveal-boy-primary-rgb), 0.08);
 }
 
 .gender-input__option--girl:hover {
-  border-color: var(--color-dusk-rose, #E07A5F);
-  background: rgba(224, 122, 95, 0.08);
+  border-color: var(--color-dusk-rose);
+  background: var(--color-dusk-rose-8);
 }
 
 .gender-input__actions {
   display: flex;
-  gap: var(--space-sm, 0.75rem);
+  gap: var(--space-3);
   justify-content: center;
 }
 
 .gender-input__error {
-  color: var(--color-error, #c0392b);
+  color: var(--color-dusk-rose);
   font-size: 0.875rem;
-  margin-bottom: var(--space-sm, 0.75rem);
+  margin-bottom: var(--space-3);
   text-align: center;
 }
 
 .gender-input--done {
   text-align: center;
-  padding: var(--space-lg, 1.5rem);
+  padding: var(--space-6);
 }

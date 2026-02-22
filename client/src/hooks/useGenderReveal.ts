@@ -32,6 +32,8 @@ interface UseGenderRevealReturn {
   submitKey: (key: string) => Promise<void>;
   /** Transition from ceremony to keepsake phase */
   onCeremonyComplete: () => void;
+  /** Retry loading after an error */
+  retry: () => void;
 }
 
 /**
@@ -86,11 +88,15 @@ export function useGenderReveal({
     };
   }, [connection, envelopeId]);
 
+  // Retry counter — incrementing triggers a reload
+  const [retryCount, setRetryCount] = useState(0);
+
   /**
    * Load initial state from API
    */
   useEffect(() => {
     async function loadState() {
+      setPhase('loading');
       try {
         const state = await getGenderRevealState(envelopeId);
 
@@ -120,13 +126,14 @@ export function useGenderReveal({
       } catch (err) {
         console.error('Failed to load gender reveal state:', err);
         if (mountedRef.current) {
-          setPhase('not-configured');
+          setError(STRINGS.REVEAL_LOAD_ERROR);
+          setPhase('error');
         }
       }
     }
 
     loadState();
-  }, [envelopeId]);
+  }, [envelopeId, retryCount]);
 
   /**
    * Handle partner key validated event (progress update)
@@ -198,7 +205,11 @@ export function useGenderReveal({
       } catch (err) {
         console.error('Failed to validate key:', err);
         if (mountedRef.current) {
-          setError(STRINGS.REVEAL_KEY_INVALID);
+          // Distinguish network errors from server validation failures
+          const isNetworkError =
+            err instanceof TypeError || // fetch network failure
+            (err instanceof Error && err.message.includes('network'));
+          setError(isNetworkError ? STRINGS.REVEAL_KEY_NETWORK_ERROR : STRINGS.REVEAL_KEY_INVALID);
         }
       } finally {
         if (mountedRef.current) {
@@ -217,6 +228,14 @@ export function useGenderReveal({
     setPhase('keepsake');
   }, []);
 
+  /**
+   * Retry loading after an error
+   */
+  const retry = useCallback(() => {
+    setError(null);
+    setRetryCount((c) => c + 1);
+  }, []);
+
   return {
     phase,
     gender,
@@ -226,5 +245,6 @@ export function useGenderReveal({
     isSubmitting,
     submitKey,
     onCeremonyComplete,
+    retry,
   };
 }

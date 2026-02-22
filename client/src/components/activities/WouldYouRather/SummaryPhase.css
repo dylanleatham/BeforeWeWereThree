@@ -79,7 +79,7 @@
 .wyr-summary__choice-label {
   font-size: 0.6875rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--tracking-wider);
   opacity: 0.6;
   color: var(--color-deep-terracotta);
 }

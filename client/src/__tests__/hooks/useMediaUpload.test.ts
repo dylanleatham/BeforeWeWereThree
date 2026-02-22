@@ -126,7 +126,8 @@ describe('useMediaUpload', () => {
     expect(mockRegisterPhoto).toHaveBeenCalledWith(
       'https://storage.blob.core.windows.net/photos/img',
       'photo.jpg',
-      'image/jpeg'
+      'image/jpeg',
+      expect.any(AbortSignal)
     );
   });
 

@@ -113,7 +113,7 @@ export function KeyEntryPhase({
       {/* Submitting indicator */}
       {isSubmitting && (
         <p className="key-entry__submitting" aria-live="polite">
-          Checking...
+          {STRINGS.REVEAL_KEY_CHECKING}
         </p>
       )}
 

@@ -51,7 +51,7 @@
   background: transparent;
   color: var(--color-deep-terracotta, #BC6C4A);
   cursor: pointer;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   width: 100%;
   justify-content: center;
@@ -59,7 +59,7 @@
 }
 
 .media-attachment__upload-btn:hover {
-  background: rgba(188, 108, 74, 0.05);
+  background: var(--color-deep-terracotta-5);
 }
 
 .media-attachment__types {

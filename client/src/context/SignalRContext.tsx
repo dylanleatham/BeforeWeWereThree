@@ -40,6 +40,8 @@ interface SignalRContextValue {
   isConnected: boolean;
   /** Current transport type */
   transport: RealtimeTransport | null;
+  /** Error from group join/leave failure (null when healthy) */
+  groupError: string | null;
 }
 
 const SignalRContext = createContext<SignalRContextValue | null>(null);
@@ -69,11 +71,36 @@ function createSocketIOConnection(socket: Socket): RealtimeConnection {
 }
 
 /**
+ * Retry an async operation with exponential backoff
+ */
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxAttempts: number = 3,
+  baseDelayMs: number = 1000
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxAttempts - 1) {
+        await new Promise((r) => setTimeout(r, baseDelayMs * 2 ** attempt));
+      }
+    }
+  }
+  throw lastError;
+}
+
+/**
  * Wrapper for SignalR HubConnection to match our unified interface
  * Groups are managed server-side via REST API (Azure SignalR does not
  * support client-initiated group joins via hub methods)
  */
-function createSignalRConnection(hub: HubConnection): RealtimeConnection {
+function createSignalRConnection(
+  hub: HubConnection,
+  onGroupError: (error: string | null) => void
+): RealtimeConnection {
   return {
     on(event: string, callback: (...args: unknown[]) => void): void {
       hub.on(event, callback);
@@ -82,10 +109,20 @@ function createSignalRConnection(hub: HubConnection): RealtimeConnection {
       hub.off(event, callback);
     },
     joinGroup(groupName: string): void {
-      joinRealtimeGroup(groupName).catch(console.error);
+      withRetry(() => joinRealtimeGroup(groupName))
+        .then(() => onGroupError(null))
+        .catch((error) => {
+          console.error('Failed to join group after retries:', error);
+          onGroupError('Failed to join real-time group. Updates may not appear.');
+        });
     },
     leaveGroup(groupName: string): void {
-      leaveRealtimeGroup(groupName).catch(console.error);
+      withRetry(() => leaveRealtimeGroup(groupName))
+        .then(() => onGroupError(null))
+        .catch((error) => {
+          console.error('Failed to leave group after retries:', error);
+          onGroupError(null); // Leave failures are non-critical
+        });
     },
   };
 }
@@ -105,6 +142,7 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
   const [connection, setConnection] = useState<RealtimeConnection | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>('Disconnected');
   const [transport, setTransport] = useState<RealtimeTransport | null>(null);
+  const [groupError, setGroupError] = useState<string | null>(null);
 
   // Keep references for cleanup
   const socketRef = useRef<Socket | null>(null);
@@ -193,7 +231,7 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
 
           if (mounted) {
             hubRef.current = hub;
-            setConnection(createSignalRConnection(hub));
+            setConnection(createSignalRConnection(hub, setGroupError));
             setConnectionState('Connected');
           } else {
             // Component unmounted during connect
@@ -227,6 +265,7 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
         connectionState,
         isConnected: connectionState === 'Connected',
         transport,
+        groupError,
       }}
     >
       {children}

@@ -2,7 +2,7 @@
   background: var(--color-warm-sand, #FAF3E8);
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid rgba(188, 108, 74, 0.15);
+  border: 1px solid var(--color-deep-terracotta-15);
 }
 
 .thank-you-note__header {
@@ -10,7 +10,7 @@
 }
 
 .thank-you-note__label {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.1rem;
   color: var(--color-deep-terracotta, #BC6C4A);
 }
@@ -22,7 +22,7 @@
 }
 
 .thank-you-note__text {
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.6;
   color: var(--color-text, #333);

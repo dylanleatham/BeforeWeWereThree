@@ -2,6 +2,7 @@ import type {
   ApiResponse,
   ValidatePinResponse,
   SessionResponse,
+  MessageResponse,
   Envelope,
   EnvelopeListResponse,
   EnvelopeResponse,
@@ -76,8 +77,8 @@ export async function getSession(): Promise<ApiResponse<SessionResponse>> {
 /**
  * Logout and clear session
  */
-export async function logout(): Promise<ApiResponse<{ message: string }>> {
-  return apiFetch<{ message: string }>('/auth/logout', {
+export async function logout(): Promise<ApiResponse<MessageResponse>> {
+  return apiFetch<MessageResponse>('/auth/logout', {
     method: 'POST',
   });
 }
@@ -87,8 +88,8 @@ export async function logout(): Promise<ApiResponse<{ message: string }>> {
  * Useful for testing A/B designation reassignment
  * @deprecated Use resetSession() instead for comprehensive reset
  */
-export async function resetParticipants(): Promise<ApiResponse<{ message: string }>> {
-  return apiFetch<{ message: string }>('/auth/participants', {
+export async function resetParticipants(): Promise<ApiResponse<MessageResponse>> {
+  return apiFetch<MessageResponse>('/auth/participants', {
     method: 'DELETE',
   });
 }
@@ -229,20 +230,26 @@ export async function negotiateRealtime(): Promise<RealtimeNegotiateResponse> {
  * Used for activity-specific messaging
  */
 export async function joinRealtimeGroup(groupName: string): Promise<void> {
-  await apiFetch('/signalr/groups/join', {
+  const response = await apiFetch('/signalr/groups/join', {
     method: 'POST',
     body: JSON.stringify({ groupName }),
   });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to join real-time group');
+  }
 }
 
 /**
  * Leave a real-time group
  */
 export async function leaveRealtimeGroup(groupName: string): Promise<void> {
-  await apiFetch('/signalr/groups/leave', {
+  const response = await apiFetch('/signalr/groups/leave', {
     method: 'POST',
     body: JSON.stringify({ groupName }),
   });
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to leave real-time group');
+  }
 }
 
 // ============================================================================
@@ -387,11 +394,13 @@ export async function getUploadSas(
 export async function registerPhoto(
   blobUrl: string,
   filename: string,
-  contentType: string
+  contentType: string,
+  signal?: AbortSignal
 ): Promise<Photo> {
   const response = await apiFetch<PhotoResponse>('/media/register', {
     method: 'POST',
     body: JSON.stringify({ blobUrl, filename, contentType }),
+    signal,
   });
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to register photo');

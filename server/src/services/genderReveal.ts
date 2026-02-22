@@ -1,13 +1,11 @@
-import { timingSafeEqual } from 'crypto';
 import { db } from '../db/connection.js';
 import {
   getConfig,
   createConfig,
   updateConfig,
   resetRevealState,
-  findGenderRevealConfig,
-  setGenderValue,
 } from '../db/queries/genderReveal.js';
+import { hashKey, verifyKey } from '../utils/keyHash.js';
 import { logger } from '../utils/logger.js';
 import type {
   GenderRevealStateResponse,
@@ -16,21 +14,6 @@ import type {
   ConfigureGenderRevealRequest,
   GenderValue,
 } from 'shared';
-
-/**
- * Timing-safe string comparison to prevent timing attacks on key validation.
- * Always compares both buffers fully, even if lengths differ.
- */
-function safeCompare(a: string, b: string): boolean {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) {
-    // Compare against itself to maintain constant time, then return false
-    timingSafeEqual(bufA, bufA);
-    return false;
-  }
-  return timingSafeEqual(bufA, bufB);
-}
 
 /**
  * Gender Reveal service
@@ -70,6 +53,9 @@ export async function getRevealState(
   const keysValidated =
     (config.keyAValidated ? 1 : 0) + (config.keyBValidated ? 1 : 0);
 
+  // Key length is always 8 (MMDDYYYY) per Zod schema; stored keys are hashes
+  const KEY_INPUT_LENGTH = 8;
+
   if (config.revealedAt) {
     return {
       configured: true,
@@ -77,7 +63,7 @@ export async function getRevealState(
       myKeyValidated: false,
       revealed: true,
       gender: config.genderValue as GenderValue,
-      keyLength: config.keyA.length,
+      keyLength: KEY_INPUT_LENGTH,
     };
   }
 
@@ -86,7 +72,7 @@ export async function getRevealState(
     keysValidated,
     myKeyValidated: false,
     revealed: false,
-    keyLength: config.keyA.length,
+    keyLength: KEY_INPUT_LENGTH,
   };
 }
 
@@ -128,9 +114,9 @@ export async function validateKey(
       };
     }
 
-    // Check which key matches (timing-safe: always evaluate both comparisons)
-    const matchesA = safeCompare(key, config.keyA);
-    const matchesB = safeCompare(key, config.keyB);
+    // Check which key matches (scrypt + timingSafeEqual: always evaluate both)
+    const matchesA = await verifyKey(key, config.keyA);
+    const matchesB = await verifyKey(key, config.keyB);
 
     let keyField: 'keyAValidated' | 'keyBValidated' | null = null;
     let otherKeyValidated = false;
@@ -200,6 +186,10 @@ export async function configureReveal(
 
   const existing = await getConfig(envelopeId);
 
+  // Hash keys before storing (defense-in-depth: DB compromise doesn't leak keys)
+  const hashedKeyA = await hashKey(data.keyA);
+  const hashedKeyB = await hashKey(data.keyB);
+
   if (existing) {
     // Don't allow changing config after reveal
     if (existing.revealedAt) {
@@ -207,15 +197,13 @@ export async function configureReveal(
     }
 
     const updated = await updateConfig(envelopeId, {
-      keyA: data.keyA,
-      keyB: data.keyB,
+      keyA: hashedKeyA,
+      keyB: hashedKeyB,
     });
 
     return {
       configured: true,
       genderSet: updated.genderValue !== null,
-      keyA: updated.keyA,
-      keyB: updated.keyB,
       keyAValidated: updated.keyAValidated,
       keyBValidated: updated.keyBValidated,
       revealedAt: updated.revealedAt?.toISOString(),
@@ -224,15 +212,13 @@ export async function configureReveal(
 
   const created = await createConfig(
     envelopeId,
-    data.keyA,
-    data.keyB
+    hashedKeyA,
+    hashedKeyB
   );
 
   return {
     configured: true,
     genderSet: created.genderValue !== null,
-    keyA: created.keyA,
-    keyB: created.keyB,
     keyAValidated: created.keyAValidated,
     keyBValidated: created.keyBValidated,
     revealedAt: created.revealedAt?.toISOString(),
@@ -260,8 +246,6 @@ export async function getAdminConfig(
   return {
     configured: true,
     genderSet: config.genderValue !== null,
-    keyA: config.keyA,
-    keyB: config.keyB,
     keyAValidated: config.keyAValidated,
     keyBValidated: config.keyBValidated,
     revealedAt: config.revealedAt?.toISOString(),
@@ -285,8 +269,6 @@ export async function resealReveal(
   return {
     configured: true,
     genderSet: updated.genderValue !== null,
-    keyA: updated.keyA,
-    keyB: updated.keyB,
     keyAValidated: updated.keyAValidated,
     keyBValidated: updated.keyBValidated,
     revealedAt: updated.revealedAt?.toISOString(),
@@ -301,16 +283,25 @@ export async function setGenderByFriend(
   friendId: string,
   genderValue: 'boy' | 'girl'
 ): Promise<void> {
-  const config = await findGenderRevealConfig();
+  await db.$transaction(async (tx) => {
+    const config = await tx.genderRevealConfig.findFirst();
 
-  if (!config) {
-    throw new Error('REVEAL_NOT_CONFIGURED');
-  }
+    if (!config) {
+      throw new Error('REVEAL_NOT_CONFIGURED');
+    }
 
-  if (config.genderValue !== null) {
-    throw new Error('GENDER_ALREADY_SET');
-  }
+    if (config.genderValue !== null) {
+      throw new Error('GENDER_ALREADY_SET');
+    }
 
-  await setGenderValue(config.envelopeId, genderValue, friendId);
-  logger.info('Gender set by friend keeper', { friendId, envelopeId: config.envelopeId });
+    await tx.genderRevealConfig.update({
+      where: { envelopeId: config.envelopeId },
+      data: {
+        genderValue,
+        setByFriendId: friendId,
+      },
+    });
+
+    logger.info('Gender set by friend keeper', { friendId, envelopeId: config.envelopeId });
+  }, { isolationLevel: 'Serializable' });
 }

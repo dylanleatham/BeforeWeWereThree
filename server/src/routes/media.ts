@@ -120,8 +120,8 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 50, 1), 100);
     const offset = Math.max(parseInt(req.query.offset as string) || 0, 0);
-    const photos = await getAllPhotos(limit, offset);
-    res.json(successResponse({ photos, limit, offset }));
+    const { photos, total } = await getAllPhotos(limit, offset);
+    res.json(successResponse({ photos, total, limit, offset }));
   } catch (error) {
     logger.error('Failed to list photos', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to list photos'));

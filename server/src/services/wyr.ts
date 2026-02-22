@@ -4,10 +4,9 @@ import {
   getPromptsByEnvelopeId,
   getPromptById,
   getVoteForParticipant,
-  getVotesForPrompt,
   countVotesForPrompt,
+  getVotesForPromptIds,
 } from '../db/queries/wyr.js';
-import { updateEnvelopeStatus } from '../db/queries/envelopes.js';
 import type {
   WYRChoice,
   WYREnvelopeResponse,
@@ -37,32 +36,34 @@ export async function getEnvelopeState(
     return null;
   }
 
+  // Batch-fetch all votes for all prompts in a single query (avoids N+1)
+  const promptIds = prompts.map((p) => p.id);
+  const votesByPrompt = await getVotesForPromptIds(promptIds);
+
   const promptStates: WYRPromptState[] = [];
   let currentPromptIndex = prompts.length - 1; // Default to last if all done
   let foundIncomplete = false;
 
   for (let i = 0; i < prompts.length; i++) {
     const prompt = prompts[i]!;
+    const votes = votesByPrompt.get(prompt.id) ?? [];
 
     // Get current participant's vote
-    const myVoteRecord = await getVoteForParticipant(prompt.id, participantId);
+    const myVoteRecord = votes.find((v) => v.participantId === participantId);
     const myVote = myVoteRecord?.choice ?? null;
 
-    // Get all votes to check if partner voted
-    const votes = await getVotesForPrompt(prompt.id);
-    const partnerVoted = votes.some((v) => v.participantId !== participantId);
+    // Check if partner voted
+    const partnerVote = votes.find((v) => v.participantId !== participantId);
+    const partnerVoted = !!partnerVote;
 
     // Build results if both have voted
     let results: WYRResults | null = null;
-    if (myVote && partnerVoted) {
-      const partnerVote = votes.find((v) => v.participantId !== participantId);
-      if (partnerVote) {
-        results = {
-          myChoice: myVote,
-          partnerChoice: partnerVote.choice,
-          isMatch: myVote === partnerVote.choice,
-        };
-      }
+    if (myVote && partnerVote) {
+      results = {
+        myChoice: myVote,
+        partnerChoice: partnerVote.choice,
+        isMatch: myVote === partnerVote.choice,
+      };
     }
 
     promptStates.push({ prompt, myVote, partnerVoted, results });
@@ -94,7 +95,8 @@ export async function submitVote(
   participantId: string,
   choice: WYRChoice
 ): Promise<WYRVoteResponse> {
-  // Use transaction to prevent race conditions
+  // Use Serializable transaction for vote creation AND completion check
+  // to prevent stale reads from concurrent votes
   const result = await db.$transaction(async (tx) => {
     // Check if prompt exists
     const prompt = await tx.wyrPrompt.findUnique({
@@ -131,7 +133,57 @@ export async function submitVote(
       where: { promptId },
     });
 
-    return { prompt, voteCount };
+    // If both voted on this prompt, check completion of ALL prompts
+    let results: WYRResults | null = null;
+    let isLastPrompt = false;
+    let envelopeComplete = false;
+
+    if (voteCount >= 2) {
+      const votes = await tx.wyrVote.findMany({
+        where: { promptId },
+      });
+
+      const myVote = votes.find((v) => v.participantId === participantId);
+      const partnerVote = votes.find((v) => v.participantId !== participantId);
+
+      if (myVote && partnerVote) {
+        results = {
+          myChoice: myVote.choice as WYRChoice,
+          partnerChoice: partnerVote.choice as WYRChoice,
+          isMatch: myVote.choice === partnerVote.choice,
+        };
+
+        // Check if ALL prompts for this envelope now have both votes
+        const allPrompts = await tx.wyrPrompt.findMany({
+          where: { envelopeId: prompt.envelopeId },
+          orderBy: { sortOrder: 'asc' },
+          select: { id: true },
+        });
+        isLastPrompt = allPrompts.length <= 1 ||
+          allPrompts[allPrompts.length - 1]!.id === promptId;
+
+        let allHaveBothVotes = true;
+        for (const p of allPrompts) {
+          const count = await tx.wyrVote.count({
+            where: { promptId: p.id },
+          });
+          if (count < 2) {
+            allHaveBothVotes = false;
+            break;
+          }
+        }
+        envelopeComplete = allHaveBothVotes;
+
+        if (envelopeComplete) {
+          await tx.envelope.update({
+            where: { id: prompt.envelopeId },
+            data: { status: 'completed' },
+          });
+        }
+      }
+    }
+
+    return { prompt, voteCount, results, isLastPrompt, envelopeComplete };
   }, { isolationLevel: 'Serializable' });
 
   // Broadcast vote submitted via SignalR
@@ -149,61 +201,28 @@ export async function submitVote(
     });
   }
 
-  // Check if both participants have voted on THIS prompt
-  if (result.voteCount >= 2) {
-    // Get all votes to build results
-    const votes = await getVotesForPrompt(promptId);
-
-    // Find my vote and partner vote
-    const myVote = votes.find((v) => v.participantId === participantId);
-    const partnerVote = votes.find((v) => v.participantId !== participantId);
-
-    if (myVote && partnerVote) {
-      const results: WYRResults = {
-        myChoice: myVote.choice,
-        partnerChoice: partnerVote.choice,
-        isMatch: myVote.choice === partnerVote.choice,
+  // Broadcast reveal ready if both voted on this prompt
+  if (result.results) {
+    if (realtime) {
+      const revealMessage: WYRRevealReadyMessage = {
+        type: 'wyr_reveal_ready',
+        promptId,
+        results: result.results,
+        isLastPrompt: result.isLastPrompt,
+        envelopeComplete: result.envelopeComplete,
       };
-
-      // Check if ALL prompts for this envelope now have both votes
-      const allPrompts = await getPromptsByEnvelopeId(result.prompt.envelopeId);
-      const isLastPrompt = allPrompts.length <= 1 ||
-        allPrompts[allPrompts.length - 1]!.id === promptId;
-
-      // Always check completion regardless of prompt order — participants may
-      // vote on prompts in any sequence, so we can't rely on position alone.
-      let envelopeComplete = false;
-      let allHaveBothVotes = true;
-      for (const p of allPrompts) {
-        const count = await countVotesForPrompt(p.id);
-        if (count < 2) {
-          allHaveBothVotes = false;
-          break;
-        }
-      }
-      envelopeComplete = allHaveBothVotes;
-
-      if (envelopeComplete) {
-        await updateEnvelopeStatus(result.prompt.envelopeId, 'completed');
-      }
-
-      // Broadcast reveal ready via SignalR
-      if (realtime) {
-        const revealMessage: WYRRevealReadyMessage = {
-          type: 'wyr_reveal_ready',
-          promptId,
-          results,
-          isLastPrompt,
-          envelopeComplete,
-        };
-        await realtime.sendToGroup(`activity:${result.prompt.envelopeId}`, {
-          target: 'wyrRevealReady',
-          arguments: [revealMessage],
-        });
-      }
-
-      return { revealed: true, results, isLastPrompt, envelopeComplete };
+      await realtime.sendToGroup(`activity:${result.prompt.envelopeId}`, {
+        target: 'wyrRevealReady',
+        arguments: [revealMessage],
+      });
     }
+
+    return {
+      revealed: true,
+      results: result.results,
+      isLastPrompt: result.isLastPrompt,
+      envelopeComplete: result.envelopeComplete,
+    };
   }
 
   return { revealed: false, isLastPrompt: false, envelopeComplete: false };

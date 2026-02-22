@@ -73,7 +73,9 @@ export async function deleteConfig(envelopeId: string): Promise<boolean> {
  * Returns the first (and should be only) gender reveal config
  */
 export async function findGenderRevealConfig() {
-  return db.genderRevealConfig.findFirst();
+  return db.genderRevealConfig.findFirst({
+    orderBy: { createdAt: 'desc' },
+  });
 }
 
 /**

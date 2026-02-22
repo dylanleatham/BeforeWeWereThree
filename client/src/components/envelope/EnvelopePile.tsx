@@ -31,8 +31,15 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
   const handleOpenEnvelope = useCallback(
     (envelope: Envelope) => {
       // Allow opening sealed and opened envelopes
-      // Also allow reopening completed WYR envelopes for summary view
-      if (envelope.status !== 'completed' || envelope.type === 'would-you-rather') {
+      // Also allow reopening completed envelopes that have completed-state views
+      // (summary, keepsake, review screens)
+      const hasCompletedView =
+        envelope.type === 'would-you-rather' ||
+        envelope.type === 'trivia' ||
+        envelope.type === 'friend-letter' ||
+        envelope.type === 'gender-reveal' ||
+        envelope.type === 'name-game';
+      if (envelope.status !== 'completed' || hasCompletedView) {
         setSelectedEnvelope(envelope);
       }
     },

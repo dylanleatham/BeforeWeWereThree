@@ -53,6 +53,8 @@ export function EnvelopeManager({
       await createEnvelope(data);
       await onRefresh();
       setFormMode({ type: 'closed' });
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to create envelope');
     } finally {
       setIsSaving(false);
     }
@@ -67,6 +69,8 @@ export function EnvelopeManager({
         await updateEnvelope(formMode.envelope.id, data as UpdateEnvelopeRequest);
         await onRefresh();
         setFormMode({ type: 'closed' });
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to update envelope');
       } finally {
         setIsSaving(false);
       }
@@ -81,6 +85,8 @@ export function EnvelopeManager({
         await deleteEnvelope(id);
         await onRefresh();
         setDeleteConfirm(null);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to delete envelope');
       } finally {
         setIsSaving(false);
       }

@@ -136,12 +136,17 @@
   --color-sunrise-gold-40: rgba(var(--color-sunrise-gold-rgb), 0.4);
 
   --color-dusk-rose-6: rgba(var(--color-dusk-rose-rgb), 0.06);
+  --color-dusk-rose-8: rgba(var(--color-dusk-rose-rgb), 0.08);
   --color-dusk-rose-10: rgba(var(--color-dusk-rose-rgb), 0.1);
 
+  --color-deep-terracotta-5: rgba(var(--color-deep-terracotta-rgb), 0.05);
+  --color-deep-terracotta-8: rgba(var(--color-deep-terracotta-rgb), 0.08);
   --color-deep-terracotta-10: rgba(var(--color-deep-terracotta-rgb), 0.1);
   --color-deep-terracotta-15: rgba(var(--color-deep-terracotta-rgb), 0.15);
+  --color-deep-terracotta-20: rgba(var(--color-deep-terracotta-rgb), 0.2);
 
   --color-soft-sage-10: rgba(var(--color-soft-sage-rgb), 0.1);
+  --color-soft-sage-12: rgba(var(--color-soft-sage-rgb), 0.12);
   --color-soft-sage-15: rgba(var(--color-soft-sage-rgb), 0.15);
 
   --color-soft-graphite-15: rgba(var(--color-soft-graphite-rgb), 0.15);
@@ -175,10 +180,35 @@
   --focus-ring: 0 0 0 3px var(--color-sunrise-gold-40);
 
   /* ===========================================
+   * ENVELOPE ACTIVITY COLORS
+   * Each activity type gets a distinct accent color
+   * =========================================== */
+  --envelope-color-trivia: var(--color-sunrise-gold);
+  --envelope-color-would-you-rather: var(--color-dusk-rose);
+  --envelope-color-letter: var(--color-deep-terracotta);
+  --envelope-color-media: var(--color-soft-sage);
+  --envelope-color-name-game: #7BA7BC;
+  --envelope-color-gender-reveal: #B08EA2;
+  --envelope-color-friend-letter: #D4A574;
+
+  --envelope-color-name-game-rgb: 123, 167, 188;
+  --envelope-color-gender-reveal-rgb: 176, 142, 162;
+  --envelope-color-friend-letter-rgb: 212, 165, 116;
+
+  --envelope-color-trivia-15: rgba(var(--color-sunrise-gold-rgb), 0.15);
+  --envelope-color-would-you-rather-15: rgba(var(--color-dusk-rose-rgb), 0.15);
+  --envelope-color-letter-15: rgba(var(--color-deep-terracotta-rgb), 0.15);
+  --envelope-color-media-15: rgba(var(--color-soft-sage-rgb), 0.15);
+  --envelope-color-name-game-15: rgba(var(--envelope-color-name-game-rgb), 0.15);
+  --envelope-color-gender-reveal-15: rgba(var(--envelope-color-gender-reveal-rgb), 0.15);
+  --envelope-color-friend-letter-15: rgba(var(--envelope-color-friend-letter-rgb), 0.15);
+
+  /* ===========================================
    * GENDER REVEAL CEREMONY
    * =========================================== */
 
   /* Boy — warm sky/sage within Golden Hour palette */
+  --reveal-boy-primary-rgb: 123, 167, 188;
   --reveal-boy-primary: #7BA7BC;
   --reveal-boy-secondary: #9DB5A0;
   --reveal-boy-glow: #A8C8D8;

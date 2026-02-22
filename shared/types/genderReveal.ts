@@ -25,6 +25,7 @@ export type GenderValue = 'boy' | 'girl';
 export type GenderRevealPhase =
   | 'loading'
   | 'not-configured'
+  | 'error'
   | 'key-entry'
   | 'waiting'
   | 'ceremony'
@@ -102,14 +103,12 @@ export type ValidateKeyResponse =
 
 /**
  * GET /api/gender-reveal/admin/:envelopeId response
- * Admin-only — includes config for editing but NEVER the gender value
- * Admin can see whether gender has been set, but not what it is
+ * Admin-only — includes config status but NEVER the gender value or raw keys
+ * Keys are hashed in the database; admin re-enters them when editing
  */
 export interface GenderRevealAdminResponse {
   configured: boolean;
   genderSet: boolean;
-  keyA?: string;
-  keyB?: string;
   keyAValidated: boolean;
   keyBValidated: boolean;
   revealedAt?: string;

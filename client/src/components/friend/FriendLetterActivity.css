@@ -19,7 +19,7 @@
   border: none;
   color: var(--color-deep-terracotta, #BC6C4A);
   cursor: pointer;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   padding: 4px 0;
   text-align: left;
@@ -29,7 +29,7 @@
 }
 
 .friend-letter-activity__to {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.3rem;
   color: var(--color-deep-terracotta, #BC6C4A);
 }
@@ -43,9 +43,9 @@
 .friend-letter-activity__title-input {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid rgba(188, 108, 74, 0.2);
+  border: 1px solid var(--color-deep-terracotta-20);
   border-radius: 12px;
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.1rem;
   background: var(--color-warm-sand, #FAF3E8);
   color: var(--color-text, #333);
@@ -58,7 +58,7 @@
 
 .friend-letter-activity__title-input::placeholder {
   color: var(--color-muted, #999);
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
 }
 
@@ -66,9 +66,9 @@
   width: 100%;
   min-height: 250px;
   padding: 16px;
-  border: 1px solid rgba(188, 108, 74, 0.2);
+  border: 1px solid var(--color-deep-terracotta-20);
   border-radius: 12px;
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.6;
   resize: vertical;
@@ -100,7 +100,7 @@
   padding: 16px;
   background: var(--color-warm-sand, #FAF3E8);
   border-radius: 12px;
-  border: 1px solid rgba(188, 108, 74, 0.15);
+  border: 1px solid var(--color-deep-terracotta-15);
 }
 
 .friend-letter-activity__confirm-actions {
@@ -133,7 +133,7 @@
 }
 
 .friend-letter-activity__complete-title {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.5rem;
   color: var(--color-deep-terracotta, #BC6C4A);
 }

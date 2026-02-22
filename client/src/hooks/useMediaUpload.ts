@@ -111,7 +111,7 @@ export function useMediaUpload(options: UseMediaUploadOptions = {}): UseMediaUpl
 
       // Optionally register in Photo table (couple's media library)
       if (registerInDatabase) {
-        await registerPhoto(sasResponse.blobUrl, file.name, file.type);
+        await registerPhoto(sasResponse.blobUrl, file.name, file.type, controller.signal);
         if (!mountedRef.current) return null;
       }
 

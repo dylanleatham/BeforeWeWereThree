@@ -7,6 +7,7 @@ import {
   saveFriendLetterSchema,
   submitFriendLetterSchema,
   saveFriendThankYouNoteSchema,
+  setGenderKeeperSchema,
 } from 'shared';
 import { authMiddleware, adminMiddleware, friendMiddleware } from '../middleware/auth.js';
 import {
@@ -101,7 +102,17 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
  */
 router.put('/gender-keeper', adminMiddleware, async (req: Request, res: Response) => {
   try {
-    const { friendId } = req.body as { friendId: string | null };
+    const parsed = setGenderKeeperSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json(
+        errorResponse('VALIDATION_ERROR', 'Invalid request', {
+          issues: parsed.error.issues,
+        })
+      );
+      return;
+    }
+
+    const { friendId } = parsed.data;
 
     // Validate friend exists if setting a keeper
     if (friendId) {

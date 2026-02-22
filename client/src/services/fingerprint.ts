@@ -36,9 +36,16 @@ export async function getDeviceFingerprint(): Promise<string> {
     cachedFingerprint = fingerprint;
     return fingerprint;
   } catch (error) {
-    // Fallback: generate a random ID if fingerprinting fails
+    // Fallback: generate a persistent random ID if fingerprinting fails
     console.error('Fingerprinting failed, using fallback:', error);
-    cachedFingerprint = `fallback-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    const storageKey = 'bwwt-device-fingerprint';
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      cachedFingerprint = stored;
+    } else {
+      cachedFingerprint = `fallback-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+      localStorage.setItem(storageKey, cachedFingerprint);
+    }
     return cachedFingerprint;
   }
 }

@@ -162,23 +162,38 @@ export async function generateNames(params: GenerateNamesParams): Promise<AIName
     guidanceCount: params.participantGuidance?.length ?? 0,
   });
 
-  const response = await client.messages.create({
-    model,
-    max_tokens: 2048,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userPrompt }],
-    output_config: {
-      format: {
-        type: 'json_schema',
-        schema: NAME_JSON_SCHEMA,
+  let response;
+  try {
+    response = await client.messages.create({
+      model,
+      max_tokens: 2048,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+      output_config: {
+        format: {
+          type: 'json_schema',
+          schema: NAME_JSON_SCHEMA,
+        },
       },
-    },
-  });
+    });
+  } catch (err) {
+    logger.error('Anthropic API call failed', { error: err });
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('AI name generation failed. Please try again later.');
+    }
+    throw err;
+  }
 
   // Structured outputs guarantee valid JSON in response.content[0].text
   const firstBlock = response.content[0] as { type: string; text?: string } | undefined;
   if (!firstBlock || firstBlock.type !== 'text') {
-    throw new Error(`Unexpected response content type: ${firstBlock?.type ?? 'empty'}`);
+    const detail = `Unexpected response content type: ${firstBlock?.type ?? 'empty'}`;
+    logger.error(detail);
+    throw new Error(
+      process.env.NODE_ENV === 'production'
+        ? 'AI name generation failed. Please try again later.'
+        : detail
+    );
   }
 
   const parsed = JSON.parse(firstBlock.text!) as unknown;

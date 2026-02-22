@@ -101,33 +101,38 @@ router.post('/negotiate', authMiddleware, async (req, res) => {
  * Used by Azure SignalR transport where groups are managed server-side
  */
 router.post('/groups/join', authMiddleware, async (req, res) => {
-  const { groupName } = req.body;
-  if (!groupName || typeof groupName !== 'string') {
-    res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
-    return;
-  }
-  if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
-    res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
-    return;
-  }
+  try {
+    const { groupName } = req.body;
+    if (!groupName || typeof groupName !== 'string') {
+      res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
+      return;
+    }
+    if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
+      res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
+      return;
+    }
 
-  // Verify the envelope exists before allowing group join
-  const envelopeId = groupName.replace('activity:', '');
-  const envelope = await getEnvelopeById(envelopeId);
-  if (!envelope) {
-    res.status(404).json(errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found'));
-    return;
-  }
+    // Verify the envelope exists before allowing group join
+    const envelopeId = groupName.replace('activity:', '');
+    const envelope = await getEnvelopeById(envelopeId);
+    if (!envelope) {
+      res.status(404).json(errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found'));
+      return;
+    }
 
-  const userId = req.session!.participantId;
-  const realtime = getRealtimeService();
-  if (!realtime) {
-    res.status(503).json(errorResponse('SERVICE_UNAVAILABLE', 'Real-time service not available'));
-    return;
-  }
+    const userId = req.session!.participantId;
+    const realtime = getRealtimeService();
+    if (!realtime) {
+      res.status(503).json(errorResponse('SERVICE_UNAVAILABLE', 'Real-time service not available'));
+      return;
+    }
 
-  await realtime.addUserToGroup(userId, groupName);
-  res.json(successResponse({ joined: true }));
+    await realtime.addUserToGroup(userId, groupName);
+    res.json(successResponse({ joined: true }));
+  } catch (error) {
+    logger.error('Failed to join group', { error });
+    res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to join group'));
+  }
 });
 
 /**
@@ -135,25 +140,30 @@ router.post('/groups/join', authMiddleware, async (req, res) => {
  * Leave a real-time group
  */
 router.post('/groups/leave', authMiddleware, async (req, res) => {
-  const { groupName } = req.body;
-  if (!groupName || typeof groupName !== 'string') {
-    res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
-    return;
-  }
-  if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
-    res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
-    return;
-  }
+  try {
+    const { groupName } = req.body;
+    if (!groupName || typeof groupName !== 'string') {
+      res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
+      return;
+    }
+    if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
+      res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
+      return;
+    }
 
-  const userId = req.session!.participantId;
-  const realtime = getRealtimeService();
-  if (!realtime) {
-    res.status(503).json(errorResponse('SERVICE_UNAVAILABLE', 'Real-time service not available'));
-    return;
-  }
+    const userId = req.session!.participantId;
+    const realtime = getRealtimeService();
+    if (!realtime) {
+      res.status(503).json(errorResponse('SERVICE_UNAVAILABLE', 'Real-time service not available'));
+      return;
+    }
 
-  await realtime.removeUserFromGroup(userId, groupName);
-  res.json(successResponse({ left: true }));
+    await realtime.removeUserFromGroup(userId, groupName);
+    res.json(successResponse({ left: true }));
+  } catch (error) {
+    logger.error('Failed to leave group', { error });
+    res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to leave group'));
+  }
 });
 
 export { router as signalrRouter };

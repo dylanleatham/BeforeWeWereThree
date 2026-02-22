@@ -84,7 +84,7 @@ describe('useSession', () => {
       });
 
       expect(result.current.isAuthenticated).toBe(false);
-      expect(result.current.error).toBeNull();
+      expect(result.current.error).toBe('Unable to connect to server');
     });
   });
 

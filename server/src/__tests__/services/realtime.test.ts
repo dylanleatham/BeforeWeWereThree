@@ -115,8 +115,8 @@ describe('Realtime Service', () => {
       // Should not throw
       initializeRealtimeService(mockHttpServer);
 
-      // Adapter should remain null since initialization failed
-      expect(getRealtimeService()).toBeNull();
+      // Adapter should be a WarningAdapter fallback (not null) so the server can still start
+      expect(getRealtimeService()).not.toBeNull();
 
       delete process.env.SIGNALR_CONNECTION_STRING;
     });
@@ -226,10 +226,12 @@ describe('Realtime Service', () => {
       const adapter = getRealtimeService()!;
 
       mockFetch.mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Internal Server Error' });
-      await adapter.sendToGroup('test-group', {
-        target: 'testEvent',
-        arguments: [{}],
-      });
+      await expect(
+        adapter.sendToGroup('test-group', {
+          target: 'testEvent',
+          arguments: [{}],
+        })
+      ).rejects.toThrow('SignalR sendToGroup failed: 500 Internal Server Error');
 
       expect(loggerModule.logger.error).toHaveBeenCalledWith(
         'SignalR sendToGroup failed',

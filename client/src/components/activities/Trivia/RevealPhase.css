@@ -163,7 +163,7 @@
   font-size: var(--text-sm);
   color: var(--color-sunrise-gold);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--tracking-wider);
   margin: 0 0 var(--space-1) 0;
 }
 

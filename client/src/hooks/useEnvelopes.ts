@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, type SetStateAction } from 'react';
 import type { Envelope, EnvelopeStatus } from 'shared';
 import {
   getEnvelopes,
@@ -23,9 +23,16 @@ export function useEnvelopes(): UseEnvelopesResult {
   const [error, setError] = useState<Error | null>(null);
   const envelopesRef = useRef(envelopes);
 
-  useEffect(() => {
-    envelopesRef.current = envelopes;
-  }, [envelopes]);
+  // Synchronously update both state and ref to avoid stale reads in updateStatus.
+  // A useEffect-based sync has a one-render-cycle delay, causing incorrect rollback
+  // values when updateStatus is called in rapid succession.
+  const setEnvelopesWithRef = useCallback((action: SetStateAction<Envelope[]>) => {
+    setEnvelopes((prev) => {
+      const next = typeof action === 'function' ? action(prev) : action;
+      envelopesRef.current = next;
+      return next;
+    });
+  }, []);
 
   const fetchEnvelopes = useCallback(async () => {
     setIsLoading(true);
@@ -33,7 +40,7 @@ export function useEnvelopes(): UseEnvelopesResult {
 
     try {
       const data = await getEnvelopes();
-      setEnvelopes(data);
+      setEnvelopesWithRef(data);
     } catch (err) {
       setError(
         err instanceof Error ? err : new Error('Failed to fetch envelopes')
@@ -41,7 +48,7 @@ export function useEnvelopes(): UseEnvelopesResult {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setEnvelopesWithRef]);
 
   // Initial fetch
   useEffect(() => {
@@ -51,11 +58,11 @@ export function useEnvelopes(): UseEnvelopesResult {
   // Update envelope status (for opening/completing)
   const updateStatus = useCallback(
     async (id: string, status: EnvelopeStatus) => {
-      // Capture original status for rollback (use ref to avoid stale closure)
+      // Capture original status for rollback (ref is kept in sync synchronously)
       const originalStatus = envelopesRef.current.find((env) => env.id === id)?.status;
 
       // Optimistic update
-      setEnvelopes((prev) =>
+      setEnvelopesWithRef((prev) =>
         prev.map((env) => (env.id === id ? { ...env, status } : env))
       );
 
@@ -70,14 +77,14 @@ export function useEnvelopes(): UseEnvelopesResult {
       } catch (err) {
         // Revert the specific envelope instead of refetching all
         if (originalStatus) {
-          setEnvelopes((prev) =>
+          setEnvelopesWithRef((prev) =>
             prev.map((env) => (env.id === id ? { ...env, status: originalStatus } : env))
           );
         }
         throw err;
       }
     },
-    []
+    [setEnvelopesWithRef]
   );
 
   return {

@@ -96,7 +96,8 @@ describe('useMediaUpload (image + registerInDatabase)', () => {
     expect(mockRegisterPhoto).toHaveBeenCalledWith(
       'https://storage.blob.core.windows.net/photos/blob',
       'pic.jpg',
-      'image/jpeg'
+      'image/jpeg',
+      expect.any(AbortSignal)
     );
     expect(blobUrl).toBe('https://storage.blob.core.windows.net/photos/blob');
     expect(result.current.error).toBeNull();

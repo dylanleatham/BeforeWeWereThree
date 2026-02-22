@@ -106,7 +106,7 @@ describe('useNameGame', () => {
   it('should start in loading phase', () => {
     mockGetNameGameState.mockReturnValue(new Promise(() => {}));
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     expect(result.current.phase).toBe('loading');
     expect(result.current.currentRound).toBeNull();
@@ -116,7 +116,7 @@ describe('useNameGame', () => {
   it('should load initial state and transition to new-round when no round', async () => {
     mockGetNameGameState.mockResolvedValue(makeStateResponse());
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.phase).toBe('new-round'));
 
@@ -131,7 +131,7 @@ describe('useNameGame', () => {
       makeStateResponse({ currentRound: ROUND, roundCount: 1 })
     );
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.phase).toBe('voting'));
 
@@ -150,7 +150,7 @@ describe('useNameGame', () => {
     };
     mockSubmitNameGameGuidance.mockResolvedValue(guidanceResponse);
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.phase).toBe('new-round'));
 
@@ -171,7 +171,7 @@ describe('useNameGame', () => {
     };
     mockSubmitNameGameGuidance.mockResolvedValue(guidanceResponse);
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.phase).toBe('new-round'));
 
@@ -191,7 +191,7 @@ describe('useNameGame', () => {
     );
     mockSubmitNameVote.mockResolvedValue({ allVoted: false });
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.phase).toBe('voting'));
 
@@ -219,7 +219,7 @@ describe('useNameGame', () => {
     );
     mockSubmitNameVote.mockResolvedValue({ allVoted: false });
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.phase).toBe('voting'));
 
@@ -237,7 +237,7 @@ describe('useNameGame', () => {
     mockSubmitNameVote.mockRejectedValue(new Error('Vote failed'));
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.phase).toBe('voting'));
 
@@ -257,7 +257,7 @@ describe('useNameGame', () => {
       makeStateResponse({ currentRound: ROUND, roundCount: 1 })
     );
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.phase).toBe('voting'));
 
@@ -275,7 +275,7 @@ describe('useNameGame', () => {
     mockGetNameGameState.mockRejectedValue(new Error('Network error'));
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { result } = renderHook(() => useNameGame('env-1'));
+    const { result } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => expect(result.current.error).toBe('Network error'));
 
@@ -294,7 +294,7 @@ describe('useNameGame', () => {
   it('should join and leave SignalR group', async () => {
     mockGetNameGameState.mockResolvedValue(makeStateResponse());
 
-    const { unmount } = renderHook(() => useNameGame('env-1'));
+    const { unmount } = renderHook(() => useNameGame('env-1', 'participant-1'));
 
     await waitFor(() => {
       expect(mockConnection.joinGroup).toHaveBeenCalledWith('activity:env-1');

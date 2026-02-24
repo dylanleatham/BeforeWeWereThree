@@ -18,6 +18,7 @@ import { GenderRevealActivity } from '../activities/GenderReveal/GenderRevealAct
 import { FriendLetterView } from '../friend/FriendLetterView';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import { STRINGS } from '../../constants/strings';
+import { EVERGREEN_ENVELOPE_TYPES } from '../../constants/config';
 import { ANIMATION_DURATION_MS, CONTENT_REVEAL_DURATION } from '../../constants/animation';
 import './BaseEnvelope.css';
 
@@ -43,12 +44,13 @@ export function BaseEnvelope({
   onClose,
   partnerPresent = false,
 }: BaseEnvelopeProps) {
-  const [isOpen, setIsOpen] = useState(envelope.status !== 'sealed');
+  const isEvergreen = EVERGREEN_ENVELOPE_TYPES.has(envelope.type);
+  const [isOpen, setIsOpen] = useState(isEvergreen || envelope.status !== 'sealed');
   const [isAnimating, setIsAnimating] = useState(false);
   const { triggerTap } = useHaptics();
 
   const handleOpen = useCallback(() => {
-    if (envelope.status !== 'sealed' || isAnimating) return;
+    if (isEvergreen || envelope.status !== 'sealed' || isAnimating) return;
 
     // Haptic feedback
     triggerTap();
@@ -62,7 +64,7 @@ export function BaseEnvelope({
       setIsAnimating(false);
       onStatusChange?.('opened');
     }, ANIMATION_DURATION_MS);
-  }, [envelope.status, isAnimating, onStatusChange, triggerTap]);
+  }, [isEvergreen, envelope.status, isAnimating, onStatusChange, triggerTap]);
 
   const handleClose = useCallback(() => {
     onClose?.();
@@ -199,18 +201,20 @@ export function BaseEnvelope({
           <X size={24} strokeWidth={1.5} />
         </button>
 
-        {/* Envelope flap (animated on open) */}
-        <motion.div
-          className="base-envelope__flap"
-          variants={envelopeFlapVariants}
-          initial="sealed"
-          animate={isAnimating ? 'opening' : isOpen ? 'opened' : 'sealed'}
-          aria-hidden="true"
-        />
+        {/* Envelope flap (animated on open, hidden for evergreen) */}
+        {!isEvergreen && (
+          <motion.div
+            className="base-envelope__flap"
+            variants={envelopeFlapVariants}
+            initial="sealed"
+            animate={isAnimating ? 'opening' : isOpen ? 'opened' : 'sealed'}
+            aria-hidden="true"
+          />
+        )}
 
         {/* Content area */}
         <motion.div
-          className="base-envelope__content"
+          className={clsx('base-envelope__content', isEvergreen && 'base-envelope__content--no-flap')}
           variants={contentRevealVariants}
           initial="hidden"
           animate="visible"

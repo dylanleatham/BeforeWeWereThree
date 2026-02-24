@@ -41,6 +41,13 @@ export const FAST_SWIPE_VELOCITY = 0.5;
 export const FAST_SWIPE_MIN_DISTANCE_PX = 20;
 
 // =============================================================================
+// Evergreen Envelopes
+// =============================================================================
+
+/** Envelope types that never visually change state — always look fresh and inviting */
+export const EVERGREEN_ENVELOPE_TYPES: ReadonlySet<string> = new Set(['name-game']);
+
+// =============================================================================
 // Auto-Save Configuration
 // =============================================================================
 

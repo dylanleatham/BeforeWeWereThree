@@ -62,6 +62,11 @@
   padding-top: calc(var(--space-8) + 40px);
 }
 
+/* Content area — no flap variant (evergreen envelopes) */
+.base-envelope__content--no-flap {
+  padding-top: var(--space-8);
+}
+
 /* Header */
 .base-envelope__header {
   text-align: center;

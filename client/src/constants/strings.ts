@@ -87,6 +87,7 @@ export const STRINGS = {
   CARD_PARTNER_ARIA: 'Partner is viewing',
   CARD_COMPLETED_ARIA: 'Completed',
   CARD_ARIA_OPEN: (title: string) => `Open ${title}`,
+  CARD_ARIA_PLAY: (title: string) => `Play ${title}`,
 
   // EnvelopePile.tsx
   PILE_NAV_ARIA: 'Envelope navigation',

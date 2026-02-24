@@ -31,6 +31,17 @@
   outline-offset: 2px;
 }
 
+/* Evergreen state - always fresh and inviting */
+.envelope-card--evergreen {
+  cursor: pointer;
+  box-shadow: var(--shadow-elevated);
+}
+
+.envelope-card--evergreen:focus-visible {
+  outline: 2px solid var(--color-sunrise-gold);
+  outline-offset: 2px;
+}
+
 /* Opened state - less prominent */
 .envelope-card--opened {
   background: var(--bg-card);

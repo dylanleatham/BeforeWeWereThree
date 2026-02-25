@@ -256,3 +256,30 @@ On Windows, the running dev server locks `query_engine-windows.dll.node`, making
 ### API Response Consistency
 
 - **Always wrap response data to match client expectations:** If the client calls `apiFetch<{ photo: Photo }>()` and accesses `response.data.photo`, the server must send `successResponse({ photo })` not `successResponse(photo)`. Mismatches between wrapper shape and client destructuring cause silent `undefined` errors. Check both sides when adding new endpoints.
+
+
+---
+
+## Agent Team
+
+This project uses a structured agent team. Agent personas are in `agents/`, 
+scripts in `scripts/`.
+
+### On-Demand: Full Codebase Review (Mom)
+```bash
+# Audit only — see the backlog before changes are made
+./scripts/codebase-review.sh --audit-only
+
+# Full audit + fix everything
+./scripts/codebase-review.sh
+```
+
+### On-Demand: Debug Session (Zoidberg)
+```bash
+./scripts/debug.sh "description of bug" path/to/error.log
+```
+
+### On-Demand: Coach Evaluation (Zapp)
+```bash
+./scripts/run-coach.sh
+```

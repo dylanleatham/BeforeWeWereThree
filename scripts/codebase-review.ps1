@@ -67,7 +67,7 @@ Write all review output to: output/codebase-review/
 $ModeInstruction
 "@
 
-$Prompt | claude --print
+$Prompt | claude --dangerously-skip-permissions --print
 
 # Archive the review output
 New-Item -ItemType Directory -Path $ArchiveDir -Force | Out-Null

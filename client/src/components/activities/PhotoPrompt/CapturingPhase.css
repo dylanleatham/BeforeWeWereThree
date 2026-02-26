@@ -1,0 +1,53 @@
+.photo-prompt-capturing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-4) 0;
+}
+
+.photo-prompt-capturing__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 400px;
+}
+
+.photo-prompt-capturing__prompt {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+.photo-prompt-capturing__upload {
+  width: 100%;
+}
+
+.photo-prompt-capturing__submit {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--bg-card);
+  background: var(--envelope-color-photo-prompt);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-6);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.photo-prompt-capturing__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.photo-prompt-capturing__submit:hover:not(:disabled) {
+  opacity: 0.9;
+}

@@ -18,6 +18,7 @@ import { nameGameRouter } from './routes/nameGame.js';
 import { friendRouter } from './routes/friend.js';
 import { triviaRouter } from './routes/trivia.js';
 import { genderRevealRouter } from './routes/genderReveal.js';
+import { photoPromptRouter } from './routes/photoPrompt.js';
 import { initializeRealtimeService } from './services/realtime.js';
 import { disconnectDatabase } from './db/connection.js';
 import { logger } from './utils/logger.js';
@@ -79,6 +80,7 @@ app.use('/api/name-game', nameGameRouter);
 app.use('/api/friends', friendRouter);
 app.use('/api/trivia', triviaRouter);
 app.use('/api/gender-reveal', genderRevealRouter);
+app.use('/api/photo-prompts', photoPromptRouter);
 
 // Serve static files from client build
 // In production bundle, public/ is in the same directory as index.js

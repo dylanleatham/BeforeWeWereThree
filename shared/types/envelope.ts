@@ -23,7 +23,8 @@ export type EnvelopeType =
   | 'trivia'
   | 'name-game'
   | 'gender-reveal'
-  | 'friend-letter';
+  | 'friend-letter'
+  | 'photo-prompt';
 
 /**
  * Envelope entity matching database model
@@ -44,7 +45,7 @@ export interface Envelope {
  */
 export const createEnvelopeSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title too long'),
-  type: z.enum(['would-you-rather', 'letter', 'media', 'trivia', 'name-game', 'gender-reveal', 'friend-letter']),
+  type: z.enum(['would-you-rather', 'letter', 'media', 'trivia', 'name-game', 'gender-reveal', 'friend-letter', 'photo-prompt']),
   order: z.number().int().min(0, 'Order must be non-negative'),
 });
 
@@ -55,7 +56,7 @@ export type CreateEnvelopeRequest = z.infer<typeof createEnvelopeSchema>;
  */
 export const updateEnvelopeSchema = z.object({
   title: z.string().min(1).max(100).optional(),
-  type: z.enum(['would-you-rather', 'letter', 'media', 'trivia', 'name-game', 'gender-reveal', 'friend-letter']).optional(),
+  type: z.enum(['would-you-rather', 'letter', 'media', 'trivia', 'name-game', 'gender-reveal', 'friend-letter', 'photo-prompt']).optional(),
   status: z.enum(['sealed', 'opened', 'completed']).optional(),
   order: z.number().int().min(0).optional(),
 });

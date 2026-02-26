@@ -30,12 +30,13 @@ model Participant {
   createdAt         DateTime @default(now()) @map("created_at")
 
   friend            Friend?  @relation(fields: [friendId], references: [id], onDelete: Restrict)
-  wyrVotes          WyrVote[]
-  letters           Letter[]
-  photos            Photo[]
-  nameGameVotes     NameGameVote[]
-  nameGameGuidance  NameGameGuidance[]
-  triviaAnswers     TriviaAnswer[]
+  wyrVotes              WyrVote[]
+  letters               Letter[]
+  photos                Photo[]
+  nameGameVotes         NameGameVote[]
+  nameGameGuidance      NameGameGuidance[]
+  triviaAnswers         TriviaAnswer[]
+  photoPromptResponses  PhotoPromptResponse[]
 
   @@index([friendId])
   @@map("participants")
@@ -56,6 +57,7 @@ model Envelope {
   friendLetter   FriendLetter?  @relation(fields: [friendLetterId], references: [id], onDelete: Restrict)
   wyrPrompts                WyrPrompt[]
   letterPrompt              LetterPrompt?
+  photoPrompt               PhotoPrompt?
   nameGameRounds            NameGameRound[]
   triviaEnvelopeQuestions   TriviaEnvelopeQuestion[]
   triviaAnswers             TriviaAnswer[]
@@ -132,6 +134,36 @@ model Letter {
   @@index([participantId])
   @@index([promptId])
   @@map("letters")
+}
+
+// Photo prompt - admin creates a scenario prompt for participants to photograph
+model PhotoPrompt {
+  id         String   @id @default(uuid())
+  envelopeId String   @unique @map("envelope_id")
+  prompt     String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  envelope  Envelope              @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  responses PhotoPromptResponse[]
+
+  @@map("photo_prompts")
+}
+
+// Photo prompt response - each participant uploads one photo per prompt
+model PhotoPromptResponse {
+  id            String   @id @default(uuid())
+  promptId      String   @map("prompt_id")
+  participantId String   @map("participant_id")
+  photoUrl      String   @map("photo_url")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  prompt      PhotoPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, participantId])
+  @@index([participantId])
+  @@index([promptId])
+  @@map("photo_prompt_responses")
 }
 
 // Photo uploaded to Azure Blob Storage

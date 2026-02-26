@@ -199,6 +199,26 @@ export {
   reorderQuestionsSchema,
 } from './trivia.js';
 
+// Re-export Photo Prompt types
+export type {
+  PhotoPromptPhase,
+  PhotoPrompt,
+  PhotoPromptResponse,
+  PhotoPromptActivityResponse,
+  SubmitPhotoPromptResponseResult,
+  PhotoPromptDetailResponse,
+  PhotoPromptSubmittedMessage,
+  PhotoPromptCompleteMessage,
+  CreatePhotoPromptRequest,
+  UpdatePhotoPromptRequest,
+  SubmitPhotoPromptResponseRequest,
+} from './photoPrompt.js';
+export {
+  submitPhotoPromptResponseSchema,
+  createPhotoPromptSchema,
+  updatePhotoPromptSchema,
+} from './photoPrompt.js';
+
 // Re-export Gender Reveal types
 export type {
   GenderValue,

@@ -1,0 +1,50 @@
+.photo-prompt-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) 0;
+  min-height: 300px;
+}
+
+.photo-prompt-waiting__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.photo-prompt-waiting__icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.photo-prompt-waiting__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.photo-prompt-waiting__thumbnail {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.photo-prompt-waiting__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-prompt-waiting__message {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0;
+}

@@ -54,6 +54,7 @@ export const STRINGS = {
   FORM_TYPE_TRIVIA: 'Trivia',
   FORM_TYPE_NAME_GAME: 'Name Game',
   FORM_TYPE_GENDER_REVEAL: 'Gender Reveal',
+  FORM_TYPE_PHOTO_PROMPT: 'Photo Prompt',
 
   // EnvelopeManager.tsx
   MANAGER_HEADING: 'Envelope Management',
@@ -71,7 +72,8 @@ export const STRINGS = {
   MANAGER_RESET_SUCCESS: (result: ResetSessionResponse) => {
     const totalCleared = result.votesDeleted + result.lettersDeleted + result.photosDeleted
       + result.nameVotesDeleted + result.nameNamesDeleted + result.nameRoundsDeleted
-      + result.nameGuidanceDeleted + result.triviaAnswersDeleted + result.genderRevealReset;
+      + result.nameGuidanceDeleted + result.triviaAnswersDeleted + result.genderRevealReset
+      + result.photoPromptResponsesDeleted;
     return `Session reset! ${result.participantsDeleted} guests kicked, ${result.envelopesReset} envelopes resealed, ${totalCleared} items cleared.`;
   },
   MANAGER_RESET_ERROR: (msg: string) => `Failed to reset session: ${msg}`,
@@ -186,6 +188,36 @@ export const STRINGS = {
   LETTER_ERROR_SUBMITTING: 'Failed to submit letter',
   LETTER_OFFLINE_NOTICE: 'Offline mode - your letter will sync when connected',
 
+  // Photo Prompt
+  PHOTO_PROMPT_CAPTURING_TITLE: 'Capture the Moment',
+  PHOTO_PROMPT_SUBMIT: 'Upload Photo',
+  PHOTO_PROMPT_WAITING_TITLE: 'Photo Uploaded!',
+  PHOTO_PROMPT_WAITING_MESSAGE: (partner: string) => `Waiting for ${partner} to upload their photo...`,
+  PHOTO_PROMPT_COMPLETE_TITLE: 'Captured Together',
+  PHOTO_PROMPT_COMPLETE_MESSAGE: 'A moment to treasure.',
+  PHOTO_PROMPT_COMPLETE_ICON: '\uD83D\uDCF7', // camera emoji
+  PHOTO_PROMPT_YOURS: 'Yours',
+  PHOTO_PROMPT_PARTNERS: "Partner's",
+  PHOTO_PROMPT_CLOSE: 'Back to envelopes',
+  PHOTO_PROMPT_ERROR_LOADING: "Couldn't load the photo prompt",
+  PHOTO_PROMPT_ERROR_SUBMITTING: 'Failed to upload photo',
+  PHOTO_PROMPT_OFFLINE_NOTICE: 'Offline mode - your photo will sync when connected',
+
+  // Photo Prompt Admin
+  PHOTO_PROMPT_ADMIN_HEADING: 'Photo Prompts',
+  PHOTO_PROMPT_ADMIN_SELECT_ENVELOPE: 'Select a Photo Prompt envelope to manage its prompt:',
+  PHOTO_PROMPT_ADMIN_NO_ENVELOPES: 'No Photo Prompt envelopes exist. Create one in Envelope Management above.',
+  PHOTO_PROMPT_ADMIN_EMPTY: 'No prompt set for this envelope. Create one!',
+  PHOTO_PROMPT_ADMIN_PROMPT_LABEL: 'Scenario Prompt',
+  PHOTO_PROMPT_ADMIN_PROMPT_HINT: 'Describe the photo scenario for participants (e.g., "Take a silly selfie on the beach")',
+  PHOTO_PROMPT_ADMIN_SAVE: 'Save Prompt',
+  PHOTO_PROMPT_ADMIN_SAVING: 'Saving...',
+  PHOTO_PROMPT_ADMIN_EDIT: 'Edit Prompt',
+  PHOTO_PROMPT_ADMIN_DELETE: 'Delete Prompt',
+  PHOTO_PROMPT_ADMIN_CONFIRM_DELETE: 'Delete this prompt? This will also delete all photo responses.',
+  PHOTO_PROMPT_ADMIN_CANCEL: 'Cancel',
+  PHOTO_PROMPT_ADMIN_CREATE: 'Create Prompt',
+
   // Media Library
   MEDIA_TITLE: 'Our Photos',
   MEDIA_SHUFFLE: 'Shuffle',
@@ -299,6 +331,7 @@ export const STRINGS = {
   CONTENT_TAB_WYR: 'Would You Rather',
   CONTENT_TAB_LETTERS: 'Letters',
   CONTENT_TAB_GENDER_REVEAL: 'Gender Reveal',
+  CONTENT_TAB_PHOTO_PROMPTS: 'Photo Prompts',
 
   // Trivia Admin
   TRIVIA_ADMIN_HEADING: 'Trivia Questions',
@@ -440,4 +473,5 @@ export const ENVELOPE_TYPES = [
   { value: 'trivia', label: STRINGS.FORM_TYPE_TRIVIA },
   { value: 'name-game', label: STRINGS.FORM_TYPE_NAME_GAME },
   { value: 'gender-reveal', label: STRINGS.FORM_TYPE_GENDER_REVEAL },
+  { value: 'photo-prompt', label: STRINGS.FORM_TYPE_PHOTO_PROMPT },
 ] as const;

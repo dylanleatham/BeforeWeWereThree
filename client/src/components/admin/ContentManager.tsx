@@ -4,6 +4,7 @@ import { TriviaContentTab } from './TriviaContentTab';
 import { WyrContentTab } from './WyrContentTab';
 import { LetterContentTab } from './LetterContentTab';
 import { GenderRevealContentTab } from './GenderRevealContentTab';
+import { PhotoPromptContentTab } from './PhotoPromptContentTab';
 import { STRINGS } from '../../constants/strings';
 import './ContentManager.css';
 
@@ -12,6 +13,7 @@ const tabs = [
   { id: 'wyr', label: STRINGS.CONTENT_TAB_WYR },
   { id: 'letters', label: STRINGS.CONTENT_TAB_LETTERS },
   { id: 'gender-reveal', label: STRINGS.CONTENT_TAB_GENDER_REVEAL },
+  { id: 'photo-prompts', label: STRINGS.CONTENT_TAB_PHOTO_PROMPTS },
 ];
 
 /**
@@ -70,6 +72,16 @@ export function ContentManager() {
           aria-labelledby="tab-gender-reveal"
         >
           <GenderRevealContentTab />
+        </div>
+      )}
+
+      {activeTab === 'photo-prompts' && (
+        <div
+          role="tabpanel"
+          id="panel-photo-prompts"
+          aria-labelledby="tab-photo-prompts"
+        >
+          <PhotoPromptContentTab />
         </div>
       )}
     </div>

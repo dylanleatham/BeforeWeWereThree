@@ -10,6 +10,7 @@ const TYPES_WITH_COMPLETED_VIEW = new Set<Envelope['type']>([
   'friend-letter',
   'gender-reveal',
   'name-game',
+  'photo-prompt',
 ]);
 
 /**

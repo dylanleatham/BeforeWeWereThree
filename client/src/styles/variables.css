@@ -190,10 +190,12 @@
   --envelope-color-name-game: #7BA7BC;
   --envelope-color-gender-reveal: #B08EA2;
   --envelope-color-friend-letter: #D4A574;
+  --envelope-color-photo-prompt: #7BAEBC;
 
   --envelope-color-name-game-rgb: 123, 167, 188;
   --envelope-color-gender-reveal-rgb: 176, 142, 162;
   --envelope-color-friend-letter-rgb: 212, 165, 116;
+  --envelope-color-photo-prompt-rgb: 123, 174, 188;
 
   --envelope-color-trivia-15: rgba(var(--color-sunrise-gold-rgb), 0.15);
   --envelope-color-would-you-rather-15: rgba(var(--color-dusk-rose-rgb), 0.15);
@@ -202,6 +204,7 @@
   --envelope-color-name-game-15: rgba(var(--envelope-color-name-game-rgb), 0.15);
   --envelope-color-gender-reveal-15: rgba(var(--envelope-color-gender-reveal-rgb), 0.15);
   --envelope-color-friend-letter-15: rgba(var(--envelope-color-friend-letter-rgb), 0.15);
+  --envelope-color-photo-prompt-15: rgba(var(--envelope-color-photo-prompt-rgb), 0.15);
 
   /* ===========================================
    * GENDER REVEAL CEREMONY

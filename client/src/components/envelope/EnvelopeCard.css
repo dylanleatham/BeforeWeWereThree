@@ -19,6 +19,7 @@
 .envelope-card--type-name-game { --envelope-accent: var(--envelope-color-name-game); --envelope-accent-bg: var(--envelope-color-name-game-15); }
 .envelope-card--type-gender-reveal { --envelope-accent: var(--envelope-color-gender-reveal); --envelope-accent-bg: var(--envelope-color-gender-reveal-15); }
 .envelope-card--type-friend-letter { --envelope-accent: var(--envelope-color-friend-letter); --envelope-accent-bg: var(--envelope-color-friend-letter-15); }
+.envelope-card--type-photo-prompt { --envelope-accent: var(--envelope-color-photo-prompt); --envelope-accent-bg: var(--envelope-color-photo-prompt-15); }
 
 /* Sealed state - elevated, clickable */
 .envelope-card--sealed {

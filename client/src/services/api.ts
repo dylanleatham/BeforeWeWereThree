@@ -47,6 +47,10 @@ import type {
   ValidateKeyResponse,
   GenderRevealAdminResponse,
   ConfigureGenderRevealRequest,
+  PhotoPromptActivityResponse,
+  SubmitPhotoPromptResponseResult,
+  PhotoPrompt as PhotoPromptType,
+  PhotoPromptDetailResponse,
 } from 'shared';
 import { apiFetch } from './fetchClient';
 import { STRINGS } from '../constants/strings';
@@ -916,5 +920,121 @@ export async function deleteGenderRevealConfig(
   );
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to delete gender reveal config');
+  }
+}
+
+// ============================================================================
+// Photo Prompt API
+// ============================================================================
+
+/**
+ * Get photo prompt state for an envelope (participant-facing)
+ */
+export async function getPhotoPromptState(
+  envelopeId: string
+): Promise<PhotoPromptActivityResponse> {
+  const response = await apiFetch<PhotoPromptActivityResponse>(
+    `/photo-prompts/${envelopeId}`
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to fetch photo prompt state');
+  }
+  return response.data;
+}
+
+/**
+ * Submit a photo response for a photo prompt
+ */
+export async function submitPhotoPromptResponse(
+  envelopeId: string,
+  photoUrl: string
+): Promise<SubmitPhotoPromptResponseResult> {
+  const response = await apiFetch<SubmitPhotoPromptResponseResult>(
+    `/photo-prompts/${envelopeId}/respond`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ photoUrl }),
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to submit photo response');
+  }
+  return response.data;
+}
+
+// ============================================================================
+// Photo Prompt Admin API
+// ============================================================================
+
+/**
+ * Get photo prompt for an envelope (admin only)
+ */
+export async function getPhotoPromptForEnvelope(
+  envelopeId: string
+): Promise<PhotoPromptType | null> {
+  const response = await apiFetch<PhotoPromptDetailResponse>(
+    `/photo-prompts/prompt/envelope/${envelopeId}`
+  );
+  if (!response.success) {
+    if (response.error?.code === 'PHOTO_PROMPT_NOT_FOUND') {
+      return null;
+    }
+    throw new Error(response.error?.message || 'Failed to fetch photo prompt');
+  }
+  return response.data.prompt;
+}
+
+/**
+ * Create photo prompt (admin only)
+ */
+export async function createPhotoPrompt(data: {
+  envelopeId: string;
+  prompt: string;
+}): Promise<PhotoPromptType> {
+  const response = await apiFetch<PhotoPromptDetailResponse>(
+    '/photo-prompts/prompt',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to create photo prompt');
+  }
+  return response.data.prompt;
+}
+
+/**
+ * Update photo prompt (admin only)
+ */
+export async function updatePhotoPrompt(
+  id: string,
+  data: { prompt?: string }
+): Promise<PhotoPromptType> {
+  const response = await apiFetch<PhotoPromptDetailResponse>(
+    `/photo-prompts/prompt/${id}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to update photo prompt');
+  }
+  return response.data.prompt;
+}
+
+/**
+ * Delete photo prompt (admin only)
+ */
+export async function deletePhotoPrompt(id: string): Promise<void> {
+  const response = await apiFetch<DeleteResponse>(
+    `/photo-prompts/prompt/${id}`,
+    {
+      method: 'DELETE',
+    }
+  );
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to delete photo prompt');
   }
 }

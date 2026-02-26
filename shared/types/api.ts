@@ -40,6 +40,8 @@ export type ErrorCode =
   | 'GENDER_ALREADY_SET'
   | 'NOT_GENDER_KEEPER'
   | 'GENDER_REVEAL_SINGLETON'
+  | 'PHOTO_PROMPT_NOT_FOUND'
+  | 'ALREADY_RESPONDED'
   | `HTTP_${number}`; // For HTTP status code errors
 
 /**
@@ -127,4 +129,5 @@ export interface ResetSessionResponse {
   nameGuidanceDeleted: number;
   triviaAnswersDeleted: number;
   genderRevealReset: number;
+  photoPromptResponsesDeleted: number;
 }

@@ -19,6 +19,7 @@ export interface ResetSessionResult {
   nameGuidanceDeleted: number;
   triviaAnswersDeleted: number;
   genderRevealReset: number;
+  photoPromptResponsesDeleted: number;
 }
 
 /**
@@ -72,6 +73,9 @@ export async function resetSession(): Promise<ResetSessionResult> {
     // 5. Delete trivia answers (FK to participants, preserves questions and assignments)
     const triviaAnswersDeleted = await tx.triviaAnswer.deleteMany({});
 
+    // 5.25. Delete photo prompt responses (FK to participants, preserves prompts)
+    const photoPromptResponsesDeleted = await tx.photoPromptResponse.deleteMany({});
+
     // 5.5. Reset gender reveal state — clear validation AND gender value
     // Gender value is friend-set content (user-generated), so it should reset
     // Keys are admin-created content and are preserved
@@ -109,6 +113,7 @@ export async function resetSession(): Promise<ResetSessionResult> {
       nameGuidanceDeleted: nameGuidanceDeleted.count,
       triviaAnswersDeleted: triviaAnswersDeleted.count,
       genderRevealReset: genderRevealReset.count,
+      photoPromptResponsesDeleted: photoPromptResponsesDeleted.count,
     };
   });
 

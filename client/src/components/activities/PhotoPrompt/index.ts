@@ -1,0 +1,1 @@
+export { PhotoPromptActivity } from './PhotoPromptActivity';

@@ -23,6 +23,7 @@ const mockNameGameName = { deleteMany: jest.fn() as AnyMock };
 const mockNameGameRound = { deleteMany: jest.fn() as AnyMock };
 const mockNameGameGuidance = { deleteMany: jest.fn() as AnyMock };
 const mockTriviaAnswer = { deleteMany: jest.fn() as AnyMock };
+const mockPhotoPromptResponse = { deleteMany: jest.fn() as AnyMock };
 const mockGenderRevealConfig = { updateMany: jest.fn() as AnyMock };
 const mockEnvelope = { updateMany: jest.fn() as AnyMock };
 const mockTransaction = jest.fn() as AnyMock;
@@ -43,6 +44,7 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
     nameGameRound: mockNameGameRound,
     nameGameGuidance: mockNameGameGuidance,
     triviaAnswer: mockTriviaAnswer,
+    photoPromptResponse: mockPhotoPromptResponse,
     genderRevealConfig: mockGenderRevealConfig,
     envelope: mockEnvelope,
     $transaction: mockTransaction,
@@ -127,6 +129,7 @@ describe('Admin Routes', () => {
         nameGameRound: mockNameGameRound,
         nameGameGuidance: mockNameGameGuidance,
         triviaAnswer: mockTriviaAnswer,
+        photoPromptResponse: mockPhotoPromptResponse,
         genderRevealConfig: mockGenderRevealConfig,
         participant: mockParticipant,
         envelope: mockEnvelope,
@@ -140,6 +143,7 @@ describe('Admin Routes', () => {
     mockNameGameRound.deleteMany.mockResolvedValue({ count: 0 });
     mockNameGameGuidance.deleteMany.mockResolvedValue({ count: 0 });
     mockTriviaAnswer.deleteMany.mockResolvedValue({ count: 0 });
+    mockPhotoPromptResponse.deleteMany.mockResolvedValue({ count: 0 });
     mockGenderRevealConfig.updateMany.mockResolvedValue({ count: 0 });
     mockParticipant.deleteMany.mockResolvedValue({ count: 2 });
     mockEnvelope.updateMany.mockResolvedValue({ count: 3 });

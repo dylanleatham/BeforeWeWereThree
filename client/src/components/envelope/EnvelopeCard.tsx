@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Mail, MailOpen, Heart, Sparkles } from 'lucide-react';
+import { Mail, MailOpen, Heart, Sparkles, Camera } from 'lucide-react';
 import clsx from 'clsx';
 import type { Envelope } from 'shared';
 import { badgeVariants } from '../../utils/motion';
@@ -77,7 +77,9 @@ export function EnvelopeCard({
 
       {/* Icon */}
       <div className="envelope-card__icon">
-        {isEvergreen ? (
+        {type === 'photo-prompt' ? (
+          <Camera size={28} strokeWidth={1.5} />
+        ) : isEvergreen ? (
           <Sparkles size={28} strokeWidth={1.5} />
         ) : isSealed ? (
           <Mail size={28} strokeWidth={1.5} />

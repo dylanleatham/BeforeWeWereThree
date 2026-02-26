@@ -16,6 +16,7 @@ import { MediaLibraryActivity } from '../activities/MediaLibrary/MediaLibraryAct
 import { NameGameActivity } from '../activities/NameGame';
 import { TriviaActivity } from '../activities/Trivia';
 import { GenderRevealActivity } from '../activities/GenderReveal/GenderRevealActivity';
+import { PhotoPromptActivity } from '../activities/PhotoPrompt';
 import { FriendLetterView } from '../friend/FriendLetterView';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import { STRINGS } from '../../constants/strings';
@@ -97,6 +98,7 @@ export function BaseEnvelope({
     if (env.type === 'would-you-rather' && env.status === 'completed') return true;
     if (env.type === 'trivia' && env.status === 'completed') return true;
     if (env.type === 'friend-letter' && env.status === 'completed') return true;
+    if (env.type === 'photo-prompt' && env.status === 'completed') return true;
     return env.status === 'opened';
   };
 
@@ -157,6 +159,14 @@ export function BaseEnvelope({
         return (
           <GenderRevealActivity
             envelopeId={envelope.id}
+          />
+        );
+
+      case 'photo-prompt':
+        return (
+          <PhotoPromptActivity
+            envelopeId={envelope.id}
+            onComplete={handleActivityComplete}
           />
         );
 

@@ -50,7 +50,7 @@ export function GenderRevealActivity({
     switch (phase) {
       case 'loading':
         return (
-          <div className="gender-reveal__loading">
+          <div className="gender-reveal__loading" role="status">
             <motion.div
               className="gender-reveal__spinner"
               animate={{ rotate: 360 }}

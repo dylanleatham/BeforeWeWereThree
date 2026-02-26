@@ -95,5 +95,6 @@ export interface Participant {
   deviceFingerprint: string;
   designation: Designation | null;
   role: Role;
+  friendId?: string;
   createdAt: string;
 }

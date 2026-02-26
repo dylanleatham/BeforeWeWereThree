@@ -624,7 +624,9 @@ describe('Gender Reveal Service', () => {
     });
 
     it('should throw GENDER_ALREADY_SET when gender value is not null', async () => {
-      mockGenderRevealConfigFindFirst.mockResolvedValue({ ...BASE_CONFIG });
+      mockGenderRevealConfigFindFirst
+        .mockResolvedValueOnce(null)               // first call: no config with genderValue=null
+        .mockResolvedValueOnce({ ...BASE_CONFIG }); // second call: config exists (gender already set)
 
       await expect(setGenderByFriend(FRIEND_ID, 'boy')).rejects.toThrow(
         'GENDER_ALREADY_SET'

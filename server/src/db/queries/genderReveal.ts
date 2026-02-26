@@ -1,4 +1,5 @@
 import { db } from '../connection.js';
+import type { GenderRevealConfig } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
 /**
@@ -13,7 +14,7 @@ import { Prisma } from '@prisma/client';
 /**
  * Get gender reveal config for an envelope
  */
-export async function getConfig(envelopeId: string) {
+export async function getConfig(envelopeId: string): Promise<GenderRevealConfig | null> {
   return db.genderRevealConfig.findUnique({
     where: { envelopeId },
   });
@@ -27,7 +28,7 @@ export async function createConfig(
   envelopeId: string,
   keyA: string,
   keyB: string
-) {
+): Promise<GenderRevealConfig> {
   return db.genderRevealConfig.create({
     data: {
       envelopeId,
@@ -43,7 +44,7 @@ export async function createConfig(
 export async function updateConfig(
   envelopeId: string,
   data: { genderValue?: string; keyA?: string; keyB?: string }
-) {
+): Promise<GenderRevealConfig> {
   return db.genderRevealConfig.update({
     where: { envelopeId },
     data,
@@ -72,7 +73,7 @@ export async function deleteConfig(envelopeId: string): Promise<boolean> {
  * Find the singleton gender reveal config (for friend input)
  * Returns the first (and should be only) gender reveal config
  */
-export async function findGenderRevealConfig() {
+export async function findGenderRevealConfig(): Promise<GenderRevealConfig | null> {
   return db.genderRevealConfig.findFirst({
     orderBy: { createdAt: 'desc' },
   });
@@ -85,7 +86,7 @@ export async function setGenderValue(
   envelopeId: string,
   genderValue: string,
   friendId: string
-) {
+): Promise<GenderRevealConfig> {
   return db.genderRevealConfig.update({
     where: { envelopeId },
     data: {
@@ -99,7 +100,7 @@ export async function setGenderValue(
  * Reset reveal state — clear validation and revealed timestamp
  * Preserves genderValue, keyA, keyB (admin-created content)
  */
-export async function resetRevealState(envelopeId: string) {
+export async function resetRevealState(envelopeId: string): Promise<GenderRevealConfig> {
   return db.genderRevealConfig.update({
     where: { envelopeId },
     data: {
@@ -119,7 +120,7 @@ export async function setKeyValidated(
   envelopeId: string,
   keyField: 'keyAValidated' | 'keyBValidated',
   otherKeyValidated: boolean
-) {
+): Promise<GenderRevealConfig> {
   return tx.genderRevealConfig.update({
     where: { envelopeId },
     data: {

@@ -70,9 +70,6 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
   // Connection state from SignalR context
   const { connection, isConnected } = useSignalRConnection();
 
-  // Track if we've loaded data (for retry)
-  const loadedRef = useRef(false);
-
   // Mounted ref for async safety (per CLAUDE.md: set true in effect body)
   const mountedRef = useRef(false);
 
@@ -134,7 +131,6 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
         setPhase('writing');
       }
 
-      loadedRef.current = true;
     } catch (err) {
       if (!mountedRef.current) return;
       console.error('Failed to load letter state:', err);
@@ -157,9 +153,7 @@ export function useLetter({ envelopeId }: UseLetterProps): UseLetterReturn {
    */
   useSignalREvent<LetterSubmittedMessage>('letterSubmitted', (data) => {
     if (data.promptId === prompt?.id) {
-      // Partner submitted their letter
-      // If we've already submitted, we should get a reveal event soon
-      console.log('Partner submitted letter');
+      // Partner submitted their letter — reveal arrives via letterRevealReady
     }
   });
 

@@ -21,7 +21,7 @@ export function WaitingForGuidancePhase() {
       >
         <motion.span
           className="ng-waiting__message"
-          animate={{ opacity: PULSE_OPACITY_RANGE as unknown as number[] }}
+          animate={{ opacity: PULSE_OPACITY_RANGE }}
           transition={{
             duration: 2,
             repeat: Infinity,

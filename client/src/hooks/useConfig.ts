@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { AppConfig } from 'shared';
 import { getConfig } from '../services/api';
 
@@ -14,18 +14,28 @@ export function useConfig() {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const fetchConfig = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       const data = await getConfig();
+      if (!mountedRef.current) return;
       setConfig(data);
     } catch (err) {
+      if (!mountedRef.current) return;
       console.error('Failed to fetch config:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch config');
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
     }
   }, []);
 

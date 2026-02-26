@@ -76,7 +76,7 @@
   color: var(--reveal-boy-glow);
   text-shadow:
     0 0 30px var(--reveal-boy-glow),
-    0 0 60px rgba(168, 200, 216, 0.3);
+    0 0 60px rgba(var(--reveal-boy-glow-rgb), 0.3);
 }
 
 /* Girl text color */
@@ -84,5 +84,5 @@
   color: var(--reveal-girl-glow);
   text-shadow:
     0 0 30px var(--reveal-girl-glow),
-    0 0 60px rgba(240, 184, 168, 0.3);
+    0 0 60px rgba(var(--reveal-girl-glow-rgb), 0.3);
 }

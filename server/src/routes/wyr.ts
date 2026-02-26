@@ -134,7 +134,7 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
     res.status(201).json(successResponse({ prompt }));
   } catch (error) {
     // Check for unique constraint violation (sort order conflict)
-    if (error instanceof Error && error.message.includes('Unique constraint')) {
+    if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: string }).code === 'P2002') {
       res.status(409).json(
         errorResponse('SORT_ORDER_CONFLICT', 'A prompt with this sort order already exists for this envelope')
       );

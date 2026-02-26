@@ -194,6 +194,13 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
           socket.on('reconnecting', onReconnecting);
           socket.on('reconnect', onReconnect);
 
+          // Guard against unmount between negotiate and socket setup
+          if (!mounted) {
+            socket.removeAllListeners();
+            socket.disconnect();
+            return;
+          }
+
           socketRef.current = socket;
           setConnection(createSocketIOConnection(socket));
 
@@ -203,8 +210,12 @@ export function SignalRProvider({ children }: SignalRProviderProps) {
           }
         } else {
           // Connect via Azure SignalR
+          if (!accessToken) {
+            throw new Error('SignalR transport requires an accessToken');
+          }
+
           const hub = new HubConnectionBuilder()
-            .withUrl(url, { accessTokenFactory: () => accessToken! })
+            .withUrl(url, { accessTokenFactory: () => accessToken })
             .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
             .configureLogging(LogLevel.Warning)
             .build();

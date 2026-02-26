@@ -29,6 +29,7 @@ export function WyrContentTab() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Form fields
   const [optionA, setOptionA] = useState('');
@@ -108,6 +109,7 @@ export function WyrContentTab() {
     if (!selectedEnvelopeId) return;
 
     setIsSaving(true);
+    setError(null);
     try {
       if (formMode.type === 'create') {
         await createWyrPrompt({
@@ -123,6 +125,10 @@ export function WyrContentTab() {
       }
       await loadPrompts(selectedEnvelopeId);
       closeForm();
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to save prompt');
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -133,10 +139,15 @@ export function WyrContentTab() {
   const handleDelete = useCallback(async (id: string) => {
     if (!selectedEnvelopeId) return;
     setIsSaving(true);
+    setError(null);
     try {
       await deleteWyrPrompt(id);
       await loadPrompts(selectedEnvelopeId);
       setDeleteConfirm(null);
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to delete prompt');
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -151,6 +162,11 @@ export function WyrContentTab() {
         <h3 className="wyr-content-tab__heading">
           {formMode.type === 'create' ? STRINGS.WYR_ADMIN_ADD : 'Edit Prompt'}
         </h3>
+        {error && (
+          <div className="wyr-content-tab__error" role="alert">
+            {error}
+          </div>
+        )}
         <Card className="wyr-content-tab__card">
           <div className="wyr-content-tab__form">
             <div className="wyr-content-tab__field">
@@ -214,6 +230,12 @@ export function WyrContentTab() {
       <h3 className="wyr-content-tab__heading">
         {STRINGS.WYR_ADMIN_HEADING}
       </h3>
+
+      {error && (
+        <div className="wyr-content-tab__error" role="alert">
+          {error}
+        </div>
+      )}
 
       {wyrEnvelopes.length === 0 ? (
         <Text color="muted">{STRINGS.WYR_ADMIN_NO_ENVELOPES}</Text>

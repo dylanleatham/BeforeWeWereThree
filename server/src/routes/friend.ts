@@ -140,7 +140,7 @@ router.delete('/:friendId', adminMiddleware, async (req: Request<{ friendId: str
     const { friendId } = req.params;
     const deleted = await removeFriend(friendId);
     if (!deleted) {
-      res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete friend'));
+      res.status(404).json(errorResponse('FRIEND_NOT_FOUND', 'Friend not found'));
       return;
     }
     res.json(successResponse({ deleted: true }));
@@ -373,7 +373,7 @@ router.get(
       const letterView = await getFriendLetterForCouple(friendLetterId);
 
       if (!letterView) {
-        res.status(404).json(errorResponse('FRIEND_NOT_FOUND', 'Friend letter not found'));
+        res.status(404).json(errorResponse('FRIEND_LETTER_NOT_FOUND', 'Friend letter not found'));
         return;
       }
 

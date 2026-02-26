@@ -14,6 +14,7 @@ import {
   deleteEnvelope,
 } from '../db/queries/envelopes.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+import { db } from '../db/connection.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -82,15 +83,44 @@ router.post('/', adminMiddleware, async (req: Request, res: Response) => {
       return;
     }
 
-    // Singleton check for gender-reveal envelopes
+    // Gender-reveal is a singleton — use Serializable transaction to prevent
+    // race condition where two concurrent requests both pass the existence check.
     if (parsed.data.type === 'gender-reveal') {
-      const existing = await getAllEnvelopes();
-      if (existing.some((e) => e.type === 'gender-reveal')) {
+      const result = await db.$transaction(async (tx) => {
+        const existingCount = await tx.envelope.count({
+          where: { type: 'gender-reveal' },
+        });
+        if (existingCount > 0) {
+          return { conflict: true as const };
+        }
+        const created = await tx.envelope.create({
+          data: {
+            title: parsed.data.title,
+            type: parsed.data.type,
+            order: parsed.data.order,
+            status: 'sealed',
+          },
+        });
+        return { conflict: false as const, envelope: created };
+      }, { isolationLevel: 'Serializable' });
+
+      if (result.conflict) {
         res.status(409).json(
           errorResponse('GENDER_REVEAL_SINGLETON', 'Only one gender reveal envelope is allowed')
         );
         return;
       }
+
+      res.status(201).json(successResponse({
+        envelope: {
+          ...result.envelope,
+          type: result.envelope.type as 'gender-reveal',
+          status: result.envelope.status as 'sealed',
+          createdAt: result.envelope.createdAt.toISOString(),
+          updatedAt: result.envelope.updatedAt.toISOString(),
+        },
+      }));
+      return;
     }
 
     const envelope = await createEnvelope(parsed.data);

@@ -156,11 +156,8 @@ export async function submitVote(
         // Check if ALL prompts for this envelope now have both votes
         const allPrompts = await tx.wyrPrompt.findMany({
           where: { envelopeId: prompt.envelopeId },
-          orderBy: { sortOrder: 'asc' },
           select: { id: true },
         });
-        isLastPrompt = allPrompts.length <= 1 ||
-          allPrompts[allPrompts.length - 1]!.id === promptId;
 
         let allHaveBothVotes = true;
         for (const p of allPrompts) {
@@ -173,6 +170,7 @@ export async function submitVote(
           }
         }
         envelopeComplete = allHaveBothVotes;
+        isLastPrompt = envelopeComplete;
 
         if (envelopeComplete) {
           await tx.envelope.update({

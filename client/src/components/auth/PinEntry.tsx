@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { Heading, Text } from '../common';
 import { STRINGS } from '../../constants/strings';
 import { PIN_LENGTH, PIN_DISPLAY_MAX_LENGTH } from '../../constants/config';
 import { ANIMATION_DURATION_MS } from '../../constants/animation';
@@ -20,10 +21,18 @@ export function PinEntry({ onSubmit, isLoading = false }: PinEntryProps) {
   const [error, setError] = useState<string | null>(null);
   const [isShaking, setIsShaking] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const shakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Focus input on mount
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  // Clean up shake timer on unmount
+  useEffect(() => {
+    return () => {
+      if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current);
+    };
   }, []);
 
   // Auto-submit when all digits entered (intentional UX pattern)
@@ -39,7 +48,7 @@ export function PinEntry({ onSubmit, isLoading = false }: PinEntryProps) {
         setError(result.error ?? STRINGS.PIN_ERROR_FALLBACK);
         setPin('');
 
-        setTimeout(() => {
+        shakeTimerRef.current = setTimeout(() => {
           setIsShaking(false);
           inputRef.current?.focus();
         }, ANIMATION_DURATION_MS);
@@ -69,8 +78,8 @@ export function PinEntry({ onSubmit, isLoading = false }: PinEntryProps) {
       <div className="pin-entry__card">
         {/* Welcome message */}
         <div className="pin-entry__header">
-          <h1 className="pin-entry__title">{STRINGS.PIN_TITLE}</h1>
-          <p className="pin-entry__subtitle">{STRINGS.PIN_SUBTITLE}</p>
+          <Heading level={1} className="pin-entry__title">{STRINGS.PIN_TITLE}</Heading>
+          <Text variant="body" color="secondary" className="pin-entry__subtitle">{STRINGS.PIN_SUBTITLE}</Text>
         </div>
 
         {/* PIN Input */}

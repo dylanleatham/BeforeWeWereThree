@@ -152,7 +152,7 @@ export async function generateNames(params: GenerateNamesParams): Promise<AIName
   }
 
   const client = new Anthropic({ apiKey });
-  const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5-20250929';
+  const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
 
   const systemPrompt = buildSystemPrompt();
   const userPrompt = buildUserPrompt(params);

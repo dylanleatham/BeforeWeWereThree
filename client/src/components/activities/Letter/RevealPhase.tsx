@@ -2,15 +2,13 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Letter } from 'shared';
 import { STRINGS } from '../../../constants/strings';
+import { LETTER_PREVIEW_MAX_LENGTH } from '../../../constants/config';
 import {
   WYR_REVEAL_STAGGER_MS,
   WYR_REVEAL_DURATION_MS,
   MODAL_ENTER_SCALE,
 } from '../../../constants/animation';
 import './RevealPhase.css';
-
-/** Max characters shown in the button preview */
-const PREVIEW_LENGTH = 60;
 
 interface RevealPhaseProps {
   /** User's submitted letter */
@@ -65,6 +63,7 @@ export function RevealPhase({
       <div className="letter-reveal__buttons">
         {/* My letter button */}
         <motion.button
+          type="button"
           className="letter-reveal__card"
           onClick={() => setSelectedLetter('mine')}
           initial={{ opacity: 0, x: -50 }}
@@ -76,13 +75,14 @@ export function RevealPhase({
         >
           <span className="letter-reveal__label">{STRINGS.LETTER_YOURS}</span>
           <span className="letter-reveal__preview">
-            {truncate(myLetter.content, PREVIEW_LENGTH)}
+            {truncate(myLetter.content, LETTER_PREVIEW_MAX_LENGTH)}
           </span>
           <span className="letter-reveal__read-cta">{STRINGS.LETTER_READ_YOURS}</span>
         </motion.button>
 
         {/* Partner's letter button */}
         <motion.button
+          type="button"
           className="letter-reveal__card"
           onClick={() => setSelectedLetter('partner')}
           initial={{ opacity: 0, x: 50 }}
@@ -97,7 +97,7 @@ export function RevealPhase({
             {STRINGS.LETTER_PARTNERS(partnerName)}
           </span>
           <span className="letter-reveal__preview">
-            {truncate(partnerLetter.content, PREVIEW_LENGTH)}
+            {truncate(partnerLetter.content, LETTER_PREVIEW_MAX_LENGTH)}
           </span>
           <span className="letter-reveal__read-cta">
             {STRINGS.LETTER_READ_PARTNERS(partnerName)}
@@ -108,6 +108,7 @@ export function RevealPhase({
       {/* Continue button — only visible when overlay is closed */}
       {selectedLetter === null && (
         <motion.button
+          type="button"
           className="letter-reveal__advance"
           onClick={onAdvance}
           initial={{ opacity: 0 }}

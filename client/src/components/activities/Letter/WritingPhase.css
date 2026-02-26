@@ -24,7 +24,7 @@
   padding: var(--space-4);
   background: linear-gradient(
     135deg,
-    var(--color-sand-100) 0%,
+    var(--bg-primary) 0%,
     var(--color-cream) 100%
   );
   border-radius: var(--radius-lg);
@@ -35,7 +35,7 @@
   font-family: var(--font-display);
   font-size: var(--text-xl);
   font-style: italic;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   line-height: 1.5;
   margin: 0;
 }
@@ -57,23 +57,23 @@
   font-family: var(--font-body);
   font-size: var(--text-base);
   line-height: 1.6;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   background-color: var(--color-cream);
-  border: 2px solid var(--color-sand-400);
+  border: 2px solid var(--color-light-linen);
   border-radius: var(--radius-lg);
   resize: vertical;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .letter-writing__textarea::placeholder {
-  color: var(--color-text-muted);
+  color: var(--text-muted);
   font-style: italic;
 }
 
 .letter-writing__textarea:focus {
   outline: none;
   border-color: var(--color-sunrise-gold);
-  box-shadow: 0 0 0 3px var(--color-sunrise-gold-20);
+  box-shadow: 0 0 0 3px var(--color-sunrise-gold-15);
 }
 
 .letter-writing__textarea:disabled {

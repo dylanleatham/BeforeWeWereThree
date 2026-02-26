@@ -4,8 +4,8 @@ import type {
   FriendLettersResponse,
   FriendLetter,
   FriendLetterResponse,
-  Friend,
-  FriendResponse,
+  FriendWithPin,
+  FriendCreateResponse,
   FriendThankYouNote,
   FriendThankYouNoteResponse,
   DeleteResponse,
@@ -81,8 +81,8 @@ export async function getAdminFriendList(): Promise<FriendListResponse> {
   return response.data;
 }
 
-export async function createFriend(data: { name: string; pin: string }): Promise<Friend> {
-  const response = await apiFetch<FriendResponse>('/friends', {
+export async function createFriend(data: { name: string; pin: string }): Promise<FriendWithPin> {
+  const response = await apiFetch<FriendCreateResponse>('/friends', {
     method: 'POST',
     body: JSON.stringify(data),
   });

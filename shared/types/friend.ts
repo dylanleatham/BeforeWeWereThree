@@ -11,15 +11,22 @@ import { z } from 'zod';
 export type FriendLetterRecipient = 'you' | 'partner' | 'baby';
 
 /**
- * Friend entity (API response)
+ * Friend entity (API response — never includes PIN)
  */
 export interface Friend {
   id: string;
   name: string;
-  pin: string;
   isGenderKeeper: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Friend with PIN — only returned from the creation endpoint
+ * so the admin can see the PIN once and share it with the friend.
+ */
+export interface FriendWithPin extends Friend {
+  pin: string;
 }
 
 /**
@@ -104,7 +111,14 @@ export interface FriendLettersResponse {
 }
 
 /**
- * Response wrapping a single friend (admin CRUD)
+ * Response wrapping a newly created friend (includes PIN for one-time display)
+ */
+export interface FriendCreateResponse {
+  friend: FriendWithPin;
+}
+
+/**
+ * Response wrapping a single friend (admin read operations)
  */
 export interface FriendResponse {
   friend: Friend;

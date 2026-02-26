@@ -38,7 +38,6 @@ export function WouldYouRatherActivity({
     currentIndex,
     totalPrompts,
     phase,
-    myVote,
     results,
     isLoading,
     error,
@@ -102,7 +101,6 @@ export function WouldYouRatherActivity({
         return (
           <WaitingPhase
             partnerName={partnerName}
-            myChoice={myVote!}
           />
         );
 

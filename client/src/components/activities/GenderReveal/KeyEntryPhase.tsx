@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { STRINGS } from '../../../constants/strings';
-import { PIN_LENGTH, PIN_DISPLAY_MAX_LENGTH } from '../../../constants/config';
 import { ANIMATION_DURATION_MS } from '../../../constants/animation';
 import './KeyEntryPhase.css';
 
@@ -32,6 +31,7 @@ export function KeyEntryPhase({
   onSubmit,
   isSubmitting,
   error,
+  keyLength,
 }: KeyEntryPhaseProps) {
   const [value, setValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,15 +55,15 @@ export function KeyEntryPhase({
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, '');
-    if (digits.length <= PIN_LENGTH) {
+    if (digits.length <= keyLength) {
       setValue(digits);
       // Auto-submit when all digits entered — fire from handler to avoid
       // effect timing issues (isSubmitting going false before value clears)
-      if (digits.length === PIN_LENGTH && !isSubmitting) {
+      if (digits.length === keyLength && !isSubmitting) {
         onSubmit(digits);
       }
     }
-  }, [isSubmitting, onSubmit]);
+  }, [keyLength, isSubmitting, onSubmit]);
 
   // Format as MM/DD/YYYY
   const formatDateDisplay = (v: string): string => {
@@ -92,7 +92,7 @@ export function KeyEntryPhase({
           placeholder="MM/DD/YYYY"
           disabled={isSubmitting}
           className="key-entry__input"
-          maxLength={PIN_DISPLAY_MAX_LENGTH}
+          maxLength={keyLength + 2}
           aria-label={STRINGS.REVEAL_KEY_ENTRY_ARIA}
         />
       </div>
@@ -119,7 +119,7 @@ export function KeyEntryPhase({
 
       {/* Progress dots */}
       <div className="key-entry__dots">
-        {Array.from({ length: PIN_LENGTH }).map((_, i) => (
+        {Array.from({ length: keyLength }).map((_, i) => (
           <div
             key={i}
             className={`key-entry__dot${i < value.length ? ' key-entry__dot--filled' : ''}`}

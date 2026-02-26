@@ -85,9 +85,6 @@ export function useWouldYouRather({
   // Connection state from SignalR context
   const { connection, isConnected } = useSignalRConnection();
 
-  // Track if we've loaded data (for retry)
-  const loadedRef = useRef(false);
-
   // Mounted ref for async safety (per CLAUDE.md: set true in effect body)
   const mountedRef = useRef(false);
 
@@ -145,7 +142,6 @@ export function useWouldYouRather({
         }
       }
 
-      loadedRef.current = true;
     } catch (err) {
       if (!mountedRef.current) return;
       console.error('Failed to load WYR state:', err);

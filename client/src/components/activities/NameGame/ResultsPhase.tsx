@@ -96,6 +96,7 @@ export function ResultsPhase({ results, onNewRound, allMatches }: ResultsPhasePr
 
       {/* New round button */}
       <motion.button
+        type="button"
         className="ng-results__new-round"
         onClick={onNewRound}
         initial={{ opacity: 0 }}

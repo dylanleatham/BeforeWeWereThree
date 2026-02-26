@@ -58,6 +58,7 @@ model Envelope {
   letterPrompt              LetterPrompt?
   nameGameRounds            NameGameRound[]
   triviaEnvelopeQuestions   TriviaEnvelopeQuestion[]
+  triviaAnswers             TriviaAnswer[]
   genderRevealConfig        GenderRevealConfig?
 
   @@map("envelopes")
@@ -281,6 +282,7 @@ model TriviaQuestion {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   envelopeAssignments TriviaEnvelopeQuestion[]
+  triviaAnswers       TriviaAnswer[]
 
   @@map("trivia_questions")
 }
@@ -312,10 +314,13 @@ model TriviaAnswer {
   isCorrect     Boolean  @map("is_correct")
   createdAt     DateTime @default(now()) @map("created_at")
 
-  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  envelope    Envelope       @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  question    TriviaQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  participant Participant    @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@unique([envelopeId, questionId, participantId])
   @@index([envelopeId])
+  @@index([questionId])
   @@index([participantId])
   @@map("trivia_answers")
 }

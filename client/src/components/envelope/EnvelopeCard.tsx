@@ -3,6 +3,7 @@ import { Mail, MailOpen, Heart, Sparkles } from 'lucide-react';
 import clsx from 'clsx';
 import type { Envelope } from 'shared';
 import { badgeVariants } from '../../utils/motion';
+import { hasCompletedView, formatEnvelopeTypeLabel } from '../../utils/envelope';
 import { STRINGS } from '../../constants/strings';
 import { EVERGREEN_ENVELOPE_TYPES } from '../../constants/config';
 import { HOVER_LIFT_PX, TAP_SCALE } from '../../constants/animation';
@@ -28,20 +29,8 @@ export function EnvelopeCard({
   const isEvergreen = EVERGREEN_ENVELOPE_TYPES.has(type);
   const isSealed = status === 'sealed';
   const isCompleted = status === 'completed';
-  // Types with completed-state views (summary, keepsake, review) remain clickable
-  const hasCompletedView =
-    type === 'would-you-rather' ||
-    type === 'trivia' ||
-    type === 'friend-letter' ||
-    type === 'gender-reveal' ||
-    type === 'name-game';
-  const isClickable = isEvergreen || !isCompleted || hasCompletedView;
-
-  // Format activity type for display
-  const typeLabel = type
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  const isClickable = isEvergreen || !isCompleted || hasCompletedView(type);
+  const typeLabel = formatEnvelopeTypeLabel(type);
 
   return (
     <motion.article

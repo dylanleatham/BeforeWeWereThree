@@ -1,13 +1,10 @@
 import { motion } from 'motion/react';
-import type { WYRChoice } from 'shared';
 import { STRINGS } from '../../../constants/strings';
 import './WaitingPhase.css';
 
 interface WaitingPhaseProps {
   /** Name of the partner we're waiting for */
   partnerName?: string;
-  /** User's choice (not displayed, just for context) */
-  myChoice: WYRChoice;
 }
 
 /**

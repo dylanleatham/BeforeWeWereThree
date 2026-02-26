@@ -231,7 +231,7 @@ router.post('/prompt', adminMiddleware, async (req: Request, res: Response) => {
     res.status(201).json(successResponse({ prompt }));
   } catch (error) {
     // Check for unique constraint violation (envelope already has prompt)
-    if (error instanceof Error && error.message.includes('Unique constraint')) {
+    if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: string }).code === 'P2002') {
       res
         .status(409)
         .json(errorResponse('PROMPT_EXISTS', 'This envelope already has a letter prompt'));

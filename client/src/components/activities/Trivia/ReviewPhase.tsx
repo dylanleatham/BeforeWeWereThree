@@ -103,6 +103,7 @@ export function ReviewPhase({ questions, onClose }: ReviewPhaseProps) {
       </div>
 
       <motion.button
+        type="button"
         className="trivia-review__close"
         onClick={onClose}
         initial={{ opacity: 0 }}

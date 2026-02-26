@@ -25,6 +25,15 @@
   margin: 0;
 }
 
+.wyr-content-tab__error {
+  background: var(--color-dusk-rose-10);
+  color: var(--color-dusk-rose);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0.5rem;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
 .wyr-content-tab__loading,
 .wyr-content-tab__empty {
   display: flex;

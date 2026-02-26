@@ -21,7 +21,7 @@ import type {
   FriendLetterRecipient,
   FriendLetterViewResponse,
   FriendThankYouNote,
-  Friend,
+  FriendWithPin,
   GenderKeeperStatus,
 } from 'shared';
 
@@ -58,7 +58,6 @@ export async function getAllFriends(): Promise<FriendListResponse> {
   const friendsWithCounts = friends.map((friend) => ({
     id: friend.id,
     name: friend.name,
-    pin: friend.pin,
     isGenderKeeper: friend.isGenderKeeper,
     createdAt: friend.createdAt.toISOString(),
     updatedAt: friend.updatedAt.toISOString(),
@@ -72,7 +71,7 @@ export async function getAllFriends(): Promise<FriendListResponse> {
 /**
  * Create a new friend with PIN uniqueness validation
  */
-export async function createFriend(name: string, pin: string): Promise<Friend> {
+export async function createFriend(name: string, pin: string): Promise<FriendWithPin> {
   // Check PIN doesn't collide with admin/guest PINs
   const [guestPin, adminPin] = await Promise.all([getGuestPin(), getAdminPin()]);
 

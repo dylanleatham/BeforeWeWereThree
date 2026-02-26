@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSignalREvent } from '../../../hooks/useSignalREvent';
 import type { PartnerPresenceMessage } from 'shared';
 import { STRINGS } from '../../../constants/strings';
+import { PARTNER_TOAST_DURATION_MS } from '../../../constants/animation';
 import './PartnerPresence.css';
 
 interface PartnerPresenceProps {
@@ -42,7 +43,7 @@ export function PartnerPresence({ partnerName = 'Partner' }: PartnerPresenceProp
     // Auto-dismiss toast after 3 seconds
     toastTimeoutRef.current = setTimeout(() => {
       setShowToast(false);
-    }, 3000);
+    }, PARTNER_TOAST_DURATION_MS);
   });
 
   // Cleanup timeout on unmount

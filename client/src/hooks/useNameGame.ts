@@ -146,9 +146,6 @@ export function useNameGame(envelopeId: string, participantId: string | null): U
   // Connection state
   const { connection, isConnected } = useSignalRConnection();
 
-  // Track loaded state for retry
-  const loadedRef = useRef(false);
-
   // Mounted ref for async safety (per CLAUDE.md: set true in effect body)
   const mountedRef = useRef(false);
 
@@ -197,7 +194,6 @@ export function useNameGame(envelopeId: string, participantId: string | null): U
         if (data.pendingGuidance.myGuidanceSubmitted) {
           // We already submitted — resume waiting for partner
           setPhase('waiting-for-guidance');
-          loadedRef.current = true;
           return;
         }
       }
@@ -232,7 +228,6 @@ export function useNameGame(envelopeId: string, participantId: string | null): U
         setPhase('new-round');
       }
 
-      loadedRef.current = true;
     } catch (err) {
       if (!mountedRef.current) return;
       console.error('Failed to load name game state:', err);

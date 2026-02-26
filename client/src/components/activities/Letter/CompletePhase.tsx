@@ -54,6 +54,7 @@ export function CompletePhase({ onClose }: CompletePhaseProps) {
 
       {/* Close button */}
       <motion.button
+        type="button"
         className="letter-complete__close"
         onClick={onClose}
         initial={{ opacity: 0 }}

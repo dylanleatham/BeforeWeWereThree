@@ -20,6 +20,42 @@ declare global {
 }
 
 /**
+ * Shared session resolution logic.
+ * Reads the session cookie, verifies the JWT, confirms the participant
+ * still exists in the database, and returns the session payload.
+ *
+ * Returns the session on success, or sends an error response and returns null.
+ */
+async function resolveSession(req: Request, res: Response): Promise<SessionPayload | null> {
+  const sessionCookie = req.cookies?.session;
+
+  if (!sessionCookie) {
+    res.status(401).json(errorResponse('UNAUTHORIZED', 'Authentication required'));
+    return null;
+  }
+
+  let session: SessionPayload;
+  try {
+    session = await verifySession(sessionCookie);
+  } catch {
+    res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
+    return null;
+  }
+
+  // Verify participant still exists (handles stale sessions after admin reset)
+  const participant = await db.participant.findUnique({
+    where: { id: session.participantId },
+    select: { id: true },
+  });
+  if (!participant) {
+    res.status(401).json(errorResponse('SESSION_EXPIRED', 'Your session has expired. Please re-enter your PIN.'));
+    return null;
+  }
+
+  return session;
+}
+
+/**
  * Authentication middleware
  * Reads session from cookie and verifies JWT
  * Returns 401 if no session or invalid/expired token
@@ -29,32 +65,11 @@ export async function authMiddleware(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const sessionCookie = req.cookies?.session;
+  const session = await resolveSession(req, res);
+  if (!session) return;
 
-  if (!sessionCookie) {
-    res.status(401).json(errorResponse('UNAUTHORIZED', 'Authentication required'));
-    return;
-  }
-
-  try {
-    const session = await verifySession(sessionCookie);
-
-    // Verify participant still exists (handles stale sessions after admin reset)
-    const participant = await db.participant.findUnique({
-      where: { id: session.participantId },
-      select: { id: true },
-    });
-    if (!participant) {
-      res.status(401).json(errorResponse('SESSION_EXPIRED', 'Your session has expired. Please re-enter your PIN.'));
-      return;
-    }
-
-    req.session = session;
-    next();
-  } catch {
-    res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
-    return;
-  }
+  req.session = session;
+  next();
 }
 
 /**
@@ -89,80 +104,35 @@ export async function friendMiddleware(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const sessionCookie = req.cookies?.session;
+  const session = await resolveSession(req, res);
+  if (!session) return;
 
-  if (!sessionCookie) {
-    res.status(401).json(errorResponse('UNAUTHORIZED', 'Authentication required'));
+  if (session.role !== 'friend') {
+    res.status(403).json(errorResponse('FORBIDDEN', 'Friend access required'));
     return;
   }
 
-  try {
-    const session = await verifySession(sessionCookie);
-
-    // Verify participant still exists
-    const participant = await db.participant.findUnique({
-      where: { id: session.participantId },
-      select: { id: true },
-    });
-    if (!participant) {
-      res.status(401).json(errorResponse('SESSION_EXPIRED', 'Your session has expired. Please re-enter your PIN.'));
-      return;
-    }
-
-    req.session = session;
-
-    if (session.role !== 'friend') {
-      res.status(403).json(errorResponse('FORBIDDEN', 'Friend access required'));
-      return;
-    }
-
-    next();
-  } catch {
-    res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
-    return;
-  }
+  req.session = session;
+  next();
 }
 
 /**
  * Admin-only middleware
  * Requires auth + admin role
- * Note: Implemented without nested middleware to avoid double-response issues
  */
 export async function adminMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const sessionCookie = req.cookies?.session;
+  const session = await resolveSession(req, res);
+  if (!session) return;
 
-  if (!sessionCookie) {
-    res.status(401).json(errorResponse('UNAUTHORIZED', 'Authentication required'));
+  if (session.role !== 'admin') {
+    res.status(403).json(errorResponse('FORBIDDEN', 'Admin access required'));
     return;
   }
 
-  try {
-    const session = await verifySession(sessionCookie);
-
-    // Verify participant still exists (handles stale sessions after admin reset)
-    const participant = await db.participant.findUnique({
-      where: { id: session.participantId },
-      select: { id: true },
-    });
-    if (!participant) {
-      res.status(401).json(errorResponse('SESSION_EXPIRED', 'Your session has expired. Please re-enter your PIN.'));
-      return;
-    }
-
-    req.session = session;
-
-    if (session.role !== 'admin') {
-      res.status(403).json(errorResponse('FORBIDDEN', 'Admin access required'));
-      return;
-    }
-
-    next();
-  } catch {
-    res.status(401).json(errorResponse('UNAUTHORIZED', 'Invalid or expired session'));
-    return;
-  }
+  req.session = session;
+  next();
 }

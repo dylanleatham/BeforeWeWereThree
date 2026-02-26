@@ -298,7 +298,7 @@ describe('WYR Routes', () => {
     it('should return 409 for sort order conflict', async () => {
       const cookies = await getAdminCookies();
       mockParticipant.findUnique.mockResolvedValue(mockAdminParticipant);
-      mockCreatePrompt.mockRejectedValue(new Error('Unique constraint failed'));
+      mockCreatePrompt.mockRejectedValue(Object.assign(new Error('Unique constraint failed'), { code: 'P2002' }));
 
       const res = await request(app)
         .post('/api/wyr')

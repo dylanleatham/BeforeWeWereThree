@@ -92,16 +92,6 @@ export interface SubmitNameVoteResponse {
 // ============================================================
 
 /**
- * POST /api/name-game/:envelopeId/generate request body
- * @deprecated Use submitGuidanceRequestSchema instead
- */
-export const generateNamesRequestSchema = z.object({
-  guidance: z.string().max(500).optional(),
-});
-
-export type GenerateNamesRequest = z.infer<typeof generateNamesRequestSchema>;
-
-/**
  * POST /api/name-game/:envelopeId/guidance request body
  * Same shape as generateNamesRequestSchema — records readiness with optional preferences
  */

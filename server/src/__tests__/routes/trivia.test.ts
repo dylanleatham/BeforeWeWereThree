@@ -146,7 +146,7 @@ describe('Trivia Routes', () => {
         .set('Cookie', cookies);
 
       expect(res.status).toBe(404);
-      expect(res.body.error.code).toBe('PROMPT_NOT_FOUND');
+      expect(res.body.error.code).toBe('QUESTION_NOT_FOUND');
     });
 
     it('should return envelope state for authenticated user', async () => {
@@ -228,7 +228,7 @@ describe('Trivia Routes', () => {
         .send({ questionId, selectedIndex: 0 });
 
       expect(res.status).toBe(404);
-      expect(res.body.error.code).toBe('PROMPT_NOT_FOUND');
+      expect(res.body.error.code).toBe('QUESTION_NOT_FOUND');
     });
 
     it('should return 409 for duplicate answer', async () => {
@@ -242,7 +242,7 @@ describe('Trivia Routes', () => {
         .send({ questionId, selectedIndex: 0 });
 
       expect(res.status).toBe(409);
-      expect(res.body.error.code).toBe('ALREADY_VOTED');
+      expect(res.body.error.code).toBe('ALREADY_ANSWERED');
     });
 
     it('should submit answer successfully', async () => {
@@ -489,7 +489,7 @@ describe('Trivia Routes', () => {
         .send({ questionText: 'Updated' });
 
       expect(res.status).toBe(404);
-      expect(res.body.error.code).toBe('PROMPT_NOT_FOUND');
+      expect(res.body.error.code).toBe('QUESTION_NOT_FOUND');
     });
 
     it('should update question for admin', async () => {
@@ -538,7 +538,7 @@ describe('Trivia Routes', () => {
         .set('Cookie', cookies);
 
       expect(res.status).toBe(404);
-      expect(res.body.error.code).toBe('PROMPT_NOT_FOUND');
+      expect(res.body.error.code).toBe('QUESTION_NOT_FOUND');
     });
 
     it('should delete question for admin', async () => {

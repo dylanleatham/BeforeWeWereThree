@@ -79,6 +79,7 @@ export function SummaryPhase({ prompts, onClose }: SummaryPhaseProps) {
       </div>
 
       <motion.button
+        type="button"
         className="wyr-summary__close"
         onClick={onClose}
         initial={{ opacity: 0 }}

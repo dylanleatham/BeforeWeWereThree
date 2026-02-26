@@ -78,10 +78,15 @@ export async function getPromptById(promptId: string): Promise<WYRPrompt | null>
 }
 
 /**
- * Get the next available sort order for an envelope
+ * Get the next available sort order for an envelope.
+ * Accepts an optional transaction client for use inside transactions.
  */
-export async function getNextSortOrder(envelopeId: string): Promise<number> {
-  const lastPrompt = await db.wyrPrompt.findFirst({
+export async function getNextSortOrder(
+  envelopeId: string,
+  tx?: Prisma.TransactionClient
+): Promise<number> {
+  const client = tx ?? db;
+  const lastPrompt = await client.wyrPrompt.findFirst({
     where: { envelopeId },
     orderBy: { sortOrder: 'desc' },
     select: { sortOrder: true },
@@ -91,42 +96,61 @@ export async function getNextSortOrder(envelopeId: string): Promise<number> {
 
 /**
  * Create new WYR prompt (admin only)
+ * Uses a transaction to prevent sort order race conditions
  */
 export async function createPrompt(data: CreateWYRPromptRequest): Promise<WYRPrompt> {
-  const sortOrder = data.sortOrder ?? await getNextSortOrder(data.envelopeId);
-  const prompt = await db.wyrPrompt.create({
-    data: {
-      envelopeId: data.envelopeId,
-      optionA: data.optionA,
-      optionB: data.optionB,
-      sortOrder,
-    },
+  if (data.sortOrder !== undefined) {
+    const prompt = await db.wyrPrompt.create({
+      data: {
+        envelopeId: data.envelopeId,
+        optionA: data.optionA,
+        optionB: data.optionB,
+        sortOrder: data.sortOrder,
+      },
+    });
+    return toApiPrompt(prompt);
+  }
+
+  const prompt = await db.$transaction(async (tx) => {
+    const sortOrder = await getNextSortOrder(data.envelopeId, tx);
+    return tx.wyrPrompt.create({
+      data: {
+        envelopeId: data.envelopeId,
+        optionA: data.optionA,
+        optionB: data.optionB,
+        sortOrder,
+      },
+    });
   });
   return toApiPrompt(prompt);
 }
 
 /**
  * Bulk create WYR prompts for an envelope (admin only)
- * Auto-assigns sortOrder starting from next available
+ * Auto-assigns sortOrder starting from next available.
+ * Sort order calculation is inside the transaction to prevent race conditions.
  */
 export async function createPromptsBulk(
   envelopeId: string,
   prompts: Array<{ optionA: string; optionB: string }>
 ): Promise<WYRPrompt[]> {
-  const startOrder = await getNextSortOrder(envelopeId);
-
-  const created = await db.$transaction(
-    prompts.map((p, i) =>
-      db.wyrPrompt.create({
+  const created = await db.$transaction(async (tx) => {
+    const startOrder = await getNextSortOrder(envelopeId, tx);
+    const results: PrismaWyrPrompt[] = [];
+    for (let i = 0; i < prompts.length; i++) {
+      const p = prompts[i]!;
+      const prompt = await tx.wyrPrompt.create({
         data: {
           envelopeId,
           optionA: p.optionA,
           optionB: p.optionB,
           sortOrder: startOrder + i,
         },
-      })
-    )
-  );
+      });
+      results.push(prompt);
+    }
+    return results;
+  });
 
   return created.map(toApiPrompt);
 }

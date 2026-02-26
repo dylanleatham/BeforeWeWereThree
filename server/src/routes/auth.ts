@@ -11,11 +11,20 @@ import { logger } from '../utils/logger.js';
 import { db } from '../db/connection.js';
 
 /**
- * Constant-time string comparison to prevent timing attacks
+ * Constant-time string comparison to prevent timing attacks.
+ * Always runs timingSafeEqual regardless of length mismatch
+ * to avoid leaking PIN length via timing side-channel.
  */
 function safeCompare(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  const maxLen = Math.max(a.length, b.length);
+  const bufA = Buffer.alloc(maxLen);
+  const bufB = Buffer.alloc(maxLen);
+  bufA.write(a);
+  bufB.write(b);
+  // Always execute timingSafeEqual first — do not short-circuit.
+  // The length equality check is combined afterward for correctness.
+  const contentsMatch = timingSafeEqual(bufA, bufB);
+  return contentsMatch && a.length === b.length;
 }
 
 /**

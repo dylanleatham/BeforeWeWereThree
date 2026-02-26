@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, MotionConfig } from 'motion/react';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
@@ -8,6 +8,7 @@ import {
   envelopeFlapVariants,
   contentRevealVariants,
 } from '../../utils/motion';
+import { formatEnvelopeTypeLabel } from '../../utils/envelope';
 import { EnvelopeCard } from './EnvelopeCard';
 import { WouldYouRatherActivity } from '../activities/WouldYouRather';
 import { LetterActivity } from '../activities/Letter/LetterActivity';
@@ -48,6 +49,14 @@ export function BaseEnvelope({
   const [isOpen, setIsOpen] = useState(isEvergreen || envelope.status !== 'sealed');
   const [isAnimating, setIsAnimating] = useState(false);
   const { triggerTap } = useHaptics();
+  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up open animation timer on unmount
+  useEffect(() => {
+    return () => {
+      if (openTimerRef.current) clearTimeout(openTimerRef.current);
+    };
+  }, []);
 
   const handleOpen = useCallback(() => {
     if (isEvergreen || envelope.status !== 'sealed' || isAnimating) return;
@@ -60,7 +69,7 @@ export function BaseEnvelope({
     setIsOpen(true);
 
     // Update status after animation
-    setTimeout(() => {
+    openTimerRef.current = setTimeout(() => {
       setIsAnimating(false);
       onStatusChange?.('opened');
     }, ANIMATION_DURATION_MS);
@@ -223,10 +232,7 @@ export function BaseEnvelope({
           <header className="base-envelope__header">
             <h2 className="base-envelope__title">{envelope.title}</h2>
             <span className="base-envelope__type">
-              {envelope.type
-                .split('-')
-                .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                .join(' ')}
+              {formatEnvelopeTypeLabel(envelope.type)}
             </span>
           </header>
 

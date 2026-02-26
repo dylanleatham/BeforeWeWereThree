@@ -42,13 +42,23 @@ export function PhotoGrid({
     onDelete?.(id);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onPhotoClick(index);
+    }
+  };
+
   return (
     <div className="photo-grid">
       {photos.map((photo, index) => (
-        <button
+        <div
           key={photo.id}
           className="photo-grid__item"
+          role="button"
+          tabIndex={0}
           onClick={() => onPhotoClick(index)}
+          onKeyDown={(e) => handleKeyDown(e, index)}
           aria-label={STRINGS.MEDIA_VIEW_PHOTO_ARIA(index + 1)}
         >
           <img
@@ -74,7 +84,7 @@ export function PhotoGrid({
               </svg>
             </button>
           )}
-        </button>
+        </div>
       ))}
     </div>
   );

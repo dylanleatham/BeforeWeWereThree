@@ -104,7 +104,7 @@ export type ValidateKeyResponse =
 /**
  * GET /api/gender-reveal/admin/:envelopeId response
  * Admin-only — includes config status but NEVER the gender value or raw keys
- * Keys are hashed in the database; admin re-enters them when editing
+ * Admin re-enters keys when editing
  */
 export interface GenderRevealAdminResponse {
   configured: boolean;

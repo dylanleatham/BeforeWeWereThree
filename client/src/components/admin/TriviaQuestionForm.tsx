@@ -17,7 +17,14 @@ interface TriviaQuestionFormProps {
 }
 
 interface FormOption {
+  id: string;
   text: string;
+}
+
+let optionIdCounter = 0;
+function nextOptionId(): string {
+  optionIdCounter += 1;
+  return `opt-${optionIdCounter}`;
 }
 
 /**
@@ -35,9 +42,9 @@ export function TriviaQuestionForm({
   const [questionText, setQuestionText] = useState(question?.questionText ?? '');
   const [options, setOptions] = useState<FormOption[]>(() => {
     if (question) {
-      return question.options.map((o) => ({ text: o.text }));
+      return question.options.map((o) => ({ id: nextOptionId(), text: o.text }));
     }
-    return [{ text: '' }, { text: '' }];
+    return [{ id: nextOptionId(), text: '' }, { id: nextOptionId(), text: '' }];
   });
   const [correctIndex, setCorrectIndex] = useState<number>(() => {
     if (question) {
@@ -51,7 +58,7 @@ export function TriviaQuestionForm({
 
   const handleAddOption = useCallback(() => {
     if (options.length < 4) {
-      setOptions((prev) => [...prev, { text: '' }]);
+      setOptions((prev) => [...prev, { id: nextOptionId(), text: '' }]);
     }
   }, [options.length]);
 
@@ -65,7 +72,7 @@ export function TriviaQuestionForm({
   }, []);
 
   const handleOptionChange = useCallback((index: number, text: string) => {
-    setOptions((prev) => prev.map((o, i) => (i === index ? { text } : o)));
+    setOptions((prev) => prev.map((o, i) => (i === index ? { ...o, text } : o)));
   }, []);
 
   const handleSubmit = useCallback(
@@ -137,7 +144,7 @@ export function TriviaQuestionForm({
         </legend>
 
         {options.map((option, index) => (
-          <div key={index} className="trivia-question-form__option-row">
+          <div key={option.id} className="trivia-question-form__option-row">
             <div className="trivia-question-form__option-input-group">
               <label
                 htmlFor={`trivia-option-${index}`}

@@ -7,6 +7,7 @@ import type {
 } from '@prisma/client';
 import type {
   Friend,
+  FriendWithPin,
   FriendThankYouNote,
   FriendLetter,
 } from 'shared';
@@ -24,10 +25,16 @@ function toApiFriend(friend: PrismaFriend): Friend {
   return {
     id: friend.id,
     name: friend.name,
-    pin: friend.pin,
     isGenderKeeper: friend.isGenderKeeper,
     createdAt: friend.createdAt.toISOString(),
     updatedAt: friend.updatedAt.toISOString(),
+  };
+}
+
+function toApiFriendWithPin(friend: PrismaFriend): FriendWithPin {
+  return {
+    ...toApiFriend(friend),
+    pin: friend.pin,
   };
 }
 
@@ -79,11 +86,11 @@ export async function getFriendByPin(pin: string): Promise<Friend | null> {
   return friend ? toApiFriend(friend) : null;
 }
 
-export async function createFriend(name: string, pin: string): Promise<Friend> {
+export async function createFriend(name: string, pin: string): Promise<FriendWithPin> {
   const friend = await db.friend.create({
     data: { name, pin },
   });
-  return toApiFriend(friend);
+  return toApiFriendWithPin(friend);
 }
 
 /**

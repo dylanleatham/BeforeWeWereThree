@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import type { GeneratedName } from 'shared';
 import { STRINGS } from '../../../constants/strings';
+import { GUIDANCE_MAX_LENGTH } from '../../../constants/config';
 import './NewRoundPhase.css';
-
-/** Maximum characters for guidance text (matches Zod schema) */
-const GUIDANCE_MAX_LENGTH = 500;
 
 interface NewRoundPhaseProps {
   /** Callback to start a new round with optional guidance */

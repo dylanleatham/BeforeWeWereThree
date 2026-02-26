@@ -38,6 +38,7 @@ export function TriviaContentTab() {
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const mountedRef = useRef(true);
 
@@ -95,12 +96,17 @@ export function TriviaContentTab() {
     if (!selectedEnvelopeId) return;
 
     setIsSaving(true);
+    setError(null);
     try {
       const newQuestion = await createTriviaQuestion(data);
       const currentIds = questions.map((item) => item.questionId);
       await assignTriviaQuestions(selectedEnvelopeId, [...currentIds, newQuestion.id]);
       await loadQuestions(selectedEnvelopeId);
       setFormMode({ type: 'closed' });
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to create question');
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -112,10 +118,15 @@ export function TriviaContentTab() {
     if (formMode.type !== 'edit' || !selectedEnvelopeId) return;
 
     setIsSaving(true);
+    setError(null);
     try {
       await updateTriviaQuestion(formMode.question.questionId, data);
       await loadQuestions(selectedEnvelopeId);
       setFormMode({ type: 'closed' });
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to update question');
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -127,10 +138,15 @@ export function TriviaContentTab() {
     if (!selectedEnvelopeId) return;
 
     setIsSaving(true);
+    setError(null);
     try {
       await deleteTriviaQuestion(questionId);
       await loadQuestions(selectedEnvelopeId);
       setDeleteConfirm(null);
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to delete question');
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -147,10 +163,15 @@ export function TriviaContentTab() {
     if (!selectedEnvelopeId) return;
 
     setIsSaving(true);
+    setError(null);
     try {
       const questionIds = questions.map((item) => item.questionId);
       await reorderTriviaQuestions(selectedEnvelopeId, questionIds);
       setIsDirty(false);
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to save question order');
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -177,6 +198,12 @@ export function TriviaContentTab() {
       <h3 className="trivia-content-tab__heading">
         {STRINGS.TRIVIA_ADMIN_HEADING}
       </h3>
+
+      {error && (
+        <div className="trivia-content-tab__error" role="alert">
+          {error}
+        </div>
+      )}
 
       {triviaEnvelopes.length === 0 ? (
         <Text color="muted">{STRINGS.TRIVIA_ADMIN_NO_ENVELOPES}</Text>

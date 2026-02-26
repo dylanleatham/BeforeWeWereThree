@@ -284,14 +284,17 @@ export async function setGenderByFriend(
   genderValue: 'boy' | 'girl'
 ): Promise<void> {
   await db.$transaction(async (tx) => {
-    const config = await tx.genderRevealConfig.findFirst();
+    const config = await tx.genderRevealConfig.findFirst({
+      where: { genderValue: null },
+    });
 
     if (!config) {
+      // Either no config exists or every config already has a gender set
+      const anyConfig = await tx.genderRevealConfig.findFirst();
+      if (anyConfig) {
+        throw new Error('GENDER_ALREADY_SET');
+      }
       throw new Error('REVEAL_NOT_CONFIGURED');
-    }
-
-    if (config.genderValue !== null) {
-      throw new Error('GENDER_ALREADY_SET');
     }
 
     await tx.genderRevealConfig.update({

@@ -21,14 +21,14 @@
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  background-color: var(--color-sand-100);
+  background-color: var(--bg-primary);
   border-radius: var(--radius-lg);
 }
 
 .photo-grid__empty-message {
   font-family: var(--font-body);
   font-size: var(--text-lg);
-  color: var(--color-text-muted);
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -47,7 +47,7 @@
 
 .photo-grid__item:hover {
   transform: scale(1.02);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-elevated);
 }
 
 .photo-grid__item:active {
@@ -64,7 +64,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background-color: var(--color-sand-200);
+  background-color: var(--bg-card);
 }
 
 /* Delete button (admin only) */

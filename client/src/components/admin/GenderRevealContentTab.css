@@ -120,7 +120,7 @@
 }
 
 .gender-reveal-tab__key-display {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: var(--font-mono);
   font-size: var(--text-base);
   font-weight: 600;
   color: var(--text-primary);

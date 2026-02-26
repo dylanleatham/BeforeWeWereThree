@@ -1,8 +1,8 @@
 .friend-manager {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 24px;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
 }
 
 .friend-manager__header {
@@ -17,14 +17,14 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .friend-manager__card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
 }
 
 .friend-manager__info {
@@ -35,18 +35,18 @@
 
 .friend-manager__name {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 .friend-manager__pin {
-  font-size: 0.85rem;
-  color: var(--color-muted, #999);
-  font-family: monospace;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
 }
 
 .friend-manager__actions {
   display: flex;
-  gap: 4px;
+  gap: var(--space-1);
   align-items: center;
 }
 
@@ -54,16 +54,16 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  color: var(--color-deep-terracotta, #BC6C4A);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-deep-terracotta);
   min-width: 44px;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
 }
 
 .friend-manager__btn:hover {
@@ -71,7 +71,7 @@
 }
 
 .friend-manager__btn--danger {
-  color: var(--color-dusk-rose, #E07A5F);
+  color: var(--color-dusk-rose);
 }
 
 .friend-manager__btn--danger:hover {
@@ -82,50 +82,59 @@
 .friend-manager__form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+  gap: var(--space-3);
+  padding: var(--space-4);
 }
 
 .friend-manager__field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .friend-manager__label {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--color-deep-terracotta, #BC6C4A);
+  color: var(--color-deep-terracotta);
 }
 
 .friend-manager__input {
-  padding: 10px 12px;
+  padding: 10px var(--space-3);
   border: 1px solid var(--color-deep-terracotta-20);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-body);
-  font-size: 0.95rem;
-  background: var(--color-warm-sand, #FAF3E8);
+  font-size: var(--text-base);
+  background: var(--color-warm-sand);
 }
 
 .friend-manager__input:focus {
   outline: none;
-  border-color: var(--color-deep-terracotta, #BC6C4A);
+  border-color: var(--color-deep-terracotta);
 }
 
 .friend-manager__form-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
+}
+
+/* Error */
+.friend-manager__error {
+  background: var(--color-dusk-rose-10);
+  color: var(--color-dusk-rose);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
 }
 
 /* Letters view */
 .friend-manager__letters {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .friend-manager__letter-card {
-  padding: 16px;
+  padding: var(--space-4);
 }
 
 .friend-manager__letter-recipient {
@@ -134,17 +143,17 @@
 }
 
 .friend-manager__letter-content {
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   line-height: 1.5;
   white-space: pre-wrap;
-  margin: 8px 0;
+  margin: var(--space-2) 0;
 }
 
 .friend-manager__letter-media {
   width: 100%;
   max-height: 200px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 /* Gender Keeper */
@@ -155,7 +164,7 @@
   font-size: 0.7rem;
   font-weight: 600;
   border-radius: 4px;
-  background: var(--color-soft-sage, #9DB5A0);
+  background: var(--color-soft-sage);
   color: #fff;
   vertical-align: middle;
   text-transform: uppercase;
@@ -163,6 +172,6 @@
 }
 
 .friend-manager__btn--keeper-active {
-  color: var(--color-soft-sage, #9DB5A0);
+  color: var(--color-soft-sage);
   background: var(--color-soft-sage-12);
 }

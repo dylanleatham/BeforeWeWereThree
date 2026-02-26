@@ -124,7 +124,6 @@ export type {
   NameGameMatchList,
   PendingGuidanceState,
   NameGameStateResponse,
-  GenerateNamesRequest,
   SubmitGuidanceRequest,
   SubmitGuidanceResponse,
   SubmitVoteRequest,
@@ -135,7 +134,6 @@ export type {
   NameGuidanceSubmittedMessage,
 } from './nameGame.js';
 export {
-  generateNamesRequestSchema,
   submitGuidanceRequestSchema,
   submitVoteRequestSchema,
 } from './nameGame.js';
@@ -148,6 +146,7 @@ export type {
   FriendLetter,
   FriendLetterStatus,
   FriendLetterCard,
+  FriendWithPin,
   FriendDashboardResponse,
   FriendListResponse,
   FriendLettersResponse,
@@ -157,6 +156,7 @@ export type {
   SubmitFriendLetterRequest,
   SaveFriendThankYouNoteRequest,
   FriendLetterViewResponse,
+  FriendCreateResponse,
   FriendResponse,
   FriendLetterResponse,
   FriendThankYouNoteResponse,

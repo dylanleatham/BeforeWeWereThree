@@ -1,31 +1,31 @@
 .thank-you-note {
-  background: var(--color-warm-sand, #FAF3E8);
-  border-radius: 12px;
-  padding: 20px;
+  background: var(--color-warm-sand);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
   border: 1px solid var(--color-deep-terracotta-15);
 }
 
 .thank-you-note__header {
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .thank-you-note__label {
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: var(--color-deep-terracotta, #BC6C4A);
+  color: var(--color-deep-terracotta);
 }
 
 .thank-you-note__content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .thank-you-note__text {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: var(--text-base);
   line-height: 1.6;
-  color: var(--color-text, #333);
+  color: var(--text-primary);
   white-space: pre-wrap;
   margin: 0;
 }
@@ -34,13 +34,13 @@
   width: 100%;
   max-height: 70vh;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .thank-you-note__video {
   width: 100%;
   max-height: 70vh;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .thank-you-note__audio {

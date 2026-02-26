@@ -10,6 +10,15 @@
   margin: 0 0 var(--space-4) 0;
 }
 
+.trivia-content-tab__error {
+  background: var(--color-dusk-rose-10);
+  color: var(--color-dusk-rose);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0.5rem;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
 .trivia-content-tab__envelope-select {
   margin-bottom: var(--space-4);
 }

@@ -148,7 +148,7 @@ export function FriendManager() {
               disabled={isSaving}
             />
           </div>
-          {error && <Text variant="small" color="muted">{error}</Text>}
+          {error && <div className="friend-manager__error" role="alert">{error}</div>}
           <div className="friend-manager__form-actions">
             <Button
               variant="primary"
@@ -262,7 +262,6 @@ export function FriendManager() {
                       </span>
                     )}
                   </span>
-                  <span className="friend-manager__pin">{STRINGS.FRIEND_MANAGER_PIN_PREFIX(friend.pin)}</span>
                   <Text variant="small" color="muted">
                     {STRINGS.FRIEND_MANAGER_LETTERS(friend.submittedCount)}
                   </Text>
@@ -301,6 +300,9 @@ export function FriendManager() {
                   </button>
                   {deleteConfirm === friend.id ? (
                     <>
+                      <Text variant="small" color="muted" className="friend-manager__delete-warning">
+                        {STRINGS.FRIEND_MANAGER_DELETE_CONFIRM}
+                      </Text>
                       <button
                         className="friend-manager__btn friend-manager__btn--danger"
                         onClick={() => handleDelete(friend.id)}
@@ -331,7 +333,7 @@ export function FriendManager() {
           ))}
         </ul>
       )}
-      {error && <Text variant="small" color="muted">{error}</Text>}
+      {error && <div className="friend-manager__error" role="alert">{error}</div>}
     </section>
   );
 }

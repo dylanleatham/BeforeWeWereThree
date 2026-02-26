@@ -10,13 +10,13 @@
   width: 100%;
   max-height: 70vh;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .media-attachment__video {
   width: 100%;
   max-height: 70vh;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .media-attachment__audio {
@@ -25,10 +25,10 @@
 
 .media-attachment__remove {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.6);
   color: white;
@@ -37,22 +37,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
 }
 
 .media-attachment__upload-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 1px dashed var(--color-deep-terracotta, #BC6C4A);
-  border-radius: 8px;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--color-deep-terracotta);
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--color-deep-terracotta, #BC6C4A);
+  color: var(--color-deep-terracotta);
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   width: 100%;
   justify-content: center;
   min-height: 44px;
@@ -64,15 +62,15 @@
 
 .media-attachment__types {
   display: flex;
-  gap: 4px;
+  gap: var(--space-1);
   opacity: 0.6;
 }
 
 .media-attachment__progress {
   position: relative;
   height: 32px;
-  border-radius: 8px;
-  background: var(--color-warm-sand, #FAF3E8);
+  border-radius: var(--radius-sm);
+  background: var(--color-warm-sand);
   overflow: hidden;
 }
 
@@ -81,8 +79,8 @@
   left: 0;
   top: 0;
   bottom: 0;
-  background: var(--color-sunrise-gold, #F4A261);
-  transition: width 0.2s ease;
+  background: var(--color-sunrise-gold);
+  transition: width var(--duration-fast) var(--ease-default);
 }
 
 .media-attachment__progress-text {
@@ -92,14 +90,14 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  font-size: 0.85rem;
-  color: var(--color-deep-terracotta, #BC6C4A);
+  font-size: var(--text-sm);
+  color: var(--color-deep-terracotta);
 }
 
 .media-attachment__error {
-  color: var(--color-dusk-rose, #E07A5F);
-  font-size: 0.85rem;
-  margin-top: 4px;
+  color: var(--color-dusk-rose);
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
 }
 
 .media-attachment__input {

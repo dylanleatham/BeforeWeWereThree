@@ -125,6 +125,9 @@ export const PARTNER_TOAST_DURATION_MS = 3000;
 // Scale Factors
 // =============================================================================
 
+/** Duration of button press/tap transition in seconds */
+export const BUTTON_PRESS_DURATION_S = 0.15;
+
 /** Scale factor for button hover feedback */
 export const BUTTON_HOVER_SCALE = 1.02;
 
@@ -138,7 +141,7 @@ export const MODAL_ENTER_SCALE = 0.95;
 export const CELEBRATION_ENTER_SCALE = 0.8;
 
 /** Opacity range for pulse animation [min, max, min] */
-export const PULSE_OPACITY_RANGE = [0.6, 1, 0.6] as const;
+export const PULSE_OPACITY_RANGE: number[] = [0.6, 1, 0.6];
 
 // =============================================================================
 // Would You Rather - Summary

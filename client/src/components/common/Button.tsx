@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import clsx from 'clsx';
 import type { ReactNode, MouseEventHandler } from 'react';
+import { BUTTON_PRESS_DURATION_S } from '../../constants/animation';
 import './Button.css';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
@@ -70,7 +71,7 @@ export function Button({
       value={value}
       whileHover={disabled ? undefined : { scale: 1.02 }}
       whileTap={disabled ? undefined : { scale: 0.98 }}
-      transition={{ duration: 0.15 }}
+      transition={{ duration: BUTTON_PRESS_DURATION_S }}
     >
       {children}
     </motion.button>

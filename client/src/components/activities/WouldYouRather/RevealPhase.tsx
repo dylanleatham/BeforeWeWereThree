@@ -113,6 +113,7 @@ export function RevealPhase({
 
       {/* Advance button */}
       <motion.button
+        type="button"
         className="wyr-reveal__advance"
         onClick={onAdvance}
         initial={{ opacity: 0 }}

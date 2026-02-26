@@ -243,11 +243,12 @@ export async function submitGuidance(
     // Generation failed — clean up the 'generating' round so it can be retried
     logger.error('Name generation failed, cleaning up round', { roundId, error: err });
     try {
-      await db.nameGameRound.delete({ where: { id: roundId } });
-      // Also clean up guidance so participants can resubmit
-      await db.nameGameGuidance.deleteMany({
-        where: { envelopeId, roundNumber },
-      });
+      await db.$transaction([
+        db.nameGameRound.delete({ where: { id: roundId } }),
+        db.nameGameGuidance.deleteMany({
+          where: { envelopeId, roundNumber },
+        }),
+      ]);
     } catch (cleanupErr) {
       logger.error('Failed to clean up after generation failure', { error: cleanupErr });
     }

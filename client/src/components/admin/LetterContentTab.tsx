@@ -30,6 +30,7 @@ export function LetterContentTab() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Form field
   const [promptText, setPromptText] = useState('');
@@ -109,6 +110,7 @@ export function LetterContentTab() {
     if (!selectedEnvelopeId) return;
 
     setIsSaving(true);
+    setError(null);
     try {
       if (viewMode.type === 'create') {
         await createLetterPrompt({
@@ -122,6 +124,10 @@ export function LetterContentTab() {
       }
       await loadPrompt(selectedEnvelopeId);
       closeForm();
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to save prompt');
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -132,10 +138,15 @@ export function LetterContentTab() {
   const handleDelete = useCallback(async () => {
     if (!prompt || !selectedEnvelopeId) return;
     setIsSaving(true);
+    setError(null);
     try {
       await deleteLetterPrompt(prompt.id);
       await loadPrompt(selectedEnvelopeId);
       setDeleteConfirm(false);
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'Failed to delete prompt');
+      }
     } finally {
       if (mountedRef.current) {
         setIsSaving(false);
@@ -150,6 +161,11 @@ export function LetterContentTab() {
         <h3 className="letter-content-tab__heading">
           {viewMode.type === 'create' ? STRINGS.LETTER_ADMIN_CREATE : STRINGS.LETTER_ADMIN_EDIT}
         </h3>
+        {error && (
+          <div className="letter-content-tab__error" role="alert">
+            {error}
+          </div>
+        )}
         <Card className="letter-content-tab__card">
           <div className="letter-content-tab__form">
             <div className="letter-content-tab__field">
@@ -200,6 +216,12 @@ export function LetterContentTab() {
       <h3 className="letter-content-tab__heading">
         {STRINGS.LETTER_ADMIN_HEADING}
       </h3>
+
+      {error && (
+        <div className="letter-content-tab__error" role="alert">
+          {error}
+        </div>
+      )}
 
       {letterEnvelopes.length === 0 ? (
         <Text color="muted">{STRINGS.LETTER_ADMIN_NO_ENVELOPES}</Text>

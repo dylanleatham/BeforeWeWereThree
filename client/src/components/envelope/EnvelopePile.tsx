@@ -3,6 +3,7 @@ import { motion, AnimatePresence, MotionConfig } from 'motion/react';
 import type { Envelope } from 'shared';
 import { useSwipeNavigation } from '../../hooks/useSwipeNavigation';
 import { pileCardVariants, springTransition } from '../../utils/motion';
+import { hasCompletedView } from '../../utils/envelope';
 import { EnvelopeCard } from './EnvelopeCard';
 import { BaseEnvelope } from './BaseEnvelope';
 import { STRINGS } from '../../constants/strings';
@@ -32,14 +33,7 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
     (envelope: Envelope) => {
       // Allow opening sealed and opened envelopes
       // Also allow reopening completed envelopes that have completed-state views
-      // (summary, keepsake, review screens)
-      const hasCompletedView =
-        envelope.type === 'would-you-rather' ||
-        envelope.type === 'trivia' ||
-        envelope.type === 'friend-letter' ||
-        envelope.type === 'gender-reveal' ||
-        envelope.type === 'name-game';
-      if (envelope.status !== 'completed' || hasCompletedView) {
+      if (envelope.status !== 'completed' || hasCompletedView(envelope.type)) {
         setSelectedEnvelope(envelope);
       }
     },

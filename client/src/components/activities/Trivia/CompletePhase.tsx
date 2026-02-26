@@ -30,6 +30,7 @@ export function CompletePhase({ onClose }: CompletePhaseProps) {
       </motion.div>
 
       <motion.button
+        type="button"
         className="trivia-complete__close"
         onClick={onClose}
         initial={{ opacity: 0 }}

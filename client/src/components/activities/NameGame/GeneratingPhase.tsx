@@ -29,7 +29,7 @@ export function GeneratingPhase({ guidance }: GeneratingPhaseProps) {
       >
         <motion.span
           className="ng-generating__message"
-          animate={{ opacity: PULSE_OPACITY_RANGE as unknown as number[] }}
+          animate={{ opacity: PULSE_OPACITY_RANGE }}
           transition={{
             duration: NAME_GAME_GENERATING_PULSE_DURATION_S,
             repeat: Infinity,

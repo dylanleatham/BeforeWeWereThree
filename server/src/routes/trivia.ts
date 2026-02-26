@@ -112,7 +112,7 @@ router.patch(
 
       const question = await updateQuestion(id, parsed.data);
       if (!question) {
-        res.status(404).json(errorResponse('PROMPT_NOT_FOUND', 'Trivia question not found'));
+        res.status(404).json(errorResponse('QUESTION_NOT_FOUND', 'Trivia question not found'));
         return;
       }
 
@@ -137,7 +137,7 @@ router.delete(
       const { id } = req.params;
       const deleted = await deleteQuestion(id);
       if (!deleted) {
-        res.status(404).json(errorResponse('PROMPT_NOT_FOUND', 'Trivia question not found'));
+        res.status(404).json(errorResponse('QUESTION_NOT_FOUND', 'Trivia question not found'));
         return;
       }
 
@@ -250,7 +250,7 @@ router.get(
 
       const state = await getEnvelopeState(envelopeId, participantId);
       if (!state) {
-        res.status(404).json(errorResponse('PROMPT_NOT_FOUND', 'No trivia questions found for this envelope'));
+        res.status(404).json(errorResponse('QUESTION_NOT_FOUND', 'No trivia questions found for this envelope'));
         return;
       }
 
@@ -301,11 +301,11 @@ router.post(
       // Handle known errors
       if (error instanceof Error) {
         if (error.message === 'QUESTION_NOT_FOUND') {
-          res.status(404).json(errorResponse('PROMPT_NOT_FOUND', 'Trivia question not found'));
+          res.status(404).json(errorResponse('QUESTION_NOT_FOUND', 'Trivia question not found'));
           return;
         }
         if (error.message === 'ALREADY_ANSWERED') {
-          res.status(409).json(errorResponse('ALREADY_VOTED', 'You have already answered this question'));
+          res.status(409).json(errorResponse('ALREADY_ANSWERED', 'You have already answered this question'));
           return;
         }
       }

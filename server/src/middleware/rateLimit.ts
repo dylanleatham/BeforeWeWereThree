@@ -69,9 +69,13 @@ class InMemoryRateLimitStore implements RateLimitStore {
 
   async increment(key: string): Promise<number> {
     const entry = this.store.get(key);
-    if (entry) {
+    if (entry && entry.resetAt > Date.now()) {
       entry.count++;
       return entry.count;
+    }
+    // Entry missing or expired — caller must handle the 0 return
+    if (entry) {
+      this.store.delete(key);
     }
     return 0;
   }
@@ -237,9 +241,15 @@ export async function pinRateLimiter(
       return;
     }
 
-    // Increment count
+    // Increment count — if increment returns 0, entry expired between get() and increment()
     const newCount = await store.increment(key);
-    entry.count = newCount || entry.count + 1;
+    if (newCount === 0) {
+      entry = { count: 1, resetAt: now + WINDOW_MS };
+      await store.set(key, entry, WINDOW_MS);
+      next();
+      return;
+    }
+    entry.count = newCount;
 
     // Check if over limit
     if (entry.count > MAX_ATTEMPTS) {
@@ -293,8 +303,15 @@ export function createRateLimiter(options: {
         return;
       }
 
+      // Increment count — if increment returns 0, entry expired between get() and increment()
       const newCount = await store.increment(key);
-      entry.count = newCount || entry.count + 1;
+      if (newCount === 0) {
+        entry = { count: 1, resetAt: now + windowMs };
+        await store.set(key, entry, windowMs);
+        next();
+        return;
+      }
+      entry.count = newCount;
 
       if (entry.count > maxAttempts) {
         const retryAfterSeconds = Math.ceil((entry.resetAt - now) / 1000);

@@ -212,11 +212,13 @@
   --reveal-boy-primary: #7BA7BC;
   --reveal-boy-secondary: #9DB5A0;
   --reveal-boy-glow: #A8C8D8;
+  --reveal-boy-glow-rgb: 168, 200, 216;
   --reveal-boy-text: #4A7A8C;
 
   /* Girl — warm rose within Golden Hour palette */
   --reveal-girl-primary: #E07A5F;
   --reveal-girl-secondary: #D4A0A0;
   --reveal-girl-glow: #F0B8A8;
+  --reveal-girl-glow-rgb: 240, 184, 168;
   --reveal-girl-text: #C05A3F;
 }

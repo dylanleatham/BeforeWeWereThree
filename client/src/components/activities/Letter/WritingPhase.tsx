@@ -76,7 +76,7 @@ export function WritingPhase({
     (newPhotoUrl: string | null, _type: string | null) => {
       setPhotoUrl(newPhotoUrl);
       // Save immediately when photo changes
-      onSave(content, newPhotoUrl);
+      onSave(content, newPhotoUrl).catch((err) => console.error('Photo save failed:', err));
     },
     [content, onSave]
   );

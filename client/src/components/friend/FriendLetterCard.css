@@ -1,16 +1,16 @@
 .friend-letter-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default);
   min-height: 44px;
 }
 
 .friend-letter-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px var(--color-warm-charcoal-8);
 }
 
 .friend-letter-card--submitted {
@@ -24,16 +24,16 @@
 }
 
 .friend-letter-card__icon {
-  color: var(--color-deep-terracotta, #BC6C4A);
+  color: var(--color-deep-terracotta);
   flex-shrink: 0;
 }
 
 .friend-letter-card--submitted .friend-letter-card__icon {
-  color: var(--color-soft-sage, #9DB5A0);
+  color: var(--color-soft-sage);
 }
 
 .friend-letter-card--draft .friend-letter-card__icon {
-  color: var(--color-sunrise-gold, #F4A261);
+  color: var(--color-sunrise-gold);
 }
 
 .friend-letter-card__info {
@@ -48,5 +48,5 @@
 
 .friend-letter-card__title {
   font-style: italic;
-  color: var(--color-deep-terracotta, #BC6C4A);
+  color: var(--color-deep-terracotta);
 }

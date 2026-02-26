@@ -263,7 +263,6 @@ export const STRINGS = {
   FRIEND_MANAGER_LETTER_SUBMITTED: (date: string) => `Submitted ${date}`,
   FRIEND_MANAGER_LETTER_DRAFT: 'Draft',
   FRIEND_MANAGER_LOADING: 'Loading...',
-  FRIEND_MANAGER_PIN_PREFIX: (pin: string) => `PIN: ${pin}`,
   FRIEND_MANAGER_DELETE_CONFIRM:
     'This will permanently delete this friend and all their letters. This cannot be undone.',
   FRIEND_THANK_YOU_PLACEHOLDER: 'Write a personal thank-you note for this friend...',

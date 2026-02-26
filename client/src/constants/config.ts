@@ -48,6 +48,20 @@ export const FAST_SWIPE_MIN_DISTANCE_PX = 20;
 export const EVERGREEN_ENVELOPE_TYPES: ReadonlySet<string> = new Set(['name-game']);
 
 // =============================================================================
+// Letter Configuration
+// =============================================================================
+
+/** Maximum characters shown in letter preview buttons */
+export const LETTER_PREVIEW_MAX_LENGTH = 60;
+
+// =============================================================================
+// Name Game Configuration
+// =============================================================================
+
+/** Maximum characters for guidance text (matches Zod schema) */
+export const GUIDANCE_MAX_LENGTH = 500;
+
+// =============================================================================
 // Auto-Save Configuration
 // =============================================================================
 

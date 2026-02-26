@@ -11,6 +11,7 @@ import type {
   RealtimeNegotiateResponse,
   WYREnvelopeResponse,
   WYRVoteResponse,
+  WYRChoice,
   WYRPrompt,
   WYRPromptResponse,
   WYRPromptsResponse,
@@ -272,7 +273,7 @@ export async function getWyrState(envelopeId: string): Promise<WYREnvelopeRespon
  */
 export async function submitWyrVote(
   promptId: string,
-  choice: 'option_a' | 'option_b'
+  choice: WYRChoice
 ): Promise<WYRVoteResponse> {
   const response = await apiFetch<WYRVoteResponse>(`/wyr/${promptId}/vote`, {
     method: 'POST',

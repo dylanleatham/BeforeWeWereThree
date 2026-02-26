@@ -47,6 +47,7 @@ export function CompletePhase({ prompts, onClose }: CompletePhaseProps) {
       </motion.div>
 
       <motion.button
+        type="button"
         className="wyr-complete__close"
         onClick={onClose}
         initial={{ opacity: 0 }}

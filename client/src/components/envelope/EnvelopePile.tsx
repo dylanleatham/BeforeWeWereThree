@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { motion, AnimatePresence, MotionConfig } from 'motion/react';
 import type { Envelope } from 'shared';
 import { useSwipeNavigation } from '../../hooks/useSwipeNavigation';
@@ -8,22 +8,33 @@ import { EnvelopeCard } from './EnvelopeCard';
 import { BaseEnvelope } from './BaseEnvelope';
 import { STRINGS } from '../../constants/strings';
 import { ENVELOPE_PILE_VISIBLE_COUNT } from '../../constants/config';
+import { LIST_ITEM_STAGGER_S } from '../../constants/animation';
 import './EnvelopePile.css';
+
+export type PileViewMode = 'stack' | 'list' | 'detail';
 
 interface EnvelopePileProps {
   envelopes: Envelope[];
   onStatusChange?: (id: string, status: Envelope['status']) => void;
+  viewMode?: PileViewMode;
+  onViewModeChange?: (mode: PileViewMode) => void;
 }
 
 /**
  * Stacked pile of envelopes with swipe navigation
- * Per CONTEXT.md:
- * - Stacked pile layout (not grid)
- * - Peek-and-flip navigation: swipe to move through stack
- * - Tap to open front envelope
+ * Supports three view modes:
+ * - stack: Stacked pile with swipe navigation (default)
+ * - list: Flat scrollable list of all envelopes
+ * - detail: Fullscreen envelope view
  */
-export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
+export function EnvelopePile({
+  envelopes,
+  onStatusChange,
+  viewMode = 'stack',
+  onViewModeChange,
+}: EnvelopePileProps) {
   const [selectedEnvelope, setSelectedEnvelope] = useState<Envelope | null>(null);
+  const [tappedEnvelopeId, setTappedEnvelopeId] = useState<string | null>(null);
 
   const { currentIndex, dragX, isDragging, direction, bind, goTo } = useSwipeNavigation({
     itemCount: envelopes.length,
@@ -31,18 +42,18 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
 
   const handleOpenEnvelope = useCallback(
     (envelope: Envelope) => {
-      // Allow opening sealed and opened envelopes
-      // Also allow reopening completed envelopes that have completed-state views
       if (envelope.status !== 'completed' || hasCompletedView(envelope.type)) {
         setSelectedEnvelope(envelope);
+        onViewModeChange?.('detail');
       }
     },
-    []
+    [onViewModeChange]
   );
 
   const handleCloseEnvelope = useCallback(() => {
     setSelectedEnvelope(null);
-  }, []);
+    onViewModeChange?.('list');
+  }, [onViewModeChange]);
 
   const handleStatusChange = useCallback(
     (status: Envelope['status']) => {
@@ -53,15 +64,32 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
     [selectedEnvelope, onStatusChange]
   );
 
-  // Visible envelopes: current + cards behind (wraps for looping)
+  const handleStackTap = useCallback(
+    (envelope: Envelope) => {
+      setTappedEnvelopeId(envelope.id);
+      onViewModeChange?.('list');
+    },
+    [onViewModeChange]
+  );
+
+  // Flat list: tapped envelope first, then the rest in original order
+  const flatListEnvelopes = useMemo(() => {
+    if (!tappedEnvelopeId) return envelopes;
+    const tapped = envelopes.find((e) => e.id === tappedEnvelopeId);
+    if (!tapped) return envelopes;
+    const rest = envelopes.filter((e) => e.id !== tappedEnvelopeId);
+    return [tapped, ...rest];
+  }, [envelopes, tappedEnvelopeId]);
+
+  // Visible envelopes for stack mode
   const visibleCount = Math.min(ENVELOPE_PILE_VISIBLE_COUNT, envelopes.length);
   const visibleEnvelopes: Envelope[] = [];
   for (let i = 0; i < visibleCount; i++) {
     visibleEnvelopes.push(envelopes[(currentIndex + i) % envelopes.length] as Envelope);
   }
 
-  // If an envelope is open, show it fullscreen
-  if (selectedEnvelope) {
+  // Detail mode: fullscreen envelope view
+  if (viewMode === 'detail' && selectedEnvelope) {
     const currentEnvData = envelopes.find((e) => e.id === selectedEnvelope.id) || selectedEnvelope;
     return (
       <div className="envelope-pile envelope-pile--expanded">
@@ -77,6 +105,32 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
     );
   }
 
+  // List mode: flat scrollable list
+  if (viewMode === 'list') {
+    return (
+      <MotionConfig reducedMotion="user">
+        <div className="envelope-pile envelope-pile--list">
+          <div className="envelope-pile__list">
+            {flatListEnvelopes.map((envelope, i) => (
+              <motion.div
+                key={envelope.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * LIST_ITEM_STAGGER_S }}
+              >
+                <EnvelopeCard
+                  envelope={envelope}
+                  onClick={() => handleOpenEnvelope(envelope)}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </MotionConfig>
+    );
+  }
+
+  // Stack mode: stacked pile with swipe navigation (default)
   return (
     <MotionConfig reducedMotion="user">
       <div className="envelope-pile">
@@ -101,7 +155,7 @@ export function EnvelopePile({ envelopes, onStatusChange }: EnvelopePileProps) {
               >
                 <EnvelopeCard
                   envelope={envelope}
-                  onClick={i === 0 ? () => handleOpenEnvelope(envelope) : undefined}
+                  onClick={i === 0 ? () => handleStackTap(envelope) : undefined}
                 />
               </motion.div>
             ))}

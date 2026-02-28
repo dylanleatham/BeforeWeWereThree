@@ -96,6 +96,7 @@ export const STRINGS = {
   PILE_HINT: 'Swipe to see more',
   PILE_ARIA_GO_TO: (n: number) => `Go to envelope ${n}`,
   PILE_COUNT: (current: number, total: number) => `${current} of ${total}`,
+  PILE_COLLAPSE_ARIA: 'Collapse envelope list back to stack',
 
   // api.ts
   API_ERROR_NETWORK: 'Unable to connect to server',

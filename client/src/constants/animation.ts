@@ -150,6 +150,9 @@ export const PULSE_OPACITY_RANGE: number[] = [0.6, 1, 0.6];
 /** Stagger delay between summary items in seconds */
 export const WYR_SUMMARY_ITEM_STAGGER_S = 0.1;
 
+/** Stagger delay between list items in envelope flat list view in seconds */
+export const LIST_ITEM_STAGGER_S = 0.05;
+
 // =============================================================================
 // Name Game
 // =============================================================================

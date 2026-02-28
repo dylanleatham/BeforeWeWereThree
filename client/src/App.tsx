@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { MotionConfig } from 'motion/react';
 import { useSession } from './hooks/useSession';
 import { useEnvelopes } from './hooks/useEnvelopes';
 import { PinEntry } from './components/auth/PinEntry';
 import { EnvelopePile } from './components/envelope';
+import type { PileViewMode } from './components/envelope';
 import { EnvelopeManager, ContentManager } from './components/admin';
 import { FriendDashboard } from './components/friend/FriendDashboard';
 import { Heading, Text, SpotifyButton, ContentTabs } from './components/common';
@@ -65,6 +66,28 @@ function AuthenticatedApp({
   } = useEnvelopes();
 
   const [activeTab, setActiveTab] = useState('activities');
+  const [pileViewMode, setPileViewMode] = useState<PileViewMode>('stack');
+
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+    setPileViewMode('stack');
+  }, []);
+
+  const handleHeadingClick = useCallback(() => {
+    if (pileViewMode === 'list') {
+      setPileViewMode('stack');
+    }
+  }, [pileViewMode]);
+
+  const handleHeadingKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (pileViewMode === 'list' && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        setPileViewMode('stack');
+      }
+    },
+    [pileViewMode]
+  );
 
   const activityEnvelopes = useMemo(
     () => envelopes.filter((e) => e.type !== 'friend-letter'),
@@ -117,8 +140,20 @@ function AuthenticatedApp({
   return (
     <MotionConfig reducedMotion="user">
       <div className="app">
-        <header className="app__header">
-          <Heading level={1} className="app__title">
+        <header className={`app__header${pileViewMode === 'list' ? ' app__header--sticky' : ''}`}>
+          <Heading
+            level={1}
+            className={`app__title${pileViewMode === 'list' ? ' app__title--clickable' : ''}`}
+            {...(pileViewMode === 'list'
+              ? {
+                  onClick: handleHeadingClick,
+                  onKeyDown: handleHeadingKeyDown,
+                  role: 'button' as const,
+                  tabIndex: 0,
+                  'aria-label': STRINGS.PILE_COLLAPSE_ARIA,
+                }
+              : {})}
+          >
             {STRINGS.APP_TITLE}
           </Heading>
           {designation === 'readonly' && (
@@ -154,7 +189,7 @@ function AuthenticatedApp({
               <ContentTabs
                 tabs={guestTabs}
                 activeTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange}
                 ariaLabel={STRINGS.GUEST_TABS_ARIA}
               />
 
@@ -182,6 +217,8 @@ function AuthenticatedApp({
                     key={activeTab}
                     envelopes={visibleEnvelopes}
                     onStatusChange={(id, status) => updateStatus(id, status)}
+                    viewMode={pileViewMode}
+                    onViewModeChange={setPileViewMode}
                   />
                 )}
               </div>

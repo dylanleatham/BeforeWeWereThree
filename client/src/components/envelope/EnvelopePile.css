@@ -94,6 +94,20 @@
   100% { opacity: 0; }
 }
 
+/* Flat list view */
+.envelope-pile--list {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+.envelope-pile__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 /* Empty state */
 .envelope-pile__empty {
   display: flex;

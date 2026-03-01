@@ -447,6 +447,7 @@ export const STRINGS = {
   GENDER_KEEPER_CONFIRM_MESSAGE: (gender: string) =>
     `You are about to set the gender to "${gender}". This cannot be undone.`,
   GENDER_KEEPER_CONFIRM_YES: 'Yes, set it',
+  GENDER_KEEPER_NOT_CONFIGURED: 'The parents are still setting things up. We\'ll let you know when it\'s time to share the secret!',
   GENDER_KEEPER_DONE_TITLE: 'Thank you!',
   GENDER_KEEPER_DONE_MESSAGE: 'The secret is safe. The couple will discover it together during their ceremony.',
 

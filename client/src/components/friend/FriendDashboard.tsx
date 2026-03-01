@@ -157,6 +157,7 @@ export function FriendDashboard() {
         {dashboard.genderKeeperStatus && (
           <section className="friend-dashboard__gender-keeper">
             <GenderInput
+              revealConfigured={dashboard.genderKeeperStatus.revealConfigured}
               genderAlreadySet={dashboard.genderKeeperStatus.genderAlreadySet}
               onGenderSet={refetch}
             />

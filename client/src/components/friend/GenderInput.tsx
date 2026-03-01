@@ -6,6 +6,7 @@ import { STRINGS } from '../../constants/strings';
 import './GenderInput.css';
 
 interface GenderInputProps {
+  revealConfigured: boolean;
   genderAlreadySet: boolean;
   onGenderSet: () => void;
 }
@@ -15,7 +16,7 @@ interface GenderInputProps {
  * Two states: input (select boy/girl + confirm) and done (warm thank-you)
  * One-time action — after submission, shows permanent done state
  */
-export function GenderInput({ genderAlreadySet, onGenderSet }: GenderInputProps) {
+export function GenderInput({ revealConfigured, genderAlreadySet, onGenderSet }: GenderInputProps) {
   const [selectedGender, setSelectedGender] = useState<GenderValue | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -49,6 +50,20 @@ export function GenderInput({ genderAlreadySet, onGenderSet }: GenderInputProps)
     setSelectedGender(null);
     setError(null);
   }, []);
+
+  // Not configured yet — admin hasn't set up the gender reveal
+  if (!revealConfigured) {
+    return (
+      <Card className="gender-input gender-input--waiting">
+        <Heading level={3} className="gender-input__title">
+          {STRINGS.GENDER_KEEPER_HEADING}
+        </Heading>
+        <Text color="muted" className="gender-input__message">
+          {STRINGS.GENDER_KEEPER_NOT_CONFIGURED}
+        </Text>
+      </Card>
+    );
+  }
 
   // Done state — warm thank-you, no value shown
   if (isDone) {

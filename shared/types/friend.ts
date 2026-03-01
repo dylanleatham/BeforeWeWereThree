@@ -35,6 +35,7 @@ export interface FriendWithPin extends Friend {
  */
 export interface GenderKeeperStatus {
   isGenderKeeper: true;
+  revealConfigured: boolean;
   genderAlreadySet: boolean;
 }
 

@@ -165,7 +165,8 @@ export async function getFriendDashboard(friendId: string): Promise<FriendDashbo
     const config = await findGenderRevealConfig();
     genderKeeperStatus = {
       isGenderKeeper: true,
-      genderAlreadySet: config?.genderValue !== null && config?.genderValue !== undefined,
+      revealConfigured: config !== null,
+      genderAlreadySet: config !== null && config.genderValue !== null,
     };
   }
 

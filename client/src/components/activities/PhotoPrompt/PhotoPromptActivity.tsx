@@ -30,7 +30,6 @@ export function PhotoPromptActivity({ envelopeId, onComplete }: PhotoPromptActiv
     partnerResponse,
     isLoading,
     error,
-    isConnected,
     submitPhoto,
     retry,
   } = usePhotoPrompt({ envelopeId });
@@ -83,6 +82,7 @@ export function PhotoPromptActivity({ envelopeId, onComplete }: PhotoPromptActiv
       case 'capturing':
         return (
           <CapturingPhase
+            envelopeId={envelopeId}
             promptText={prompt.prompt}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
@@ -129,15 +129,9 @@ export function PhotoPromptActivity({ envelopeId, onComplete }: PhotoPromptActiv
         {renderPhase()}
       </motion.div>
 
-      {!isConnected && phase !== 'complete' && (
-        <div
-          className="photo-prompt-activity__offline-notice"
-          role="status"
-          aria-live="polite"
-        >
-          {STRINGS.PHOTO_PROMPT_OFFLINE_NOTICE}
-        </div>
-      )}
+      {/* SignalR connection status is only relevant for partner notifications,
+         not for photo upload/persistence which uses HTTP. Removed misleading
+         offline notice that implied photos wouldn't be saved. */}
     </div>
   );
 }

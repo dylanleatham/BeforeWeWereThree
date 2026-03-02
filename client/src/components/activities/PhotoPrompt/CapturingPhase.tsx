@@ -5,26 +5,41 @@ import { STRINGS } from '../../../constants/strings';
 import './CapturingPhase.css';
 
 interface CapturingPhaseProps {
+  envelopeId: string;
   promptText: string;
   onSubmit: (photoUrl: string) => Promise<void>;
   isSubmitting: boolean;
 }
 
+function getDraftKey(envelopeId: string): string {
+  return `photo-prompt-draft:${envelopeId}`;
+}
+
 /**
  * Capturing phase: shows the prompt and allows photo upload.
  * Uses the existing MediaAttachment component for camera/file upload.
+ * Persists the draft photo URL in sessionStorage so it survives close/reopen.
  */
-export function CapturingPhase({ promptText, onSubmit, isSubmitting }: CapturingPhaseProps) {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+export function CapturingPhase({ envelopeId, promptText, onSubmit, isSubmitting }: CapturingPhaseProps) {
+  const draftKey = getDraftKey(envelopeId);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(
+    () => sessionStorage.getItem(draftKey)
+  );
 
   const handleMediaChange = useCallback((url: string | null) => {
     setPhotoUrl(url);
-  }, []);
+    if (url) {
+      sessionStorage.setItem(draftKey, url);
+    } else {
+      sessionStorage.removeItem(draftKey);
+    }
+  }, [draftKey]);
 
   const handleSubmit = useCallback(async () => {
     if (!photoUrl) return;
     await onSubmit(photoUrl);
-  }, [photoUrl, onSubmit]);
+    sessionStorage.removeItem(draftKey);
+  }, [photoUrl, onSubmit, draftKey]);
 
   return (
     <div className="photo-prompt-capturing">

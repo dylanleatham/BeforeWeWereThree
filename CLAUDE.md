@@ -257,6 +257,9 @@ On Windows, the running dev server locks `query_engine-windows.dll.node`, making
 
 - **Always wrap response data to match client expectations:** If the client calls `apiFetch<{ photo: Photo }>()` and accesses `response.data.photo`, the server must send `successResponse({ photo })` not `successResponse(photo)`. Mismatches between wrapper shape and client destructuring cause silent `undefined` errors. Check both sides when adding new endpoints.
 
+### Azure Deployment
+
+- **New server env vars must be added to Azure App Service too:** Adding a variable to `server/.env` only affects local development. The Azure App Service has its own app settings that must be updated separately with `az webapp config appsettings set`. When introducing a new env var that the server depends on, always remind the user to add it to Azure as well. This was missed for `AZURE_STORAGE_ACCOUNT` and `AZURE_STORAGE_KEY`, causing all media uploads to silently fail in production.
 
 ---
 

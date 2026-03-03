@@ -42,6 +42,8 @@ export type ErrorCode =
   | 'GENDER_REVEAL_SINGLETON'
   | 'PHOTO_PROMPT_NOT_FOUND'
   | 'ALREADY_RESPONDED'
+  | 'BABYMOON_NOT_CLOSED'
+  | 'BABYMOON_ALREADY_CLOSED'
   | `HTTP_${number}`; // For HTTP status code errors
 
 /**
@@ -130,4 +132,5 @@ export interface ResetSessionResponse {
   triviaAnswersDeleted: number;
   genderRevealReset: number;
   photoPromptResponsesDeleted: number;
+  babymoonReopened: boolean;
 }

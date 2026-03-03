@@ -31,6 +31,9 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
 jest.unstable_mockModule('../../db/queries/config.js', () => ({
   getGuestPin: jest.fn<() => Promise<string>>().mockResolvedValue('01152025'),
   getAdminPin: jest.fn<() => Promise<string>>().mockResolvedValue('12251990'),
+  getBabymoonClosedAt: jest.fn<() => Promise<string | null>>().mockResolvedValue(null),
+  setBabymoonClosedAt: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  deleteBabymoonClosedAt: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
 }));
 
 const { default: request } = await import('supertest');

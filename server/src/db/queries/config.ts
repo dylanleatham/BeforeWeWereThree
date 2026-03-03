@@ -5,10 +5,11 @@ import { db } from '../connection.js';
  * Uses typed query functions per CLAUDE.md (no raw SQL in handlers)
  */
 
-// Config keys for PIN storage
+// Config keys
 const CONFIG_KEYS = {
   GUEST_PIN: 'guest_pin',
   ADMIN_PIN: 'admin_pin',
+  BABYMOON_CLOSED_AT: 'babymoon_closed_at',
 } as const;
 
 /**
@@ -44,6 +45,29 @@ export async function setPin(key: typeof CONFIG_KEYS.GUEST_PIN | typeof CONFIG_K
     update: { value },
     create: { key, value },
   });
+}
+
+/**
+ * Get babymoon closed timestamp
+ * @returns ISO timestamp string or null if not closed
+ */
+export async function getBabymoonClosedAt(): Promise<string | null> {
+  return getConfig(CONFIG_KEYS.BABYMOON_CLOSED_AT);
+}
+
+/**
+ * Set babymoon closed timestamp
+ * @param timestamp - ISO timestamp string
+ */
+export async function setBabymoonClosedAt(timestamp: string): Promise<void> {
+  await setConfig(CONFIG_KEYS.BABYMOON_CLOSED_AT, timestamp);
+}
+
+/**
+ * Delete babymoon closed timestamp (reopen)
+ */
+export async function deleteBabymoonClosedAt(): Promise<void> {
+  await db.appConfig.deleteMany({ where: { key: CONFIG_KEYS.BABYMOON_CLOSED_AT } });
 }
 
 /**

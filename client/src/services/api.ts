@@ -51,6 +51,9 @@ import type {
   SubmitPhotoPromptResponseResult,
   PhotoPrompt as PhotoPromptType,
   PhotoPromptDetailResponse,
+  BabymoonStatusResponse,
+  CloseBabymoonResponse,
+  MemoriesDataResponse,
 } from 'shared';
 import { apiFetch } from './fetchClient';
 import { STRINGS } from '../constants/strings';
@@ -1037,4 +1040,48 @@ export async function deletePhotoPrompt(id: string): Promise<void> {
   if (!response.success) {
     throw new Error(response.error?.message || 'Failed to delete photo prompt');
   }
+}
+
+// ============================================================================
+// Babymoon Status & Memories API
+// ============================================================================
+
+/**
+ * Get babymoon status (whether experience is closed)
+ */
+export async function getBabymoonStatus(): Promise<BabymoonStatusResponse> {
+  const response = await apiFetch<BabymoonStatusResponse>('/memories/status');
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to get babymoon status');
+  }
+  return response.data;
+}
+
+/**
+ * Close babymoon (admin only)
+ */
+export async function closeBabymoon(): Promise<ApiResponse<CloseBabymoonResponse>> {
+  return apiFetch<CloseBabymoonResponse>('/admin/close-babymoon', {
+    method: 'POST',
+  });
+}
+
+/**
+ * Reopen babymoon (admin only)
+ */
+export async function reopenBabymoon(): Promise<ApiResponse<BabymoonStatusResponse>> {
+  return apiFetch<BabymoonStatusResponse>('/admin/reopen-babymoon', {
+    method: 'POST',
+  });
+}
+
+/**
+ * Get all memories data (only available when babymoon is closed)
+ */
+export async function getMemoriesData(): Promise<MemoriesDataResponse> {
+  const response = await apiFetch<MemoriesDataResponse>('/memories');
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to load memories');
+  }
+  return response.data;
 }

@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
-import { Plus, Edit2, Trash2, Mail, Users } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { Plus, Edit2, Trash2, Mail, Users, CheckCircle } from 'lucide-react';
 import type { Envelope, CreateEnvelopeRequest, UpdateEnvelopeRequest } from 'shared';
 import { Button, Card, Heading, Text } from '../common';
 import { EnvelopeForm } from './EnvelopeForm';
 import { FriendManager } from './FriendManager';
-import { createEnvelope, updateEnvelope, deleteEnvelope, resetSession } from '../../services/api';
+import { createEnvelope, updateEnvelope, deleteEnvelope, resetSession, closeBabymoon, reopenBabymoon, getBabymoonStatus } from '../../services/api';
 import { STRINGS } from '../../constants/strings';
 import './EnvelopeManager.css';
 
@@ -29,6 +29,16 @@ export function EnvelopeManager({
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [resetConfirm, setResetConfirm] = useState(false);
+  const [completeConfirm, setCompleteConfirm] = useState(false);
+  const [babymoonClosedAt, setBabymoonClosedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    getBabymoonStatus().then((status) => {
+      setBabymoonClosedAt(status.closedAt);
+    }).catch(() => {
+      // Silently ignore — status will remain null
+    });
+  }, []);
 
   const handleResetSession = useCallback(async () => {
     setIsSaving(true);
@@ -46,6 +56,35 @@ export function EnvelopeManager({
       setIsSaving(false);
     }
   }, [onRefresh]);
+
+  const handleCloseBabymoon = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const result = await closeBabymoon();
+      if (result.success) {
+        setCompleteConfirm(false);
+        setBabymoonClosedAt(result.data.closedAt);
+      } else {
+        alert(STRINGS.COMPLETE_ERROR(result.error?.message ?? 'Unknown error'));
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }, []);
+
+  const handleReopenBabymoon = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const result = await reopenBabymoon();
+      if (result.success) {
+        setBabymoonClosedAt(null);
+      } else {
+        alert(STRINGS.COMPLETE_REOPEN_ERROR(result.error?.message ?? 'Unknown error'));
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }, []);
 
   const handleCreate = useCallback(async (data: CreateEnvelopeRequest) => {
     setIsSaving(true);
@@ -205,6 +244,58 @@ export function EnvelopeManager({
 
       {/* Friend Letters Management */}
       <FriendManager />
+
+      {/* Complete Experience */}
+      <section className="envelope-manager__tools">
+        <Heading level={3}>{STRINGS.COMPLETE_HEADING}</Heading>
+        <Card className="envelope-manager__tool-card">
+          <div className="envelope-manager__tool-info">
+            <CheckCircle size={20} />
+            <div>
+              <Text>{STRINGS.COMPLETE_HEADING}</Text>
+              <Text variant="small" color="muted">
+                {babymoonClosedAt
+                  ? STRINGS.COMPLETE_STATUS(new Date(babymoonClosedAt).toLocaleDateString())
+                  : STRINGS.COMPLETE_DESCRIPTION}
+              </Text>
+            </div>
+          </div>
+          {babymoonClosedAt ? (
+            <Button
+              variant="secondary"
+              onClick={handleReopenBabymoon}
+              disabled={isSaving}
+            >
+              {STRINGS.COMPLETE_REOPEN}
+            </Button>
+          ) : completeConfirm ? (
+            <div className="envelope-manager__actions">
+              <button
+                className="envelope-manager__btn envelope-manager__btn--danger"
+                onClick={handleCloseBabymoon}
+                disabled={isSaving}
+              >
+                {STRINGS.COMPLETE_CONFIRM}
+              </button>
+              <button
+                className="envelope-manager__btn"
+                onClick={() => setCompleteConfirm(false)}
+                disabled={isSaving}
+              >
+                {STRINGS.MANAGER_CANCEL}
+              </button>
+            </div>
+          ) : (
+            <Button
+              variant="primary"
+              onClick={() => setCompleteConfirm(true)}
+              disabled={isSaving}
+            >
+              {STRINGS.COMPLETE_BUTTON}
+            </Button>
+          )}
+        </Card>
+      </section>
 
       {/* Debug/Test Tools */}
       <section className="envelope-manager__tools">

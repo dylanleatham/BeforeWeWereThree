@@ -107,17 +107,19 @@ router.post('/groups/join', authMiddleware, async (req, res) => {
       res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
       return;
     }
-    if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
+    if (!/^(activity:[a-z0-9-]+|session:global)$/i.test(groupName)) {
       res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
       return;
     }
 
-    // Verify the envelope exists before allowing group join
-    const envelopeId = groupName.replace('activity:', '');
-    const envelope = await getEnvelopeById(envelopeId);
-    if (!envelope) {
-      res.status(404).json(errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found'));
-      return;
+    // Verify the envelope exists before allowing group join (skip for session:global)
+    if (groupName !== 'session:global') {
+      const envelopeId = groupName.replace('activity:', '');
+      const envelope = await getEnvelopeById(envelopeId);
+      if (!envelope) {
+        res.status(404).json(errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found'));
+        return;
+      }
     }
 
     const userId = req.session!.participantId;
@@ -146,7 +148,7 @@ router.post('/groups/leave', authMiddleware, async (req, res) => {
       res.status(400).json(errorResponse('VALIDATION_ERROR', 'groupName is required'));
       return;
     }
-    if (!/^activity:[a-z0-9-]+$/i.test(groupName)) {
+    if (!/^(activity:[a-z0-9-]+|session:global)$/i.test(groupName)) {
       res.status(400).json(errorResponse('VALIDATION_ERROR', 'Invalid group name format'));
       return;
     }

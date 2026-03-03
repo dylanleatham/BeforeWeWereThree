@@ -463,6 +463,41 @@ export const STRINGS = {
 
   // Singleton error
   GENDER_REVEAL_SINGLETON_ERROR: 'Only one gender reveal envelope is allowed',
+
+  // Complete Experience (Admin)
+  COMPLETE_HEADING: 'Complete Experience',
+  COMPLETE_DESCRIPTION: 'Mark the babymoon as complete. Participants will see a button to view their memories.',
+  COMPLETE_BUTTON: 'Complete Experience',
+  COMPLETE_CONFIRM: 'Confirm',
+  COMPLETE_STATUS: (date: string) => `Experience completed on ${date}`,
+  COMPLETE_REOPEN: 'Reopen',
+  COMPLETE_ERROR: (msg: string) => `Failed to complete experience: ${msg}`,
+  COMPLETE_REOPEN_ERROR: (msg: string) => `Failed to reopen: ${msg}`,
+
+  // Memories View (Guest)
+  MEMORIES_HEADING: 'Our Memories',
+  MEMORIES_VIEW_BUTTON: 'View Memories',
+  MEMORIES_BACK: 'Back to activities',
+  MEMORIES_EXPORT_BUTTON: 'Download Keepsake',
+  MEMORIES_EXPORT_LOADING: 'Preparing...',
+  MEMORIES_LOADING: 'Loading memories...',
+  MEMORIES_ERROR: 'Could not load memories',
+  MEMORIES_SECTION_LETTERS: 'Letters to Baby',
+  MEMORIES_SECTION_WYR: 'Would You Rather',
+  MEMORIES_SECTION_PHOTOS: 'Photo Gallery',
+  MEMORIES_SECTION_PHOTO_PROMPTS: 'Photo Prompts',
+  MEMORIES_SECTION_NAMES: 'Names We Both Loved',
+  MEMORIES_SECTION_TRIVIA: 'Trivia Scores',
+  MEMORIES_SECTION_GENDER_REVEAL: 'Gender Reveal',
+  MEMORIES_SECTION_FRIEND_LETTERS: 'Letters from Friends',
+  MEMORIES_NO_ITEMS: 'Nothing here yet',
+  MEMORIES_TRIVIA_SCORE: (designation: string, correct: number, total: number) =>
+    `${designation}: ${correct} / ${total} correct`,
+  MEMORIES_WYR_MATCH: 'You agreed!',
+  MEMORIES_WYR_DIFFERENT: 'Different choices!',
+  MEMORIES_GENDER_BOY: "It's a Boy!",
+  MEMORIES_GENDER_GIRL: "It's a Girl!",
+  MEMORIES_GENDER_UNKNOWN: 'Not yet revealed',
 } as const;
 
 /**

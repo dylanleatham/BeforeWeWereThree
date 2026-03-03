@@ -20,6 +20,7 @@ export interface ResetSessionResult {
   triviaAnswersDeleted: number;
   genderRevealReset: number;
   photoPromptResponsesDeleted: number;
+  babymoonReopened: boolean;
 }
 
 /**
@@ -100,6 +101,11 @@ export async function resetSession(): Promise<ResetSessionResult> {
       data: { status: 'sealed' },
     });
 
+    // 8. Clear babymoon closed state (reopen for fresh experience)
+    const babymoonConfig = await tx.appConfig.deleteMany({
+      where: { key: 'babymoon_closed_at' },
+    });
+
     return {
       message: 'Session reset successfully',
       participantsDeleted: participantsDeleted.count,
@@ -114,6 +120,7 @@ export async function resetSession(): Promise<ResetSessionResult> {
       triviaAnswersDeleted: triviaAnswersDeleted.count,
       genderRevealReset: genderRevealReset.count,
       photoPromptResponsesDeleted: photoPromptResponsesDeleted.count,
+      babymoonReopened: babymoonConfig.count > 0,
     };
   });
 

@@ -2,12 +2,14 @@ import { useState, useMemo, useCallback } from 'react';
 import { MotionConfig } from 'motion/react';
 import { useSession } from './hooks/useSession';
 import { useEnvelopes } from './hooks/useEnvelopes';
+import { useBabymoonStatus } from './hooks/useBabymoonStatus';
 import { PinEntry } from './components/auth/PinEntry';
 import { EnvelopePile } from './components/envelope';
 import type { PileViewMode } from './components/envelope';
 import { EnvelopeManager, ContentManager } from './components/admin';
 import { FriendDashboard } from './components/friend/FriendDashboard';
-import { Heading, Text, SpotifyButton, ContentTabs } from './components/common';
+import { MemoriesView } from './components/memories';
+import { Heading, Text, Button, SpotifyButton, ContentTabs } from './components/common';
 import { SignalRProvider } from './context/SignalRContext';
 import { STRINGS } from './constants/strings';
 import './styles/globals.css';
@@ -65,6 +67,8 @@ function AuthenticatedApp({
     updateStatus,
   } = useEnvelopes();
 
+  const { closedAt } = useBabymoonStatus();
+  const [showMemories, setShowMemories] = useState(false);
   const [activeTab, setActiveTab] = useState('activities');
   const [pileViewMode, setPileViewMode] = useState<PileViewMode>('stack');
 
@@ -136,6 +140,17 @@ function AuthenticatedApp({
     );
   }
 
+  // Guest view - memories view (when babymoon is closed and user clicks "View Memories")
+  if (showMemories && closedAt) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <div className="app">
+          <MemoriesView onBack={() => setShowMemories(false)} />
+        </div>
+      </MotionConfig>
+    );
+  }
+
   // Guest view - envelope pile
   return (
     <MotionConfig reducedMotion="user">
@@ -160,6 +175,15 @@ function AuthenticatedApp({
             <Text variant="small" color="muted" className="app__readonly">
               {STRINGS.APP_READONLY}
             </Text>
+          )}
+          {closedAt && (
+            <Button
+              variant="primary"
+              onClick={() => setShowMemories(true)}
+              className="app__memories-btn"
+            >
+              {STRINGS.MEMORIES_VIEW_BUTTON}
+            </Button>
           )}
         </header>
 

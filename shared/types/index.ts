@@ -238,6 +238,21 @@ export {
   validateRevealKeySchema,
 } from './genderReveal.js';
 
+// Re-export Memories types
+export type {
+  MemoryWyrResult,
+  MemoryLetter,
+  MemoryPhotoPrompt,
+  MemoryNameMatch,
+  MemoryTriviaResult,
+  MemoryGenderReveal,
+  MemoryFriendLetter,
+  MemoryPhoto,
+  BabymoonStatusResponse,
+  CloseBabymoonResponse,
+  MemoriesDataResponse,
+} from './memories.js';
+
 /**
  * Health check response data
  */

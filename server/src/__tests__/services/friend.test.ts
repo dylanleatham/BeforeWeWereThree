@@ -42,6 +42,9 @@ jest.unstable_mockModule('../../db/queries/friend.js', () => ({
 jest.unstable_mockModule('../../db/queries/config.js', () => ({
   getGuestPin: mockGetGuestPin,
   getAdminPin: mockGetAdminPin,
+  getBabymoonClosedAt: jest.fn().mockResolvedValue(null),
+  setBabymoonClosedAt: jest.fn().mockResolvedValue(undefined),
+  deleteBabymoonClosedAt: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.unstable_mockModule('../../db/connection.js', () => ({

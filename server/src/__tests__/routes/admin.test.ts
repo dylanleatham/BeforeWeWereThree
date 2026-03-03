@@ -26,6 +26,7 @@ const mockTriviaAnswer = { deleteMany: jest.fn() as AnyMock };
 const mockPhotoPromptResponse = { deleteMany: jest.fn() as AnyMock };
 const mockGenderRevealConfig = { updateMany: jest.fn() as AnyMock };
 const mockEnvelope = { updateMany: jest.fn() as AnyMock };
+const mockAppConfig = { deleteMany: jest.fn() as AnyMock };
 const mockTransaction = jest.fn() as AnyMock;
 
 const mockFriend = {
@@ -47,6 +48,7 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
     photoPromptResponse: mockPhotoPromptResponse,
     genderRevealConfig: mockGenderRevealConfig,
     envelope: mockEnvelope,
+    appConfig: mockAppConfig,
     $transaction: mockTransaction,
     $connect: jest.fn(),
     $disconnect: jest.fn(),
@@ -57,6 +59,9 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
 jest.unstable_mockModule('../../db/queries/config.js', () => ({
   getGuestPin: jest.fn<() => Promise<string>>().mockResolvedValue('01152025'),
   getAdminPin: jest.fn<() => Promise<string>>().mockResolvedValue('12251990'),
+  getBabymoonClosedAt: jest.fn<() => Promise<string | null>>().mockResolvedValue(null),
+  setBabymoonClosedAt: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  deleteBabymoonClosedAt: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
 }));
 
 jest.unstable_mockModule('../../middleware/rateLimit.js', () => ({
@@ -133,8 +138,10 @@ describe('Admin Routes', () => {
         genderRevealConfig: mockGenderRevealConfig,
         participant: mockParticipant,
         envelope: mockEnvelope,
+        appConfig: mockAppConfig,
       });
     });
+    mockAppConfig.deleteMany.mockResolvedValue({ count: 0 });
     mockLetter.deleteMany.mockResolvedValue({ count: 2 });
     mockWyrVote.deleteMany.mockResolvedValue({ count: 4 });
     mockPhoto.deleteMany.mockResolvedValue({ count: 1 });

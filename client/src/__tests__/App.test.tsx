@@ -19,6 +19,14 @@ vi.mock('../hooks/useEnvelopes', () => ({
   useEnvelopes: vi.fn(),
 }));
 
+// Mock useBabymoonStatus hook
+vi.mock('../hooks/useBabymoonStatus', () => ({
+  useBabymoonStatus: () => ({
+    closedAt: null,
+    isLoading: false,
+  }),
+}));
+
 // Mock useConfig to prevent fetch attempts during tests
 vi.mock('../hooks/useConfig', () => ({
   useConfig: () => ({

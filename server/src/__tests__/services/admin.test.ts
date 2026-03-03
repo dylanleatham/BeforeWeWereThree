@@ -55,6 +55,10 @@ const mockEnvelope = {
   updateMany: jest.fn() as AnyMock,
 };
 
+const mockAppConfig = {
+  deleteMany: jest.fn() as AnyMock,
+};
+
 const mockTransaction = jest.fn() as AnyMock;
 
 jest.unstable_mockModule('../../db/connection.js', () => ({
@@ -71,6 +75,7 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
     genderRevealConfig: mockGenderRevealConfig,
     participant: mockParticipant,
     envelope: mockEnvelope,
+    appConfig: mockAppConfig,
     $transaction: mockTransaction,
   },
 }));
@@ -81,6 +86,8 @@ const { resetSession } = await import('../../services/admin.js');
 describe('Admin Service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default mock return for appConfig (added by babymoon close feature)
+    mockAppConfig.deleteMany.mockResolvedValue({ count: 0 });
     // Mock transaction to execute the callback with our mocked tx
     mockTransaction.mockImplementation((callback: (tx: unknown) => Promise<unknown>) => {
       return callback({
@@ -96,6 +103,7 @@ describe('Admin Service', () => {
         genderRevealConfig: mockGenderRevealConfig,
         participant: mockParticipant,
         envelope: mockEnvelope,
+        appConfig: mockAppConfig,
       });
     });
   });
@@ -255,6 +263,7 @@ describe('Admin Service', () => {
         genderRevealReset: 1,
         participantsDeleted: 1,
         envelopesReset: 6,
+        babymoonReopened: false,
       });
     });
 
@@ -288,6 +297,7 @@ describe('Admin Service', () => {
         genderRevealReset: 0,
         participantsDeleted: 0,
         envelopesReset: 0,
+        babymoonReopened: false,
       });
     });
   });

@@ -90,9 +90,16 @@ class SocketIOAdapter implements RealtimeAdapter {
         }
         this.userSockets.get(userId)!.add(socket.id);
 
+        // Auto-join session:global room for app-wide broadcasts (e.g., babymoon closed)
+        socket.join('session:global');
+
         // Handle joining groups (activities) — validate format and verify envelope exists
         socket.on('joinGroup', async (groupName: string) => {
-          if (!/^activity:[a-z0-9-]+$/i.test(groupName)) return;
+          if (!/^(activity:[a-z0-9-]+|session:global)$/i.test(groupName)) return;
+          if (groupName === 'session:global') {
+            socket.join(groupName);
+            return;
+          }
           const envelopeId = groupName.replace('activity:', '');
           const envelope = await getEnvelopeById(envelopeId);
           if (envelope) {
@@ -102,7 +109,7 @@ class SocketIOAdapter implements RealtimeAdapter {
 
         // Handle leaving groups — validate group name format
         socket.on('leaveGroup', (groupName: string) => {
-          if (/^activity:[a-z0-9-]+$/i.test(groupName)) {
+          if (/^(activity:[a-z0-9-]+|session:global)$/i.test(groupName)) {
             socket.leave(groupName);
           }
         });

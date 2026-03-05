@@ -16,6 +16,10 @@ export function ExportButton() {
       const response = await fetch('/api/memories/export', {
         credentials: 'include',
       });
+      if (response.status === 401) {
+        window.dispatchEvent(new CustomEvent('session-expired'));
+        return;
+      }
       if (!response.ok) {
         throw new Error('Export failed');
       }

@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Mail, Users, CheckCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Mail, Users, CheckCircle, RotateCcw } from 'lucide-react';
 import type { Envelope, CreateEnvelopeRequest, UpdateEnvelopeRequest } from 'shared';
 import { Button, Card, Heading, Text } from '../common';
 import { EnvelopeForm } from './EnvelopeForm';
 import { FriendManager } from './FriendManager';
-import { createEnvelope, updateEnvelope, deleteEnvelope, resetSession, closeBabymoon, reopenBabymoon, getBabymoonStatus } from '../../services/api';
+import { createEnvelope, updateEnvelope, deleteEnvelope, resetSession, resetEnvelopeApi, closeBabymoon, reopenBabymoon, getBabymoonStatus } from '../../services/api';
 import { STRINGS } from '../../constants/strings';
 import './EnvelopeManager.css';
 
@@ -28,6 +28,7 @@ export function EnvelopeManager({
   const [formMode, setFormMode] = useState<FormMode>({ type: 'closed' });
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [resealConfirm, setResealConfirm] = useState<string | null>(null);
   const [resetConfirm, setResetConfirm] = useState(false);
   const [completeConfirm, setCompleteConfirm] = useState(false);
   const [babymoonClosedAt, setBabymoonClosedAt] = useState<string | null>(null);
@@ -133,6 +134,26 @@ export function EnvelopeManager({
     [onRefresh]
   );
 
+  const handleResetEnvelope = useCallback(
+    async (id: string) => {
+      setIsSaving(true);
+      try {
+        const result = await resetEnvelopeApi(id);
+        if (result.success) {
+          setResealConfirm(null);
+          await onRefresh();
+        } else {
+          alert(result.error?.message ?? 'Failed to reset envelope');
+        }
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to reset envelope');
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [onRefresh]
+  );
+
   const formatType = (type: string) =>
     type
       .split('-')
@@ -200,6 +221,35 @@ export function EnvelopeManager({
                   </span>
                 </div>
                 <div className="envelope-manager__actions">
+                  {envelope.status !== 'sealed' && envelope.type !== 'friend-letter' && (
+                    resealConfirm === envelope.id ? (
+                      <>
+                        <button
+                          className="envelope-manager__btn envelope-manager__btn--warning"
+                          onClick={() => handleResetEnvelope(envelope.id)}
+                          disabled={isSaving}
+                        >
+                          {STRINGS.MANAGER_RESET_ENVELOPE_CONFIRM}
+                        </button>
+                        <button
+                          className="envelope-manager__btn"
+                          onClick={() => setResealConfirm(null)}
+                          disabled={isSaving}
+                        >
+                          {STRINGS.MANAGER_CANCEL}
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        className="envelope-manager__btn"
+                        onClick={() => setResealConfirm(envelope.id)}
+                        aria-label={STRINGS.MANAGER_ARIA_RESET_ENVELOPE(envelope.title)}
+                        disabled={isSaving}
+                      >
+                        <RotateCcw size={18} />
+                      </button>
+                    )
+                  )}
                   <button
                     className="envelope-manager__btn"
                     onClick={() => setFormMode({ type: 'edit', envelope })}

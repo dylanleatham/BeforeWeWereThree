@@ -44,6 +44,7 @@ export type ErrorCode =
   | 'ALREADY_RESPONDED'
   | 'BABYMOON_NOT_CLOSED'
   | 'BABYMOON_ALREADY_CLOSED'
+  | 'CANNOT_RESET_FRIEND_LETTER'
   | `HTTP_${number}`; // For HTTP status code errors
 
 /**
@@ -133,4 +134,14 @@ export interface ResetSessionResponse {
   genderRevealReset: number;
   photoPromptResponsesDeleted: number;
   babymoonReopened: boolean;
+}
+
+/**
+ * Reset single envelope response - includes what was cleaned up
+ */
+export interface ResetEnvelopeResponse {
+  message: string;
+  envelopeId: string;
+  envelopeType: string;
+  itemsDeleted: number;
 }

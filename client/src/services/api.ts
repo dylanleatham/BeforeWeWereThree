@@ -16,6 +16,7 @@ import type {
   WYRPromptResponse,
   WYRPromptsResponse,
   ResetSessionResponse,
+  ResetEnvelopeResponse,
   DeleteResponse,
   UploadSasResponse,
   Photo,
@@ -117,6 +118,16 @@ export async function resetSession(): Promise<ApiResponse<ResetSessionResponse>>
   });
 }
 
+/**
+ * Reset a single envelope to fresh state (admin only)
+ * Deletes activity data and resets status to 'sealed'
+ */
+export async function resetEnvelopeApi(id: string): Promise<ApiResponse<ResetEnvelopeResponse>> {
+  return apiFetch<ResetEnvelopeResponse>(`/envelopes/${id}/reset`, {
+    method: 'POST',
+  });
+}
+
 // ============================================================================
 // Envelope API
 // ============================================================================
@@ -203,6 +214,22 @@ export async function deleteEnvelope(id: string): Promise<void> {
  */
 export async function openEnvelope(id: string): Promise<Envelope> {
   const response = await apiFetch<EnvelopeResponse>(`/envelopes/${id}/open`, {
+    method: 'POST',
+  });
+
+  if (!response.success) {
+    throw new Error(response.error?.message || STRINGS.API_ERROR_UPDATE_ENVELOPE);
+  }
+
+  return response.data.envelope;
+}
+
+/**
+ * Reopen a completed envelope (any authenticated user)
+ * Transitions envelope from 'completed' to 'opened'
+ */
+export async function reopenEnvelope(id: string): Promise<Envelope> {
+  const response = await apiFetch<EnvelopeResponse>(`/envelopes/${id}/reopen`, {
     method: 'POST',
   });
 

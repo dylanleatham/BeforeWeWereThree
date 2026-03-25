@@ -106,11 +106,18 @@ export function EnvelopePile({
   }
 
   // List mode: flat scrollable list
+  // Tapping the backdrop (space outside the card list) collapses back to stack
   if (viewMode === 'list') {
     return (
       <MotionConfig reducedMotion="user">
-        <div className="envelope-pile envelope-pile--list">
-          <div className="envelope-pile__list">
+        <div
+          className="envelope-pile envelope-pile--list"
+          onClick={() => onViewModeChange?.('stack')}
+        >
+          <div
+            className="envelope-pile__list"
+            onClick={(e) => e.stopPropagation()}
+          >
             {flatListEnvelopes.map((envelope, i) => (
               <motion.div
                 key={envelope.id}

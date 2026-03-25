@@ -14,6 +14,7 @@ export type {
   MessageResponse,
   SetResponse,
   ResetSessionResponse,
+  ResetEnvelopeResponse,
 } from './api.js';
 export { successResponse, errorResponse } from './api.js';
 

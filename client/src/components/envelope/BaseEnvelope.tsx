@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, MotionConfig } from 'motion/react';
-import { X } from 'lucide-react';
+import { X, RotateCcw } from 'lucide-react';
 import clsx from 'clsx';
 import type { Envelope, EnvelopeStatus } from 'shared';
 import { useHaptics } from '../../hooks/useHaptics';
@@ -9,7 +9,6 @@ import {
   contentRevealVariants,
 } from '../../utils/motion';
 import { formatEnvelopeTypeLabel } from '../../utils/envelope';
-import { EnvelopeCard } from './EnvelopeCard';
 import { WouldYouRatherActivity } from '../activities/WouldYouRather';
 import { LetterActivity } from '../activities/Letter/LetterActivity';
 import { MediaLibraryActivity } from '../activities/MediaLibrary/MediaLibraryActivity';
@@ -34,10 +33,10 @@ interface BaseEnvelopeProps {
 
 /**
  * Full envelope component with open/close animation
- * Per CONTEXT.md:
- * - Single tap to open (not hold/swipe)
- * - 400-500ms flourish animation
- * - Haptic feedback on mobile
+ *
+ * Always renders the full envelope view (no intermediate card tap).
+ * If the envelope is sealed on mount, plays the flap animation
+ * and auto-triggers the status change to 'opened'.
  */
 export function BaseEnvelope({
   envelope,
@@ -47,38 +46,35 @@ export function BaseEnvelope({
   partnerPresent = false,
 }: BaseEnvelopeProps) {
   const isEvergreen = EVERGREEN_ENVELOPE_TYPES.has(envelope.type);
-  const [isOpen, setIsOpen] = useState(isEvergreen || envelope.status !== 'sealed');
-  const [isAnimating, setIsAnimating] = useState(false);
+  // Capture initial sealed state once — useState initializer only runs on first render
+  const [wasSealed] = useState(() => envelope.status === 'sealed');
+  const [isAnimating, setIsAnimating] = useState(!isEvergreen && wasSealed);
   const { triggerTap } = useHaptics();
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Clean up open animation timer on unmount
+  // Auto-open sealed envelopes on mount with flap animation
   useEffect(() => {
-    return () => {
-      if (openTimerRef.current) clearTimeout(openTimerRef.current);
-    };
-  }, []);
+    if (!wasSealed || isEvergreen) return;
 
-  const handleOpen = useCallback(() => {
-    if (isEvergreen || envelope.status !== 'sealed' || isAnimating) return;
-
-    // Haptic feedback
     triggerTap();
 
-    // Start animation
-    setIsAnimating(true);
-    setIsOpen(true);
-
-    // Update status after animation
     openTimerRef.current = setTimeout(() => {
       setIsAnimating(false);
       onStatusChange?.('opened');
     }, ANIMATION_DURATION_MS);
-  }, [isEvergreen, envelope.status, isAnimating, onStatusChange, triggerTap]);
+
+    return () => {
+      if (openTimerRef.current) clearTimeout(openTimerRef.current);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- run once on mount
 
   const handleClose = useCallback(() => {
     onClose?.();
   }, [onClose]);
+
+  const handleReopen = useCallback(() => {
+    onStatusChange?.('opened');
+  }, [onStatusChange]);
 
   /**
    * Handle activity completion - marks envelope as completed
@@ -90,16 +86,16 @@ export function BaseEnvelope({
 
   /**
    * Check if an envelope should render its activity content.
-   * name-game never completes; WYR shows summary when completed; others only when opened.
+   * Since BaseEnvelope always shows the full view now, we render the activity
+   * for all non-sealed envelopes. Sealed envelopes that just entered detail
+   * mode are in the process of opening (status change pending after animation).
    */
   const shouldRenderActivity = (env: Envelope): boolean => {
     if (env.type === 'name-game') return true;
     if (env.type === 'gender-reveal') return true;
-    if (env.type === 'would-you-rather' && env.status === 'completed') return true;
-    if (env.type === 'trivia' && env.status === 'completed') return true;
-    if (env.type === 'friend-letter' && env.status === 'completed') return true;
-    if (env.type === 'photo-prompt' && env.status === 'completed') return true;
-    return env.status === 'opened';
+    // Sealed envelopes entering detail mode are auto-opening — render activity
+    if (wasSealed) return true;
+    return env.status === 'opened' || env.status === 'completed';
   };
 
   /**
@@ -190,18 +186,6 @@ export function BaseEnvelope({
     }
   };
 
-  // If envelope is still sealed, show the card view
-  if (!isOpen) {
-    return (
-      <EnvelopeCard
-        envelope={envelope}
-        partnerPresent={partnerPresent}
-        onClick={handleOpen}
-      />
-    );
-  }
-
-  // Opened/completed state - show full envelope
   return (
     <MotionConfig reducedMotion="user">
       <motion.article
@@ -211,22 +195,34 @@ export function BaseEnvelope({
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: CONTENT_REVEAL_DURATION }}
       >
-        {/* Close button */}
-        <button
-          className="base-envelope__close"
-          onClick={handleClose}
-          aria-label={STRINGS.ENVELOPE_CLOSE_ARIA}
-        >
-          <X size={24} strokeWidth={1.5} />
-        </button>
+        {/* Envelope action buttons */}
+        <div className="base-envelope__actions">
+          {envelope.status === 'completed' && !isEvergreen && (
+            <button
+              className="base-envelope__reopen"
+              onClick={handleReopen}
+              aria-label={STRINGS.ENVELOPE_REOPEN_ARIA}
+              title={STRINGS.ENVELOPE_REOPEN}
+            >
+              <RotateCcw size={20} strokeWidth={1.5} />
+            </button>
+          )}
+          <button
+            className="base-envelope__close"
+            onClick={handleClose}
+            aria-label={STRINGS.ENVELOPE_CLOSE_ARIA}
+          >
+            <X size={24} strokeWidth={1.5} />
+          </button>
+        </div>
 
         {/* Envelope flap (animated on open, hidden for evergreen) */}
         {!isEvergreen && (
           <motion.div
             className="base-envelope__flap"
             variants={envelopeFlapVariants}
-            initial="sealed"
-            animate={isAnimating ? 'opening' : isOpen ? 'opened' : 'sealed'}
+            initial={wasSealed ? 'sealed' : 'opened'}
+            animate={isAnimating ? 'opening' : 'opened'}
             aria-hidden="true"
           />
         )}

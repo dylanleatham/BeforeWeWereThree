@@ -4,6 +4,7 @@ import {
   getEnvelopes,
   updateEnvelope as apiUpdateEnvelope,
   openEnvelope as apiOpenEnvelope,
+  reopenEnvelope as apiReopenEnvelope,
 } from '../services/api';
 
 interface UseEnvelopesResult {
@@ -67,10 +68,12 @@ export function useEnvelopes(): UseEnvelopesResult {
       );
 
       try {
-        // Use dedicated open endpoint for opening (guest-accessible)
-        // Use admin update endpoint for other status changes
-        if (status === 'opened') {
+        // Use dedicated endpoints for guest-accessible status transitions
+        // Use admin update endpoint for other status changes (e.g. reseal)
+        if (status === 'opened' && originalStatus === 'sealed') {
           await apiOpenEnvelope(id);
+        } else if (status === 'opened' && originalStatus === 'completed') {
+          await apiReopenEnvelope(id);
         } else {
           await apiUpdateEnvelope(id, { status });
         }

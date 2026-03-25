@@ -14,6 +14,7 @@ import {
   deleteEnvelope,
 } from '../db/queries/envelopes.js';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
+import { resetEnvelope, type ResetEnvelopeResult } from '../services/admin.js';
 import { db } from '../db/connection.js';
 import { logger } from '../utils/logger.js';
 
@@ -157,6 +158,61 @@ router.post('/:id/open', authMiddleware, async (req: Request<{ id: string }>, re
   } catch (error) {
     logger.error('Failed to open envelope', { error });
     res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to open envelope'));
+  }
+});
+
+/**
+ * POST /envelopes/:id/reopen
+ * Reopen a completed envelope (any authenticated user)
+ * Only allows transitioning from 'completed' to 'opened'
+ */
+router.post('/:id/reopen', authMiddleware, async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params;
+    const existing = await getEnvelopeById(id);
+
+    if (!existing) {
+      res.status(404).json(errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found'));
+      return;
+    }
+
+    if (existing.status !== 'completed') {
+      // Not completed — return current state
+      res.json(successResponse({ envelope: existing }));
+      return;
+    }
+
+    const envelope = await updateEnvelope(id, { status: 'opened' });
+    res.json(successResponse({ envelope }));
+  } catch (error) {
+    logger.error('Failed to reopen envelope', { error });
+    res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to reopen envelope'));
+  }
+});
+
+/**
+ * POST /envelopes/:id/reset
+ * Reset a single envelope to fresh state (admin only)
+ * Deletes user-generated activity data and resets status to 'sealed'
+ */
+router.post('/:id/reset', adminMiddleware, async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await resetEnvelope(id);
+    res.json(successResponse<ResetEnvelopeResult>(result));
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'ENVELOPE_NOT_FOUND') {
+        res.status(404).json(errorResponse('ENVELOPE_NOT_FOUND', 'Envelope not found'));
+        return;
+      }
+      if (error.message === 'CANNOT_RESET_FRIEND_LETTER') {
+        res.status(400).json(errorResponse('CANNOT_RESET_FRIEND_LETTER', 'Friend letter envelopes cannot be reset'));
+        return;
+      }
+    }
+    logger.error('Failed to reset envelope', { error });
+    res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to reset envelope'));
   }
 });
 

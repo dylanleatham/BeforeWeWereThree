@@ -9,12 +9,19 @@
   box-shadow: var(--shadow-elevated);
 }
 
-/* Close button */
-.base-envelope__close {
+/* Action buttons (close + reopen) */
+.base-envelope__actions {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
   z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.base-envelope__reopen,
+.base-envelope__close {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,11 +37,13 @@
     background var(--duration-fast) var(--ease-default);
 }
 
+.base-envelope__reopen:hover,
 .base-envelope__close:hover {
   color: var(--text-primary);
   background: var(--color-light-linen);
 }
 
+.base-envelope__reopen:focus-visible,
 .base-envelope__close:focus-visible {
   outline: 2px solid var(--color-sunrise-gold);
   outline-offset: 2px;

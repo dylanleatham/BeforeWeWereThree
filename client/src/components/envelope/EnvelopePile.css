@@ -94,18 +94,21 @@
   100% { opacity: 0; }
 }
 
-/* Flat list view */
+/* Flat list view — outer wrapper acts as a dismiss backdrop */
 .envelope-pile--list {
   width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
+  max-width: none;
+  min-height: 100%;
   padding: var(--space-4);
+  cursor: default;
 }
 
 .envelope-pile__list {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 /* Empty state */

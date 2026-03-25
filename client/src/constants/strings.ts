@@ -79,11 +79,15 @@ export const STRINGS = {
   MANAGER_RESET_ERROR: (msg: string) => `Failed to reset session: ${msg}`,
   MANAGER_ARIA_EDIT: (title: string) => `Edit ${title}`,
   MANAGER_ARIA_DELETE: (title: string) => `Delete ${title}`,
+  MANAGER_ARIA_RESET_ENVELOPE: (title: string) => `Reset ${title}`,
+  MANAGER_RESET_ENVELOPE_CONFIRM: 'Reset & reseal?',
 
   // BaseEnvelope.tsx
   ENVELOPE_CLOSE_ARIA: 'Close envelope',
   ENVELOPE_PLACEHOLDER: 'Activity content will appear here',
   ENVELOPE_PARTNER: 'Partner is here',
+  ENVELOPE_REOPEN: 'Reopen Activity',
+  ENVELOPE_REOPEN_ARIA: 'Reopen this activity to do it again',
 
   // EnvelopeCard.tsx
   CARD_PARTNER_ARIA: 'Partner is viewing',

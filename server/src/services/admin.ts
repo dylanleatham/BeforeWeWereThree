@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 import { db } from '../db/connection.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Admin service for Before We Were Three
@@ -125,4 +126,165 @@ export async function resetSession(): Promise<ResetSessionResult> {
   });
 
   return result;
+}
+
+export interface ResetEnvelopeResult {
+  message: string;
+  envelopeId: string;
+  envelopeType: string;
+  itemsDeleted: number;
+}
+
+/**
+ * Reset a single envelope to fresh state
+ *
+ * Deletes user-generated activity data for this envelope and resets status to 'sealed'.
+ * Admin-created content (prompts, questions, config keys) is preserved.
+ *
+ * Friend-letter envelopes cannot be reset (friend contributions must be preserved).
+ */
+export async function resetEnvelope(envelopeId: string): Promise<ResetEnvelopeResult> {
+  const envelope = await db.envelope.findUnique({ where: { id: envelopeId } });
+  if (!envelope) {
+    throw new Error('ENVELOPE_NOT_FOUND');
+  }
+
+  if (envelope.type === 'friend-letter') {
+    throw new Error('CANNOT_RESET_FRIEND_LETTER');
+  }
+
+  const result = await db.$transaction(async (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>) => {
+    let itemsDeleted = 0;
+
+    switch (envelope.type) {
+      case 'would-you-rather': {
+        // Delete votes for prompts in this envelope (prompts preserved)
+        const prompts = await tx.wyrPrompt.findMany({
+          where: { envelopeId },
+          select: { id: true },
+        });
+        const promptIds = prompts.map((p) => p.id);
+        if (promptIds.length > 0) {
+          const deleted = await tx.wyrVote.deleteMany({
+            where: { promptId: { in: promptIds } },
+          });
+          itemsDeleted += deleted.count;
+        }
+        break;
+      }
+
+      case 'letter': {
+        // Delete letters for the prompt in this envelope (prompt preserved)
+        const prompt = await tx.letterPrompt.findUnique({
+          where: { envelopeId },
+          select: { id: true },
+        });
+        if (prompt) {
+          const deleted = await tx.letter.deleteMany({
+            where: { promptId: prompt.id },
+          });
+          itemsDeleted += deleted.count;
+        }
+        break;
+      }
+
+      case 'trivia': {
+        // Delete answers for this envelope (questions and assignments preserved)
+        const deleted = await tx.triviaAnswer.deleteMany({
+          where: { envelopeId },
+        });
+        itemsDeleted += deleted.count;
+        break;
+      }
+
+      case 'name-game': {
+        // FK order: votes -> names -> rounds, guidance standalone
+        const rounds = await tx.nameGameRound.findMany({
+          where: { envelopeId },
+          select: { id: true },
+        });
+        const roundIds = rounds.map((r) => r.id);
+
+        if (roundIds.length > 0) {
+          const names = await tx.nameGameName.findMany({
+            where: { roundId: { in: roundIds } },
+            select: { id: true },
+          });
+          const nameIds = names.map((n) => n.id);
+
+          if (nameIds.length > 0) {
+            const votesDeleted = await tx.nameGameVote.deleteMany({
+              where: { nameId: { in: nameIds } },
+            });
+            itemsDeleted += votesDeleted.count;
+          }
+
+          const namesDeleted = await tx.nameGameName.deleteMany({
+            where: { roundId: { in: roundIds } },
+          });
+          itemsDeleted += namesDeleted.count;
+        }
+
+        const roundsDeleted = await tx.nameGameRound.deleteMany({
+          where: { envelopeId },
+        });
+        itemsDeleted += roundsDeleted.count;
+
+        const guidanceDeleted = await tx.nameGameGuidance.deleteMany({
+          where: { envelopeId },
+        });
+        itemsDeleted += guidanceDeleted.count;
+        break;
+      }
+
+      case 'gender-reveal': {
+        // Reset validation and gender value (keys preserved)
+        const updated = await tx.genderRevealConfig.updateMany({
+          where: { envelopeId },
+          data: {
+            genderValue: null,
+            setByFriendId: null,
+            keyAValidated: false,
+            keyBValidated: false,
+            revealedAt: null,
+          },
+        });
+        itemsDeleted += updated.count;
+        break;
+      }
+
+      case 'photo-prompt': {
+        // Delete responses for the prompt in this envelope (prompt preserved)
+        const prompt = await tx.photoPrompt.findUnique({
+          where: { envelopeId },
+          select: { id: true },
+        });
+        if (prompt) {
+          const deleted = await tx.photoPromptResponse.deleteMany({
+            where: { promptId: prompt.id },
+          });
+          itemsDeleted += deleted.count;
+        }
+        break;
+      }
+
+      default:
+        logger.warn('resetEnvelope: no cleanup logic for envelope type', { type: envelope.type });
+    }
+
+    // Reset envelope status to sealed
+    await tx.envelope.update({
+      where: { id: envelopeId },
+      data: { status: 'sealed' },
+    });
+
+    return itemsDeleted;
+  });
+
+  return {
+    message: `Envelope reset successfully`,
+    envelopeId,
+    envelopeType: envelope.type,
+    itemsDeleted: result,
+  };
 }

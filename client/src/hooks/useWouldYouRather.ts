@@ -177,23 +177,40 @@ export function useWouldYouRather({
 
   /**
    * Handle reveal ready event
+   *
+   * The broadcast results are from the submitter's (second voter's) perspective.
+   * We correct the perspective locally by checking if our stored myVote matches
+   * the broadcast's myChoice — if not, swap them. When both chose the same
+   * option (isMatch), the swap is a no-op so it's always safe.
    */
   useSignalREvent<WYRRevealReadyMessage>('wyrRevealReady', (data) => {
     setPrompts((prev) => {
       const idx = prev.findIndex((ps) => ps.prompt.id === data.promptId);
       if (idx === -1) return prev;
 
+      const promptState = prev[idx]!;
+      let results = data.results;
+
+      // Swap perspective if the broadcast's myChoice doesn't match our vote
+      if (promptState.myVote && promptState.myVote !== results.myChoice) {
+        results = {
+          myChoice: results.partnerChoice,
+          partnerChoice: results.myChoice,
+          isMatch: results.isMatch,
+        };
+      }
+
       const updated = [...prev];
       updated[idx] = {
         ...updated[idx]!,
         partnerVoted: true,
-        results: data.results,
+        results,
       };
 
       return updated;
     });
 
-    // If this is the current prompt, transition to revealing
+    // Transition to revealing if this is the current prompt
     if (currentPrompt && data.promptId === currentPrompt.prompt.id) {
       setPhase('revealing');
     }

@@ -143,6 +143,16 @@
   color: var(--bg-elevated);
 }
 
+.envelope-manager__btn--warning {
+  background: var(--color-sunrise-gold-10, rgba(244, 162, 97, 0.1));
+  color: var(--color-deep-terracotta);
+}
+
+.envelope-manager__btn--warning:hover {
+  background: var(--color-sunrise-gold);
+  color: var(--bg-elevated);
+}
+
 .envelope-manager__btn:focus-visible {
   outline: 2px solid var(--color-sunrise-gold);
   outline-offset: 2px;

@@ -43,6 +43,7 @@ const mockNameGameVoteCount = jest.fn() as AnyMock;
 const mockNameGameVoteGroupBy = jest.fn() as AnyMock;
 const mockNameGameNameCount = jest.fn() as AnyMock;
 const mockTransaction = jest.fn() as AnyMock;
+const mockGenderRevealConfigFindFirst = jest.fn() as AnyMock;
 
 jest.unstable_mockModule('../../db/queries/nameGame.js', () => ({
   getNameGameState: mockGetNameGameState,
@@ -80,6 +81,7 @@ jest.unstable_mockModule('../../db/connection.js', () => ({
     $transaction: mockTransaction,
     nameGameRound: { delete: mockNameGameRoundDelete },
     nameGameGuidance: { deleteMany: mockNameGameGuidanceDeleteMany },
+    genderRevealConfig: { findFirst: mockGenderRevealConfigFindFirst },
   },
 }));
 
@@ -103,6 +105,7 @@ describe('Name Game Service', () => {
       sendToGroup: mockSendToGroup,
     });
     mockSendToGroup.mockResolvedValue(undefined);
+    mockGenderRevealConfigFindFirst.mockResolvedValue(null);
   });
 
   // ================================================================

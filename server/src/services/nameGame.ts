@@ -198,10 +198,18 @@ export async function submitGuidance(
       guidanceCount: participantGuidance.length,
     });
 
+    // Check if gender has been revealed (for gender-specific name generation)
+    const revealedGender = await db.genderRevealConfig.findFirst({
+      where: { revealedAt: { not: null }, genderValue: { not: null } },
+      select: { genderValue: true },
+    });
+    const gender = revealedGender?.genderValue as 'boy' | 'girl' | undefined;
+
     const aiResponse = await generateNames({
       count: 10,
       excludeNames,
       participantGuidance: participantGuidance.length > 0 ? participantGuidance : undefined,
+      gender: gender ?? undefined,
     });
 
     // Save names and mark round as ready

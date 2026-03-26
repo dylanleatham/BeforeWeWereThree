@@ -32,6 +32,7 @@ export interface GenerateNamesParams {
   count: number;
   excludeNames: string[];       // Names already shown in any round
   participantGuidance?: Array<{ guidance: string }>; // Free-text from participants for subsequent rounds
+  gender?: 'boy' | 'girl';     // Revealed baby gender (if known)
 }
 
 // ============================================================
@@ -66,9 +67,16 @@ function buildUserPrompt(params: GenerateNamesParams): string {
   const parts: string[] = [];
 
   // B. Base context (fixed for this app)
-  parts.push(
-    'Generate baby names with diverse cultural origins. Names should function comfortably across cultures. Provide concise, factual notes about each name including observations about sound, feel, or cross-cultural usability.'
-  );
+  if (params.gender) {
+    const genderLabel = params.gender === 'boy' ? 'boy' : 'girl';
+    parts.push(
+      `Generate baby ${genderLabel} names with diverse cultural origins. Names should function comfortably across cultures. Provide concise, factual notes about each name including observations about sound, feel, or cross-cultural usability.`
+    );
+  } else {
+    parts.push(
+      'Generate baby names with diverse cultural origins. Names should function comfortably across cultures. Provide concise, factual notes about each name including observations about sound, feel, or cross-cultural usability.'
+    );
+  }
 
   // Count
   parts.push(`Generate exactly ${params.count} names.`);

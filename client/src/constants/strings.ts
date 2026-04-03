@@ -310,7 +310,7 @@ export const STRINGS = {
   FRIEND_PICK_RECIPIENT: 'Who is this letter for?',
   RECIPIENT_NAMES: {
     you: 'Dylan',
-    partner: 'Wife',
+    partner: 'Partner',
     baby: 'Baby',
   } as { readonly you: string; readonly partner: string; readonly baby: string },
 

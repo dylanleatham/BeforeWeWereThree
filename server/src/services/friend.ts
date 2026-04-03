@@ -32,7 +32,7 @@ import type {
 
 const RECIPIENT_NAMES: Record<FriendLetterRecipient, string> = {
   you: process.env.RECIPIENT_NAME_YOU ?? 'Dylan',
-  partner: process.env.RECIPIENT_NAME_PARTNER ?? 'Wife',
+  partner: process.env.RECIPIENT_NAME_PARTNER ?? 'Partner',
   baby: process.env.RECIPIENT_NAME_BABY ?? 'Baby',
 };
 

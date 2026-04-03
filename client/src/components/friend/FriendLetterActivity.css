@@ -96,6 +96,8 @@
 .friend-letter-activity__confirm {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: var(--space-3);
   padding: var(--space-4);
   background: var(--color-warm-sand);
@@ -105,7 +107,8 @@
 
 .friend-letter-activity__confirm-actions {
   display: flex;
-  gap: var(--space-2);
+  justify-content: center;
+  gap: var(--space-3);
 }
 
 .friend-letter-activity__submit {

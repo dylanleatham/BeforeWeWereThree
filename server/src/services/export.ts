@@ -16,7 +16,8 @@ import { logger } from '../utils/logger.js';
 
 /**
  * Memories export service
- * Generates a self-contained HTML keepsake and zip archive
+ * Generates an HTML keepsake with photos referenced from a sibling folder,
+ * bundled together in a zip archive.
  */
 
 // Concurrency limit for fetching photos from Azure Blob Storage
@@ -35,25 +36,6 @@ async function fetchImageBuffer(url: string): Promise<Buffer | null> {
     logger.warn('Failed to fetch image for export', { url, error });
     return null;
   }
-}
-
-/**
- * Fetch an image and return as a base64 data URI
- */
-async function fetchImageAsDataUri(url: string): Promise<string | null> {
-  const buffer = await fetchImageBuffer(url);
-  if (!buffer) return null;
-  // Detect content type from URL extension
-  const ext = url.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'jpg';
-  const mimeMap: Record<string, string> = {
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    png: 'image/png',
-    gif: 'image/gif',
-    webp: 'image/webp',
-  };
-  const mime = mimeMap[ext] ?? 'image/jpeg';
-  return `data:${mime};base64,${buffer.toString('base64')}`;
 }
 
 /**
@@ -82,48 +64,59 @@ function esc(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/** Sanitize a string for use in a filename */
+function sanitize(name: string): string {
+  return name.replace(/[^a-z0-9]/gi, '-');
+}
+
+/** Get file extension from a URL */
+function extFromUrl(url: string): string {
+  return url.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'jpg';
+}
+
 /**
- * Collect all image URLs from the memories data, fetch them as data URIs,
- * and return a map from original URL -> data URI
+ * Build a map from original blob URL -> local filename in photos/ folder.
+ * This map is used by both the HTML generator (for <img src>) and the
+ * zip builder (for archive entries).
  */
-async function buildImageMap(data: MemoriesDataResponse): Promise<Map<string, string>> {
-  const urls = new Set<string>();
-
-  for (const letter of data.letters) {
-    if (letter.photoUrl) urls.add(letter.photoUrl);
-  }
-  for (const pp of data.photoPrompts) {
-    for (const r of pp.responses) {
-      if (r.photoUrl) urls.add(r.photoUrl);
-    }
-  }
-  for (const photo of data.photos) {
-    urls.add(photo.url);
-  }
-  for (const fl of data.friendLetters) {
-    if (fl.mediaUrl) urls.add(fl.mediaUrl);
-  }
-
-  const urlList = Array.from(urls);
+function buildPhotoMap(data: MemoriesDataResponse): Map<string, string> {
   const map = new Map<string, string>();
 
-  await mapWithConcurrency(urlList, PHOTO_FETCH_CONCURRENCY, async (url) => {
-    const dataUri = await fetchImageAsDataUri(url);
-    if (dataUri) {
-      map.set(url, dataUri);
-    }
+  data.photos.forEach((photo, i) => {
+    map.set(photo.url, `photos/photo-${i + 1}.${extFromUrl(photo.url)}`);
   });
+
+  for (const letter of data.letters) {
+    if (letter.photoUrl && !map.has(letter.photoUrl)) {
+      map.set(letter.photoUrl, `photos/letter-${sanitize(letter.envelopeTitle)}.${extFromUrl(letter.photoUrl)}`);
+    }
+  }
+
+  for (const fl of data.friendLetters) {
+    if (fl.mediaUrl && !map.has(fl.mediaUrl)) {
+      map.set(fl.mediaUrl, `photos/friend-letter-${sanitize(fl.friendName)}.${extFromUrl(fl.mediaUrl)}`);
+    }
+  }
+
+  for (const pp of data.photoPrompts) {
+    for (const r of pp.responses) {
+      if (r.photoUrl && !map.has(r.photoUrl)) {
+        map.set(r.photoUrl, `photos/prompt-${sanitize(pp.envelopeTitle)}-${sanitize(r.participantDesignation)}.${extFromUrl(r.photoUrl)}`);
+      }
+    }
+  }
 
   return map;
 }
 
 // ---------- HTML section builders ----------
 
-function renderLetters(letters: MemoryLetter[], images: Map<string, string>): string {
+function renderLetters(letters: MemoryLetter[], photos: Map<string, string>): string {
   if (letters.length === 0) return '';
   const cards = letters.map((letter) => {
-    const photo = letter.photoUrl && images.get(letter.photoUrl)
-      ? `<img src="${images.get(letter.photoUrl)}" alt="Letter photo" class="memory-card__photo" />`
+    const src = letter.photoUrl ? photos.get(letter.photoUrl) : undefined;
+    const photo = src
+      ? `<img src="${esc(src)}" alt="Letter photo" class="memory-card__photo" />`
       : '';
     return `
       <div class="memory-card">
@@ -166,12 +159,13 @@ function renderWyr(results: MemoryWyrResult[]): string {
   return renderSection('Would You Rather', cards);
 }
 
-function renderPhotoPrompts(prompts: MemoryPhotoPrompt[], images: Map<string, string>): string {
+function renderPhotoPrompts(prompts: MemoryPhotoPrompt[], photos: Map<string, string>): string {
   if (prompts.length === 0) return '';
   const cards = prompts.map((pp) => {
     const responses = pp.responses.map((r) => {
-      const photo = r.photoUrl && images.get(r.photoUrl)
-        ? `<img src="${images.get(r.photoUrl)}" alt="${esc(r.participantDesignation)}'s photo" class="memory-card__photo" />`
+      const src = r.photoUrl ? photos.get(r.photoUrl) : undefined;
+      const photo = src
+        ? `<img src="${esc(src)}" alt="${esc(r.participantDesignation)}'s photo" class="memory-card__photo" />`
         : '';
       return `
         <div class="memory-photos__item">
@@ -191,14 +185,14 @@ function renderPhotoPrompts(prompts: MemoryPhotoPrompt[], images: Map<string, st
   return renderSection('Photo Prompts', cards);
 }
 
-function renderPhotoGallery(photos: MemoryPhoto[], images: Map<string, string>): string {
-  if (photos.length === 0) return '';
-  const items = photos.map((photo, i) => {
-    const src = images.get(photo.url);
+function renderPhotoGallery(galleryPhotos: MemoryPhoto[], photos: Map<string, string>): string {
+  if (galleryPhotos.length === 0) return '';
+  const items = galleryPhotos.map((photo, i) => {
+    const src = photos.get(photo.url);
     if (!src) return '';
     return `
       <div class="memory-photos__item">
-        <img src="${src}" alt="${esc(photo.caption ?? `Photo ${i + 1}`)}" class="memory-card__photo" />
+        <img src="${esc(src)}" alt="${esc(photo.caption ?? `Photo ${i + 1}`)}" class="memory-card__photo" />
       </div>`;
   }).join('');
 
@@ -231,11 +225,12 @@ function renderGenderReveal(reveal: MemoryGenderReveal | null): string {
     </div>`);
 }
 
-function renderFriendLetters(letters: MemoryFriendLetter[], images: Map<string, string>): string {
+function renderFriendLetters(letters: MemoryFriendLetter[], photos: Map<string, string>): string {
   if (letters.length === 0) return '';
   const cards = letters.map((fl) => {
-    const photo = fl.mediaUrl && images.get(fl.mediaUrl)
-      ? `<img src="${images.get(fl.mediaUrl)}" alt="Photo from ${esc(fl.friendName)}" class="memory-card__photo" />`
+    const src = fl.mediaUrl ? photos.get(fl.mediaUrl) : undefined;
+    const photo = src
+      ? `<img src="${esc(src)}" alt="Photo from ${esc(fl.friendName)}" class="memory-card__photo" />`
       : '';
     return `
       <div class="memory-card">
@@ -260,11 +255,10 @@ function renderSection(title: string, content: string): string {
 }
 
 /**
- * Generate a self-contained HTML keepsake that mirrors the memories web view
+ * Generate an HTML keepsake that references images from a sibling photos/ folder.
+ * Must be opened from the extracted zip so relative paths resolve.
  */
-export async function generateMemoriesHtml(data: MemoriesDataResponse): Promise<string> {
-  const images = await buildImageMap(data);
-
+export function generateMemoriesHtml(data: MemoriesDataResponse, photos: Map<string, string>): string {
   const closedDate = new Date(data.closedAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -272,14 +266,14 @@ export async function generateMemoriesHtml(data: MemoriesDataResponse): Promise<
   });
 
   const sections = [
-    renderLetters(data.letters, images),
+    renderLetters(data.letters, photos),
     renderWyr(data.wyrResults),
-    renderPhotoPrompts(data.photoPrompts, images),
-    renderPhotoGallery(data.photos, images),
+    renderPhotoPrompts(data.photoPrompts, photos),
+    renderPhotoGallery(data.photos, photos),
     renderNames(data.nameMatches),
     renderTrivia(data.triviaResults),
     renderGenderReveal(data.genderReveal),
-    renderFriendLetters(data.friendLetters, images),
+    renderFriendLetters(data.friendLetters, photos),
   ].join('');
 
   return `<!DOCTYPE html>
@@ -484,8 +478,9 @@ export async function generateMemoriesHtml(data: MemoriesDataResponse): Promise<
 }
 
 /**
- * Generate a zip archive containing the HTML keepsake and all photos
- * Returns a readable stream for piping to HTTP response
+ * Generate a zip archive containing the HTML keepsake and all photos.
+ * The HTML references photos via relative paths (photos/filename.ext),
+ * so the zip must be extracted before opening.
  */
 export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<Readable> {
   const passthrough = new PassThrough();
@@ -498,42 +493,16 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
 
   archive.pipe(passthrough);
 
-  // Generate HTML keepsake (images embedded as base64)
-  const html = await generateMemoriesHtml(data);
+  // Build a single URL -> local filename map used by both HTML and zip entries
+  const photoMap = buildPhotoMap(data);
+
+  // Generate HTML keepsake (references photos/ via relative paths)
+  const html = generateMemoriesHtml(data, photoMap);
   archive.append(html, { name: 'Before We Were Three.html' });
 
-  // Also include photos as separate files for easy access
-  const photoUrls: { url: string; filename: string }[] = [];
-
-  data.photos.forEach((photo, i) => {
-    const ext = photo.url.split('.').pop()?.split('?')[0] ?? 'jpg';
-    photoUrls.push({ url: photo.url, filename: `photos/photo-${i + 1}.${ext}` });
-  });
-
-  for (const letter of data.letters) {
-    if (letter.photoUrl) {
-      const ext = letter.photoUrl.split('.').pop()?.split('?')[0] ?? 'jpg';
-      photoUrls.push({ url: letter.photoUrl, filename: `photos/letter-${letter.envelopeTitle.replace(/[^a-z0-9]/gi, '-')}.${ext}` });
-    }
-  }
-
-  for (const fl of data.friendLetters) {
-    if (fl.mediaUrl) {
-      const ext = fl.mediaUrl.split('.').pop()?.split('?')[0] ?? 'jpg';
-      photoUrls.push({ url: fl.mediaUrl, filename: `photos/friend-letter-${fl.friendName.replace(/[^a-z0-9]/gi, '-')}.${ext}` });
-    }
-  }
-
-  for (const pp of data.photoPrompts) {
-    for (const r of pp.responses) {
-      if (r.photoUrl) {
-        const ext = r.photoUrl.split('.').pop()?.split('?')[0] ?? 'jpg';
-        photoUrls.push({ url: r.photoUrl, filename: `photos/prompt-${pp.envelopeTitle.replace(/[^a-z0-9]/gi, '-')}-${r.participantDesignation}.${ext}` });
-      }
-    }
-  }
-
-  await mapWithConcurrency(photoUrls, PHOTO_FETCH_CONCURRENCY, async ({ url, filename }) => {
+  // Fetch all photos and add to the archive
+  const entries = Array.from(photoMap.entries());
+  await mapWithConcurrency(entries, PHOTO_FETCH_CONCURRENCY, async ([url, filename]) => {
     const buffer = await fetchImageBuffer(url);
     if (buffer) {
       archive.append(buffer, { name: filename });

@@ -24,17 +24,34 @@ import { logger } from '../utils/logger.js';
 // Concurrency limit for fetching photos from Azure Blob Storage
 const PHOTO_FETCH_CONCURRENCY = 5;
 
+/** Content types that browsers can render natively */
+const BROWSER_NATIVE_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+]);
+
 /**
- * Fetch a remote image and convert to browser-compatible JPEG.
- * iPhone photos are often HEIC, which browsers can't render in <img> tags.
+ * Fetch a remote image, converting non-browser formats (HEIC, DNG) to JPEG.
+ * Browser-native formats are returned unchanged.
+ * Returns { buffer, ext } where ext is the file extension to use.
  */
-async function fetchImageAsJpeg(url: string): Promise<Buffer | null> {
+async function fetchImage(url: string): Promise<{ buffer: Buffer; ext: string } | null> {
   try {
     const response = await fetch(url);
     if (!response.ok) return null;
-    const arrayBuffer = await response.arrayBuffer();
-    const raw = Buffer.from(arrayBuffer);
-    return await sharp(raw).jpeg({ quality: 90 }).toBuffer();
+    const contentType = (response.headers.get('content-type') ?? '').split(';')[0].trim();
+    const raw = Buffer.from(await response.arrayBuffer());
+
+    if (BROWSER_NATIVE_TYPES.has(contentType)) {
+      const extMap: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp' };
+      return { buffer: raw, ext: extMap[contentType] ?? 'jpg' };
+    }
+
+    // Non-native (HEIC, DNG, TIFF, etc.) — convert to JPEG
+    const jpeg = await sharp(raw).jpeg({ quality: 90 }).toBuffer();
+    return { buffer: jpeg, ext: 'jpg' };
   } catch (error) {
     logger.warn('Failed to fetch/convert image for export', { url, error });
     return null;
@@ -72,7 +89,7 @@ function sanitize(name: string): string {
   return name.replace(/[^a-z0-9]/gi, '-');
 }
 
-/** All exported images are converted to JPEG */
+/** Placeholder extension for photo map — actual ext determined at fetch time */
 function extFromUrl(_url: string): string {
   return 'jpg';
 }
@@ -506,9 +523,9 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
   // Fetch all photos and add to the archive
   const entries = Array.from(photoMap.entries());
   await mapWithConcurrency(entries, PHOTO_FETCH_CONCURRENCY, async ([url, filename]) => {
-    const buffer = await fetchImageAsJpeg(url);
-    if (buffer) {
-      archive.append(buffer, { name: filename });
+    const result = await fetchImage(url);
+    if (result) {
+      archive.append(result.buffer, { name: filename });
     }
   });
 

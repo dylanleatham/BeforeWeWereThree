@@ -27,10 +27,24 @@ const PHOTO_FETCH_CONCURRENCY = 5;
 /** Formats that browsers can render natively */
 const BROWSER_NATIVE_FORMATS = new Set(['jpeg', 'png', 'gif', 'webp']);
 
+/** Run a promise with a timeout */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`Timed out after ${ms}ms`)), ms),
+    ),
+  ]);
+}
+
+// Sharp conversion timeout — skip images that take too long (e.g., unsupported DNG)
+const CONVERT_TIMEOUT_MS = 30_000;
+
 /**
  * Fetch a remote image, detecting its actual format from content (not headers).
  * iPhone photos are often HEIC stored with a .jpeg extension and image/jpeg
  * content-type. Only non-browser formats are converted to JPEG via sharp.
+ * Images that can't be processed within the timeout are skipped.
  */
 async function fetchImage(url: string): Promise<Buffer | null> {
   try {
@@ -38,22 +52,23 @@ async function fetchImage(url: string): Promise<Buffer | null> {
     if (!response.ok) return null;
     const raw = Buffer.from(await response.arrayBuffer());
 
-    const metadata = await sharp(raw).metadata();
+    const metadata = await withTimeout(sharp(raw).metadata(), CONVERT_TIMEOUT_MS);
     const format = metadata.format ?? 'unknown';
 
     if (BROWSER_NATIVE_FORMATS.has(format)) {
       return raw;
     }
 
-    // Non-native (HEIC, DNG, TIFF, etc.) — resize and convert to JPEG.
-    // Raw formats like DNG can be 50MB+ at full resolution; capping at 2048px
-    // keeps conversion fast and output size reasonable for a keepsake.
-    return await sharp(raw)
-      .resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 90 })
-      .toBuffer();
+    // Non-native (HEIC, TIFF, etc.) — resize and convert to JPEG
+    return await withTimeout(
+      sharp(raw)
+        .resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 90 })
+        .toBuffer(),
+      CONVERT_TIMEOUT_MS,
+    );
   } catch (error) {
-    logger.warn('Failed to fetch/convert image for export', { url, error });
+    logger.warn('Skipping image (unsupported format or timeout)', { url, error });
     return null;
   }
 }

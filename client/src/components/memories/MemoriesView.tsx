@@ -5,6 +5,19 @@ import { ExportButton } from './ExportButton';
 import { STRINGS } from '../../constants/strings';
 import './MemoriesView.css';
 
+/**
+ * Retry loading an image that failed due to a 206 partial content response.
+ * Appending a query parameter bypasses the browser's stale partial cache
+ * and forces a fresh full download.
+ */
+function handleImageError(e: React.SyntheticEvent<HTMLImageElement>) {
+  const img = e.currentTarget;
+  if (!img.dataset.retried) {
+    img.dataset.retried = '1';
+    img.src = `${img.src}${img.src.includes('?') ? '&' : '?'}cb=${Date.now()}`;
+  }
+}
+
 interface MemoriesViewProps {
   onBack: () => void;
 }
@@ -73,7 +86,7 @@ export function MemoriesView({ onBack }: MemoriesViewProps) {
                 </Text>
                 <Text className="memory-card__content">{letter.content}</Text>
                 {letter.photoUrl && (
-                  <img src={letter.photoUrl} alt="Letter photo" className="memory-card__photo" />
+                  <img src={letter.photoUrl} alt="Letter photo" className="memory-card__photo" onError={handleImageError} />
                 )}
               </Card>
             ))}
@@ -119,7 +132,7 @@ export function MemoriesView({ onBack }: MemoriesViewProps) {
                   {pp.responses.map((r, j) => (
                     <div key={j} className="memory-photos__item">
                       {r.photoUrl && (
-                        <img src={r.photoUrl} alt={`${r.participantDesignation}'s photo`} className="memory-card__photo" />
+                        <img src={r.photoUrl} alt={`${r.participantDesignation}'s photo`} className="memory-card__photo" onError={handleImageError} />
                       )}
                       <Text variant="small" color="muted">{r.participantDesignation}</Text>
                     </div>
@@ -136,7 +149,7 @@ export function MemoriesView({ onBack }: MemoriesViewProps) {
             <div className="memory-photos__grid">
               {data.photos.map((photo, i) => (
                 <div key={i} className="memory-photos__item">
-                  <img src={photo.url} alt={photo.caption ?? `Photo ${i + 1}`} className="memory-card__photo" />
+                  <img src={photo.url} alt={photo.caption ?? `Photo ${i + 1}`} className="memory-card__photo" onError={handleImageError} />
                 </div>
               ))}
             </div>
@@ -195,7 +208,7 @@ export function MemoriesView({ onBack }: MemoriesViewProps) {
                 </div>
                 <Text className="memory-card__content">{fl.content}</Text>
                 {fl.mediaUrl && (
-                  <img src={fl.mediaUrl} alt={`Photo from ${fl.friendName}`} className="memory-card__photo" />
+                  <img src={fl.mediaUrl} alt={`Photo from ${fl.friendName}`} className="memory-card__photo" onError={handleImageError} />
                 )}
               </Card>
             ))}

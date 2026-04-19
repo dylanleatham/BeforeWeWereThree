@@ -49,8 +49,11 @@ router.get('/:filename', authMiddleware, async (req: Request<{ filename: string 
       return;
     }
 
-    // Non-native (HEIC, DNG, TIFF, etc.) — convert to JPEG
-    const jpeg = await sharp(raw).jpeg({ quality: 90 }).toBuffer();
+    // Non-native (HEIC, DNG, TIFF, etc.) — resize and convert to JPEG
+    const jpeg = await sharp(raw)
+      .resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 90 })
+      .toBuffer();
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.send(jpeg);

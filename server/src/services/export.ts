@@ -45,8 +45,13 @@ async function fetchImage(url: string): Promise<Buffer | null> {
       return raw;
     }
 
-    // Non-native (HEIC, DNG, TIFF, etc.) — convert to JPEG
-    return await sharp(raw).jpeg({ quality: 90 }).toBuffer();
+    // Non-native (HEIC, DNG, TIFF, etc.) — resize and convert to JPEG.
+    // Raw formats like DNG can be 50MB+ at full resolution; capping at 2048px
+    // keeps conversion fast and output size reasonable for a keepsake.
+    return await sharp(raw)
+      .resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 90 })
+      .toBuffer();
   } catch (error) {
     logger.warn('Failed to fetch/convert image for export', { url, error });
     return null;

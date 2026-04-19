@@ -24,34 +24,29 @@ import { logger } from '../utils/logger.js';
 // Concurrency limit for fetching photos from Azure Blob Storage
 const PHOTO_FETCH_CONCURRENCY = 5;
 
-/** Content types that browsers can render natively */
-const BROWSER_NATIVE_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-]);
+/** Formats that browsers can render natively */
+const BROWSER_NATIVE_FORMATS = new Set(['jpeg', 'png', 'gif', 'webp']);
 
 /**
- * Fetch a remote image, converting non-browser formats (HEIC, DNG) to JPEG.
- * Browser-native formats are returned unchanged.
- * Returns { buffer, ext } where ext is the file extension to use.
+ * Fetch a remote image, detecting its actual format from content (not headers).
+ * iPhone photos are often HEIC stored with a .jpeg extension and image/jpeg
+ * content-type. Only non-browser formats are converted to JPEG via sharp.
  */
-async function fetchImage(url: string): Promise<{ buffer: Buffer; ext: string } | null> {
+async function fetchImage(url: string): Promise<Buffer | null> {
   try {
     const response = await fetch(url);
     if (!response.ok) return null;
-    const contentType = (response.headers.get('content-type') ?? '').split(';')[0].trim();
     const raw = Buffer.from(await response.arrayBuffer());
 
-    if (BROWSER_NATIVE_TYPES.has(contentType)) {
-      const extMap: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp' };
-      return { buffer: raw, ext: extMap[contentType] ?? 'jpg' };
+    const metadata = await sharp(raw).metadata();
+    const format = metadata.format ?? 'unknown';
+
+    if (BROWSER_NATIVE_FORMATS.has(format)) {
+      return raw;
     }
 
     // Non-native (HEIC, DNG, TIFF, etc.) — convert to JPEG
-    const jpeg = await sharp(raw).jpeg({ quality: 90 }).toBuffer();
-    return { buffer: jpeg, ext: 'jpg' };
+    return await sharp(raw).jpeg({ quality: 90 }).toBuffer();
   } catch (error) {
     logger.warn('Failed to fetch/convert image for export', { url, error });
     return null;
@@ -523,9 +518,9 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
   // Fetch all photos and add to the archive
   const entries = Array.from(photoMap.entries());
   await mapWithConcurrency(entries, PHOTO_FETCH_CONCURRENCY, async ([url, filename]) => {
-    const result = await fetchImage(url);
-    if (result) {
-      archive.append(result.buffer, { name: filename });
+    const buffer = await fetchImage(url);
+    if (buffer) {
+      archive.append(buffer, { name: filename });
     }
   });
 

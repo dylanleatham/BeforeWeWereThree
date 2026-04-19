@@ -8,9 +8,9 @@ import { logger } from '../utils/logger.js';
  *
  * GET /api/images/:filename
  *
- * Fetches an image from Azure Blob Storage and converts non-browser-compatible
- * formats (HEIC/HEIF) to JPEG on the fly. Browser-native formats are passed
- * through unchanged.
+ * For browser-native formats (JPEG, PNG, etc.), redirects straight to Azure.
+ * For non-browser formats (HEIC, DNG, TIFF), fetches the image, converts to
+ * JPEG via sharp, and streams the result with cache headers.
  */
 
 const router = Router();
@@ -32,31 +32,39 @@ router.get('/:filename', authMiddleware, async (req: Request<{ filename: string 
   const blobUrl = `https://${STORAGE_ACCOUNT}.blob.core.windows.net/${CONTAINER}/${filename}`;
 
   try {
+    // HEAD request to check content-type without downloading the full image
+    const head = await fetch(blobUrl, { method: 'HEAD' });
+    if (!head.ok) {
+      res.status(head.status).end();
+      return;
+    }
+
+    const contentType = (head.headers.get('content-type') ?? 'application/octet-stream').split(';')[0].trim();
+
+    // Browser-native format: redirect to Azure directly (no server involvement)
+    if (BROWSER_NATIVE_TYPES.has(contentType)) {
+      res.redirect(blobUrl);
+      return;
+    }
+
+    // Non-native format (HEIC, DNG, TIFF, etc.): fetch, convert, and stream
     const blobResponse = await fetch(blobUrl);
     if (!blobResponse.ok) {
       res.status(blobResponse.status).end();
       return;
     }
 
-    const contentType = blobResponse.headers.get('content-type') ?? 'application/octet-stream';
     const buffer = Buffer.from(await blobResponse.arrayBuffer());
-
-    // Browser-native formats: pass through unchanged
-    if (BROWSER_NATIVE_TYPES.has(contentType.split(';')[0].trim())) {
-      res.setHeader('Content-Type', contentType);
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-      res.send(buffer);
-      return;
-    }
-
-    // Non-native format (HEIC, HEIF, TIFF, etc.): convert to JPEG
     const jpeg = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.send(jpeg);
   } catch (error) {
     logger.error('Image proxy error', { filename, error });
-    res.status(500).end();
+    if (!res.headersSent) {
+      res.status(500).end();
+    }
   }
 });
 

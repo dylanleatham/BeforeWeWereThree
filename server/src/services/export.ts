@@ -27,32 +27,36 @@ const PHOTO_FETCH_CONCURRENCY = 5;
 /** Formats that browsers can render natively */
 const BROWSER_NATIVE_FORMATS = new Set(['jpeg', 'png', 'gif', 'webp']);
 
-/** Run a promise with a timeout */
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`Timed out after ${ms}ms`)), ms),
-    ),
-  ]);
-}
-
-// Sharp conversion timeout — skip images that take too long (e.g., unsupported DNG)
-const CONVERT_TIMEOUT_MS = 30_000;
+// Skip files larger than 20MB — they're raw photos (DNG) that take too long to convert
+const MAX_CONVERT_SIZE_BYTES = 20 * 1024 * 1024;
 
 /**
  * Fetch a remote image, detecting its actual format from content (not headers).
  * iPhone photos are often HEIC stored with a .jpeg extension and image/jpeg
  * content-type. Only non-browser formats are converted to JPEG via sharp.
- * Images that can't be processed within the timeout are skipped.
+ * Very large files (raw camera formats like DNG) are skipped entirely.
  */
 async function fetchImage(url: string): Promise<Buffer | null> {
   try {
     const response = await fetch(url);
     if (!response.ok) return null;
+
+    // Skip very large files (DNG raw photos etc.) — too slow to convert
+    const contentLength = parseInt(response.headers.get('content-length') ?? '0', 10);
+    if (contentLength > MAX_CONVERT_SIZE_BYTES) {
+      logger.info('Skipping oversized image for export', { url, size: contentLength });
+      return null;
+    }
+
     const raw = Buffer.from(await response.arrayBuffer());
 
-    const metadata = await withTimeout(sharp(raw).metadata(), CONVERT_TIMEOUT_MS);
+    // Double-check after download in case content-length was missing
+    if (raw.length > MAX_CONVERT_SIZE_BYTES) {
+      logger.info('Skipping oversized image for export', { url, size: raw.length });
+      return null;
+    }
+
+    const metadata = await sharp(raw).metadata();
     const format = metadata.format ?? 'unknown';
 
     if (BROWSER_NATIVE_FORMATS.has(format)) {
@@ -60,15 +64,12 @@ async function fetchImage(url: string): Promise<Buffer | null> {
     }
 
     // Non-native (HEIC, TIFF, etc.) — resize and convert to JPEG
-    return await withTimeout(
-      sharp(raw)
-        .resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true })
-        .jpeg({ quality: 90 })
-        .toBuffer(),
-      CONVERT_TIMEOUT_MS,
-    );
+    return await sharp(raw)
+      .resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 90 })
+      .toBuffer();
   } catch (error) {
-    logger.warn('Skipping image (unsupported format or timeout)', { url, error });
+    logger.warn('Skipping image (unsupported format or conversion error)', { url, error });
     return null;
   }
 }

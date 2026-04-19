@@ -250,6 +250,14 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
     }
   }
 
+  // Photos from friend letters
+  for (const fl of data.friendLetters) {
+    if (fl.mediaUrl) {
+      const ext = fl.mediaUrl.split('.').pop()?.split('?')[0] ?? 'jpg';
+      photoUrls.push({ url: fl.mediaUrl, filename: `photos/friend-letter-${fl.friendName.replace(/[^a-z0-9]/gi, '-')}.${ext}` });
+    }
+  }
+
   // Photos from photo prompts
   for (const pp of data.photoPrompts) {
     for (const r of pp.responses) {

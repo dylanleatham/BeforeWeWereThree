@@ -164,6 +164,8 @@ export async function getMemoriesData(closedAt: string): Promise<MemoriesDataRes
     recipient: fl.recipient,
     content: fl.content,
     submittedAt: fl.submittedAt!.toISOString(),
+    mediaUrl: fl.mediaUrl,
+    mediaType: fl.mediaType,
   }));
 
   // --- Photos ---

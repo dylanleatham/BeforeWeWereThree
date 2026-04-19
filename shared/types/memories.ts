@@ -54,6 +54,8 @@ export interface MemoryFriendLetter {
   recipient: string;
   content: string;
   submittedAt: string;
+  mediaUrl: string | null;
+  mediaType: string | null;
 }
 
 export interface MemoryPhoto {

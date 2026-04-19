@@ -194,6 +194,9 @@ export function MemoriesView({ onBack }: MemoriesViewProps) {
                   <Text variant="small" color="muted">to {fl.recipient}</Text>
                 </div>
                 <Text className="memory-card__content">{fl.content}</Text>
+                {fl.mediaUrl && (
+                  <img src={fl.mediaUrl} alt={`Photo from ${fl.friendName}`} className="memory-card__photo" />
+                )}
               </Card>
             ))}
           </MemorySection>

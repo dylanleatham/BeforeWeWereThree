@@ -27,34 +27,33 @@ const PHOTO_FETCH_CONCURRENCY = 5;
 /** Formats that browsers can render natively */
 const BROWSER_NATIVE_FORMATS = new Set(['jpeg', 'png', 'gif', 'webp']);
 
-// Skip files larger than 20MB — they're raw photos (DNG) that take too long to convert
-const MAX_CONVERT_SIZE_BYTES = 20 * 1024 * 1024;
-
 /**
  * Fetch a remote image, detecting its actual format from content (not headers).
  * iPhone photos are often HEIC stored with a .jpeg extension and image/jpeg
  * content-type. Only non-browser formats are converted to JPEG via sharp.
- * Very large files (raw camera formats like DNG) are skipped entirely.
+ *
+ * Size gate: files reported as image/jpeg or image/png are always downloaded
+ * (they may be HEIC in disguise). Other types over 20MB are skipped (DNG raw).
  */
 async function fetchImage(url: string): Promise<Buffer | null> {
   try {
+    // HEAD check: skip truly large non-image files (DNG = 66MB raw)
+    const head = await fetch(url, { method: 'HEAD' });
+    if (!head.ok) return null;
+
+    const size = parseInt(head.headers.get('content-length') ?? '0', 10);
+    const contentType = (head.headers.get('content-type') ?? '').split(';')[0].trim();
+    const maxSize = 20 * 1024 * 1024;
+
+    // Allow image/jpeg and image/png through regardless of size (may be HEIC in disguise)
+    if (size > maxSize && contentType !== 'image/jpeg' && contentType !== 'image/png') {
+      logger.info('Skipping oversized non-JPEG/PNG for export', { url, size, contentType });
+      return null;
+    }
+
     const response = await fetch(url);
     if (!response.ok) return null;
-
-    // Skip very large files (DNG raw photos etc.) — too slow to convert
-    const contentLength = parseInt(response.headers.get('content-length') ?? '0', 10);
-    if (contentLength > MAX_CONVERT_SIZE_BYTES) {
-      logger.info('Skipping oversized image for export', { url, size: contentLength });
-      return null;
-    }
-
     const raw = Buffer.from(await response.arrayBuffer());
-
-    // Double-check after download in case content-length was missing
-    if (raw.length > MAX_CONVERT_SIZE_BYTES) {
-      logger.info('Skipping oversized image for export', { url, size: raw.length });
-      return null;
-    }
 
     const metadata = await sharp(raw).metadata();
     const format = metadata.format ?? 'unknown';
@@ -105,39 +104,46 @@ function sanitize(name: string): string {
   return name.replace(/[^a-z0-9]/gi, '-');
 }
 
-/** Placeholder extension for photo map — actual ext determined at fetch time */
-function extFromUrl(_url: string): string {
-  return 'jpg';
-}
-
 /**
  * Build a map from original blob URL -> local filename in photos/ folder.
- * This map is used by both the HTML generator (for <img src>) and the
- * zip builder (for archive entries).
+ * Uses a Set to track filenames and appends a counter on collision.
  */
 function buildPhotoMap(data: MemoriesDataResponse): Map<string, string> {
   const map = new Map<string, string>();
+  const usedNames = new Set<string>();
+
+  function addUnique(url: string, base: string): void {
+    if (map.has(url)) return;
+    let name = `photos/${base}.jpg`;
+    let counter = 2;
+    while (usedNames.has(name)) {
+      name = `photos/${base}-${counter}.jpg`;
+      counter++;
+    }
+    usedNames.add(name);
+    map.set(url, name);
+  }
 
   data.photos.forEach((photo, i) => {
-    map.set(photo.url, `photos/photo-${i + 1}.${extFromUrl(photo.url)}`);
+    addUnique(photo.url, `photo-${i + 1}`);
   });
 
   for (const letter of data.letters) {
-    if (letter.photoUrl && !map.has(letter.photoUrl)) {
-      map.set(letter.photoUrl, `photos/letter-${sanitize(letter.envelopeTitle)}.${extFromUrl(letter.photoUrl)}`);
+    if (letter.photoUrl) {
+      addUnique(letter.photoUrl, `letter-${sanitize(letter.envelopeTitle)}-${sanitize(letter.participantDesignation)}`);
     }
   }
 
   for (const fl of data.friendLetters) {
-    if (fl.mediaUrl && !map.has(fl.mediaUrl)) {
-      map.set(fl.mediaUrl, `photos/friend-letter-${sanitize(fl.friendName)}.${extFromUrl(fl.mediaUrl)}`);
+    if (fl.mediaUrl) {
+      addUnique(fl.mediaUrl, `friend-letter-${sanitize(fl.friendName)}`);
     }
   }
 
   for (const pp of data.photoPrompts) {
     for (const r of pp.responses) {
-      if (r.photoUrl && !map.has(r.photoUrl)) {
-        map.set(r.photoUrl, `photos/prompt-${sanitize(pp.envelopeTitle)}-${sanitize(r.participantDesignation)}.${extFromUrl(r.photoUrl)}`);
+      if (r.photoUrl) {
+        addUnique(r.photoUrl, `prompt-${sanitize(pp.envelopeTitle)}-${sanitize(r.participantDesignation)}`);
       }
     }
   }

@@ -1,4 +1,5 @@
 import archiver from 'archiver';
+import sharp from 'sharp';
 import type { Readable } from 'stream';
 import { PassThrough } from 'stream';
 import type {
@@ -24,16 +25,18 @@ import { logger } from '../utils/logger.js';
 const PHOTO_FETCH_CONCURRENCY = 5;
 
 /**
- * Fetch a remote image as a Buffer
+ * Fetch a remote image and convert to browser-compatible JPEG.
+ * iPhone photos are often HEIC, which browsers can't render in <img> tags.
  */
-async function fetchImageBuffer(url: string): Promise<Buffer | null> {
+async function fetchImageAsJpeg(url: string): Promise<Buffer | null> {
   try {
     const response = await fetch(url);
     if (!response.ok) return null;
     const arrayBuffer = await response.arrayBuffer();
-    return Buffer.from(arrayBuffer);
+    const raw = Buffer.from(arrayBuffer);
+    return await sharp(raw).jpeg({ quality: 90 }).toBuffer();
   } catch (error) {
-    logger.warn('Failed to fetch image for export', { url, error });
+    logger.warn('Failed to fetch/convert image for export', { url, error });
     return null;
   }
 }
@@ -69,9 +72,9 @@ function sanitize(name: string): string {
   return name.replace(/[^a-z0-9]/gi, '-');
 }
 
-/** Get file extension from a URL */
-function extFromUrl(url: string): string {
-  return url.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'jpg';
+/** All exported images are converted to JPEG */
+function extFromUrl(_url: string): string {
+  return 'jpg';
 }
 
 /**
@@ -503,7 +506,7 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
   // Fetch all photos and add to the archive
   const entries = Array.from(photoMap.entries());
   await mapWithConcurrency(entries, PHOTO_FETCH_CONCURRENCY, async ([url, filename]) => {
-    const buffer = await fetchImageBuffer(url);
+    const buffer = await fetchImageAsJpeg(url);
     if (buffer) {
       archive.append(buffer, { name: filename });
     }

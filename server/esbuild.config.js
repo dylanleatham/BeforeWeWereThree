@@ -21,7 +21,7 @@ await esbuild.build({
   target: 'node22',
   format: 'esm',
   outfile: 'deploy/index.js',
-  external: ['@prisma/client'], // Prisma has native binaries
+  external: ['@prisma/client', 'sharp'], // Native binaries
   sourcemap: false,
   minify: true,
   banner: {
@@ -42,6 +42,7 @@ const prodPackageJson = {
   dependencies: {
     '@prisma/client': '^6.19.2',
     'prisma': '^6.19.2',
+    'sharp': '^0.34.5',
   },
 };
 

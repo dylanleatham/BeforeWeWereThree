@@ -63,7 +63,7 @@ router.get('/export', authMiddleware, async (_req: Request, res: Response) => {
       return;
     }
 
-    const data = await getMemoriesData(closedAt);
+    const data = await getMemoriesData(closedAt, false);
 
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', 'attachment; filename="Before We Were Three.zip"');

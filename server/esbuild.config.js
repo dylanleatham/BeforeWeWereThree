@@ -21,7 +21,7 @@ await esbuild.build({
   target: 'node22',
   format: 'esm',
   outfile: 'deploy/index.js',
-  external: ['@prisma/client', 'pdfkit'], // Prisma has native binaries; PDFKit loads .afm font files from disk at runtime
+  external: ['@prisma/client'], // Prisma has native binaries
   sourcemap: false,
   minify: true,
   banner: {
@@ -41,7 +41,6 @@ const prodPackageJson = {
   },
   dependencies: {
     '@prisma/client': '^6.19.2',
-    'pdfkit': '^0.17.2',
     'prisma': '^6.19.2',
   },
 };

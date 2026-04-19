@@ -1,13 +1,22 @@
-import PDFDocument from 'pdfkit';
 import archiver from 'archiver';
 import type { Readable } from 'stream';
 import { PassThrough } from 'stream';
-import type { MemoriesDataResponse } from 'shared';
+import type {
+  MemoriesDataResponse,
+  MemoryLetter,
+  MemoryWyrResult,
+  MemoryPhotoPrompt,
+  MemoryNameMatch,
+  MemoryTriviaResult,
+  MemoryGenderReveal,
+  MemoryFriendLetter,
+  MemoryPhoto,
+} from 'shared';
 import { logger } from '../utils/logger.js';
 
 /**
  * Memories export service
- * Generates PDF and zip files for the babymoon keepsake
+ * Generates a self-contained HTML keepsake and zip archive
  */
 
 // Concurrency limit for fetching photos from Azure Blob Storage
@@ -29,6 +38,25 @@ async function fetchImageBuffer(url: string): Promise<Buffer | null> {
 }
 
 /**
+ * Fetch an image and return as a base64 data URI
+ */
+async function fetchImageAsDataUri(url: string): Promise<string | null> {
+  const buffer = await fetchImageBuffer(url);
+  if (!buffer) return null;
+  // Detect content type from URL extension
+  const ext = url.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'jpg';
+  const mimeMap: Record<string, string> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+  };
+  const mime = mimeMap[ext] ?? 'image/jpeg';
+  return `data:${mime};base64,${buffer.toString('base64')}`;
+}
+
+/**
  * Process items with concurrency limit
  */
 async function mapWithConcurrency<T, R>(
@@ -45,177 +73,418 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
-// --- PDF layout constants ---
-const MARGIN = 50;
-const PAGE_WIDTH = 612; // US Letter
-const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
-
-function addSectionHeader(doc: PDFKit.PDFDocument, title: string): void {
-  if (doc.y > 650) doc.addPage();
-  doc
-    .moveDown(1.5)
-    .font('Times-Bold')
-    .fontSize(18)
-    .text(title, MARGIN, undefined, { width: CONTENT_WIDTH })
-    .moveDown(0.5)
-    .moveTo(MARGIN, doc.y)
-    .lineTo(MARGIN + CONTENT_WIDTH, doc.y)
-    .strokeColor('#F4A261')
-    .lineWidth(1)
-    .stroke()
-    .moveDown(0.5);
-}
-
-function addBodyText(doc: PDFKit.PDFDocument, text: string): void {
-  doc.font('Helvetica').fontSize(11).text(text, MARGIN, undefined, { width: CONTENT_WIDTH });
-}
-
-function addLabel(doc: PDFKit.PDFDocument, label: string): void {
-  doc.font('Helvetica-Bold').fontSize(11).text(label, MARGIN, undefined, {
-    width: CONTENT_WIDTH,
-    continued: false,
-  });
+/** Escape HTML special characters */
+function esc(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 /**
- * Generate a PDF document from memories data
+ * Collect all image URLs from the memories data, fetch them as data URIs,
+ * and return a map from original URL -> data URI
  */
-export async function generateMemoriesPdf(data: MemoriesDataResponse): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({
-      size: 'letter',
-      margins: { top: MARGIN, bottom: MARGIN, left: MARGIN, right: MARGIN },
-      info: {
-        Title: 'Before We Were Three',
-        Author: 'Before We Were Three App',
-      },
-    });
+async function buildImageMap(data: MemoriesDataResponse): Promise<Map<string, string>> {
+  const urls = new Set<string>();
 
-    const chunks: Buffer[] = [];
-    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
-
-    // === Cover Page ===
-    doc.moveDown(6);
-    doc
-      .font('Times-Bold')
-      .fontSize(32)
-      .text('Before We Were Three', MARGIN, undefined, {
-        width: CONTENT_WIDTH,
-        align: 'center',
-      });
-
-    doc.moveDown(1);
-    doc
-      .font('Times-Roman')
-      .fontSize(14)
-      .fillColor('#666666')
-      .text('Our Babymoon Memories', MARGIN, undefined, {
-        width: CONTENT_WIDTH,
-        align: 'center',
-      });
-
-    doc.moveDown(0.5);
-    const closedDate = new Date(data.closedAt).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-    doc.text(closedDate, MARGIN, undefined, { width: CONTENT_WIDTH, align: 'center' });
-    doc.fillColor('#000000');
-
-    // === Letters Section ===
-    if (data.letters.length > 0) {
-      doc.addPage();
-      addSectionHeader(doc, 'Letters to Baby');
-
-      for (const letter of data.letters) {
-        if (doc.y > 600) doc.addPage();
-        addLabel(doc, `${letter.envelopeTitle} — ${letter.participantDesignation}`);
-        doc.moveDown(0.3);
-        doc.font('Helvetica-Oblique').fontSize(10).text(`Prompt: ${letter.prompt}`, MARGIN, undefined, { width: CONTENT_WIDTH });
-        doc.moveDown(0.3);
-        addBodyText(doc, letter.content);
-        doc.moveDown(1);
-      }
+  for (const letter of data.letters) {
+    if (letter.photoUrl) urls.add(letter.photoUrl);
+  }
+  for (const pp of data.photoPrompts) {
+    for (const r of pp.responses) {
+      if (r.photoUrl) urls.add(r.photoUrl);
     }
+  }
+  for (const photo of data.photos) {
+    urls.add(photo.url);
+  }
+  for (const fl of data.friendLetters) {
+    if (fl.mediaUrl) urls.add(fl.mediaUrl);
+  }
 
-    // === Would You Rather Section ===
-    if (data.wyrResults.length > 0) {
-      doc.addPage();
-      addSectionHeader(doc, 'Would You Rather');
+  const urlList = Array.from(urls);
+  const map = new Map<string, string>();
 
-      for (const wyr of data.wyrResults) {
-        if (doc.y > 650) doc.addPage();
-        addLabel(doc, wyr.envelopeTitle);
-        doc.moveDown(0.3);
-        const aVoters = wyr.voteA ?? '—';
-        const bVoters = wyr.voteB ?? '—';
-        addBodyText(doc, `A: ${wyr.optionA} (${aVoters})`);
-        addBodyText(doc, `B: ${wyr.optionB} (${bVoters})`);
-        doc.moveDown(0.8);
-      }
+  await mapWithConcurrency(urlList, PHOTO_FETCH_CONCURRENCY, async (url) => {
+    const dataUri = await fetchImageAsDataUri(url);
+    if (dataUri) {
+      map.set(url, dataUri);
     }
-
-    // === Names We Loved Section ===
-    if (data.nameMatches.length > 0) {
-      doc.addPage();
-      addSectionHeader(doc, 'Names We Both Loved');
-
-      for (const name of data.nameMatches) {
-        addBodyText(doc, `• ${name.name}`);
-      }
-      doc.moveDown(1);
-    }
-
-    // === Trivia Scores ===
-    if (data.triviaResults.length > 0) {
-      addSectionHeader(doc, 'Trivia Scores');
-
-      for (const result of data.triviaResults) {
-        addBodyText(doc, `${result.participantDesignation}: ${result.correctCount} / ${result.totalCount} correct`);
-      }
-      doc.moveDown(1);
-    }
-
-    // === Gender Reveal ===
-    if (data.genderReveal?.genderValue) {
-      addSectionHeader(doc, 'Gender Reveal');
-      const genderLabel = data.genderReveal.genderValue === 'boy' ? 'Boy' : 'Girl';
-      addBodyText(doc, `It's a ${genderLabel}!`);
-      if (data.genderReveal.revealedAt) {
-        const revealDate = new Date(data.genderReveal.revealedAt).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        });
-        doc.font('Helvetica').fontSize(10).fillColor('#666666').text(`Revealed on ${revealDate}`, MARGIN, undefined, { width: CONTENT_WIDTH });
-        doc.fillColor('#000000');
-      }
-      doc.moveDown(1);
-    }
-
-    // === Friend Letters ===
-    if (data.friendLetters.length > 0) {
-      doc.addPage();
-      addSectionHeader(doc, 'Letters from Friends');
-
-      for (const fl of data.friendLetters) {
-        if (doc.y > 600) doc.addPage();
-        addLabel(doc, `From ${fl.friendName} (to ${fl.recipient})`);
-        doc.moveDown(0.3);
-        addBodyText(doc, fl.content);
-        doc.moveDown(1);
-      }
-    }
-
-    doc.end();
   });
+
+  return map;
+}
+
+// ---------- HTML section builders ----------
+
+function renderLetters(letters: MemoryLetter[], images: Map<string, string>): string {
+  if (letters.length === 0) return '';
+  const cards = letters.map((letter) => {
+    const photo = letter.photoUrl && images.get(letter.photoUrl)
+      ? `<img src="${images.get(letter.photoUrl)}" alt="Letter photo" class="memory-card__photo" />`
+      : '';
+    return `
+      <div class="memory-card">
+        <div class="memory-card__header">
+          <span class="memory-card__label">${esc(letter.envelopeTitle)}</span>
+          <span class="text-small text-muted">${esc(letter.participantDesignation)}</span>
+        </div>
+        <p class="text-small text-muted memory-card__prompt">${esc(letter.prompt)}</p>
+        <p class="memory-card__content">${esc(letter.content)}</p>
+        ${photo}
+      </div>`;
+  }).join('');
+
+  return renderSection('Letters to Baby', cards);
+}
+
+function renderWyr(results: MemoryWyrResult[]): string {
+  if (results.length === 0) return '';
+  const cards = results.map((wyr) => {
+    const sameChoice = wyr.voteA && wyr.voteB && wyr.voteA === wyr.voteB;
+    const matchClass = sameChoice ? 'memory-wyr__match' : 'memory-wyr__different';
+    const matchText = sameChoice ? 'You agreed!' : 'Different choices!';
+    return `
+      <div class="memory-card">
+        <span class="memory-card__label">${esc(wyr.envelopeTitle)}</span>
+        <div class="memory-wyr">
+          <div class="memory-wyr__option${wyr.voteA ? ' memory-wyr__option--chosen' : ''}">
+            <span>${esc(wyr.optionA)}</span>
+            ${wyr.voteA ? `<span class="text-small text-muted">${esc(wyr.voteA)}</span>` : ''}
+          </div>
+          <div class="memory-wyr__option${wyr.voteB ? ' memory-wyr__option--chosen' : ''}">
+            <span>${esc(wyr.optionB)}</span>
+            ${wyr.voteB ? `<span class="text-small text-muted">${esc(wyr.voteB)}</span>` : ''}
+          </div>
+        </div>
+        <span class="text-small ${matchClass}">${matchText}</span>
+      </div>`;
+  }).join('');
+
+  return renderSection('Would You Rather', cards);
+}
+
+function renderPhotoPrompts(prompts: MemoryPhotoPrompt[], images: Map<string, string>): string {
+  if (prompts.length === 0) return '';
+  const cards = prompts.map((pp) => {
+    const responses = pp.responses.map((r) => {
+      const photo = r.photoUrl && images.get(r.photoUrl)
+        ? `<img src="${images.get(r.photoUrl)}" alt="${esc(r.participantDesignation)}'s photo" class="memory-card__photo" />`
+        : '';
+      return `
+        <div class="memory-photos__item">
+          ${photo}
+          <span class="text-small text-muted">${esc(r.participantDesignation)}</span>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="memory-card">
+        <span class="memory-card__label">${esc(pp.envelopeTitle)}</span>
+        <p class="text-small text-muted">${esc(pp.prompt)}</p>
+        <div class="memory-photos__grid">${responses}</div>
+      </div>`;
+  }).join('');
+
+  return renderSection('Photo Prompts', cards);
+}
+
+function renderPhotoGallery(photos: MemoryPhoto[], images: Map<string, string>): string {
+  if (photos.length === 0) return '';
+  const items = photos.map((photo, i) => {
+    const src = images.get(photo.url);
+    if (!src) return '';
+    return `
+      <div class="memory-photos__item">
+        <img src="${src}" alt="${esc(photo.caption ?? `Photo ${i + 1}`)}" class="memory-card__photo" />
+      </div>`;
+  }).join('');
+
+  return renderSection('Photo Gallery', `<div class="memory-photos__grid">${items}</div>`);
+}
+
+function renderNames(names: MemoryNameMatch[]): string {
+  if (names.length === 0) return '';
+  const items = names.map((n) => `<li class="memory-names__item">${esc(n.name)}</li>`).join('');
+  return renderSection('Names We Both Loved', `
+    <div class="memory-card">
+      <ul class="memory-names">${items}</ul>
+    </div>`);
+}
+
+function renderTrivia(results: MemoryTriviaResult[]): string {
+  if (results.length === 0) return '';
+  const lines = results.map((r) =>
+    `<p>${esc(r.participantDesignation)}: ${r.correctCount} / ${r.totalCount} correct</p>`
+  ).join('');
+  return renderSection('Trivia Scores', `<div class="memory-card">${lines}</div>`);
+}
+
+function renderGenderReveal(reveal: MemoryGenderReveal | null): string {
+  if (!reveal?.genderValue) return '';
+  const label = reveal.genderValue === 'boy' ? "It's a Boy!" : "It's a Girl!";
+  return renderSection('Gender Reveal', `
+    <div class="memory-card memory-card--gender">
+      <h3 class="memory-gender__value">${esc(label)}</h3>
+    </div>`);
+}
+
+function renderFriendLetters(letters: MemoryFriendLetter[], images: Map<string, string>): string {
+  if (letters.length === 0) return '';
+  const cards = letters.map((fl) => {
+    const photo = fl.mediaUrl && images.get(fl.mediaUrl)
+      ? `<img src="${images.get(fl.mediaUrl)}" alt="Photo from ${esc(fl.friendName)}" class="memory-card__photo" />`
+      : '';
+    return `
+      <div class="memory-card">
+        <div class="memory-card__header">
+          <span class="memory-card__label">From ${esc(fl.friendName)}</span>
+          <span class="text-small text-muted">to ${esc(fl.recipient)}</span>
+        </div>
+        <p class="memory-card__content">${esc(fl.content)}</p>
+        ${photo}
+      </div>`;
+  }).join('');
+
+  return renderSection('Letters from Friends', cards);
+}
+
+function renderSection(title: string, content: string): string {
+  return `
+    <section class="memory-section">
+      <h2 class="memory-section__title">${esc(title)}</h2>
+      <div class="memory-section__content">${content}</div>
+    </section>`;
 }
 
 /**
- * Generate a zip archive containing the PDF and all photos
+ * Generate a self-contained HTML keepsake that mirrors the memories web view
+ */
+export async function generateMemoriesHtml(data: MemoriesDataResponse): Promise<string> {
+  const images = await buildImageMap(data);
+
+  const closedDate = new Date(data.closedAt).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const sections = [
+    renderLetters(data.letters, images),
+    renderWyr(data.wyrResults),
+    renderPhotoPrompts(data.photoPrompts, images),
+    renderPhotoGallery(data.photos, images),
+    renderNames(data.nameMatches),
+    renderTrivia(data.triviaResults),
+    renderGenderReveal(data.genderReveal),
+    renderFriendLetters(data.friendLetters, images),
+  ].join('');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before We Were Three — Our Memories</title>
+  <style>
+    /* Reset & base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /* Memories View — Golden Hour Scrapbook Style */
+    .memories-view {
+      min-height: 100vh;
+      background: #FAF3E8;
+      padding: 1rem;
+      padding-bottom: 2rem;
+    }
+
+    .memories-view__header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-top: 0.5rem;
+    }
+
+    .memories-view__title {
+      font-family: 'Fraunces', Georgia, serif;
+      color: #BC6C4A;
+      margin: 0.5rem 0 0.25rem;
+      font-size: 2rem;
+    }
+
+    .memories-view__date {
+      display: block;
+      margin-bottom: 1rem;
+      color: #888;
+    }
+
+    .memories-view__sections {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Section */
+    .memory-section__title {
+      font-family: 'Fraunces', Georgia, serif;
+      color: #BC6C4A;
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #F4A261;
+    }
+
+    .memory-section__content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* Cards */
+    .memory-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(244, 162, 97, 0.2);
+    }
+
+    .memory-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+
+    .memory-card__label {
+      font-weight: 600;
+      color: #BC6C4A;
+    }
+
+    .memory-card__prompt {
+      font-style: italic;
+      margin-bottom: 0.5rem;
+    }
+
+    .memory-card__content {
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .memory-card__photo {
+      width: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      margin-top: 0.75rem;
+    }
+
+    .memory-card--gender {
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    /* Text helpers */
+    .text-small { font-size: 0.875rem; }
+    .text-muted { color: #888; }
+
+    /* WYR */
+    .memory-wyr {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
+    }
+
+    .memory-wyr__option {
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      background: #FAF3E8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .memory-wyr__option--chosen {
+      border-left: 3px solid #F4A261;
+    }
+
+    .memory-wyr__match {
+      color: #9DB5A0;
+      font-weight: 600;
+    }
+
+    .memory-wyr__different {
+      color: #E07A5F;
+    }
+
+    /* Photos grid */
+    .memory-photos__grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .memory-photos__item {
+      text-align: center;
+    }
+
+    /* Names */
+    .memory-names {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .memory-names__item {
+      background: #FAF3E8;
+      padding: 0.375rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid #F4A261;
+    }
+
+    /* Gender reveal */
+    .memory-gender__value {
+      font-family: 'Fraunces', Georgia, serif;
+      color: #E07A5F;
+      font-size: 1.5rem;
+    }
+
+    /* Print styles */
+    @media print {
+      .memories-view { padding: 0; }
+      .memory-card { break-inside: avoid; }
+      .memory-card__photo { max-height: 400px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="memories-view">
+    <header class="memories-view__header">
+      <h1 class="memories-view__title">Our Memories</h1>
+      <span class="memories-view__date">${esc(closedDate)}</span>
+    </header>
+    <div class="memories-view__sections">
+      ${sections}
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Generate a zip archive containing the HTML keepsake and all photos
  * Returns a readable stream for piping to HTTP response
  */
 export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<Readable> {
@@ -229,20 +498,18 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
 
   archive.pipe(passthrough);
 
-  // Generate PDF
-  const pdfBuffer = await generateMemoriesPdf(data);
-  archive.append(pdfBuffer, { name: 'Before We Were Three.pdf' });
+  // Generate HTML keepsake (images embedded as base64)
+  const html = await generateMemoriesHtml(data);
+  archive.append(html, { name: 'Before We Were Three.html' });
 
-  // Collect all photo URLs
+  // Also include photos as separate files for easy access
   const photoUrls: { url: string; filename: string }[] = [];
 
-  // Photos from media library
   data.photos.forEach((photo, i) => {
     const ext = photo.url.split('.').pop()?.split('?')[0] ?? 'jpg';
     photoUrls.push({ url: photo.url, filename: `photos/photo-${i + 1}.${ext}` });
   });
 
-  // Photos from letters
   for (const letter of data.letters) {
     if (letter.photoUrl) {
       const ext = letter.photoUrl.split('.').pop()?.split('?')[0] ?? 'jpg';
@@ -250,7 +517,6 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
     }
   }
 
-  // Photos from friend letters
   for (const fl of data.friendLetters) {
     if (fl.mediaUrl) {
       const ext = fl.mediaUrl.split('.').pop()?.split('?')[0] ?? 'jpg';
@@ -258,7 +524,6 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
     }
   }
 
-  // Photos from photo prompts
   for (const pp of data.photoPrompts) {
     for (const r of pp.responses) {
       if (r.photoUrl) {
@@ -268,7 +533,6 @@ export async function generateMemoriesZip(data: MemoriesDataResponse): Promise<R
     }
   }
 
-  // Fetch and add photos with concurrency limit
   await mapWithConcurrency(photoUrls, PHOTO_FETCH_CONCURRENCY, async ({ url, filename }) => {
     const buffer = await fetchImageBuffer(url);
     if (buffer) {

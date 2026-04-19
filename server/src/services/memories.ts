@@ -6,15 +6,24 @@ import type { MemoriesDataResponse } from 'shared';
  * Queries all activity tables and returns a unified keepsake view
  */
 
-/** Map participant IDs to their designations */
+const ADMIN_NAME = process.env.RECIPIENT_NAME_YOU ?? 'Dylan';
+const PARTNER_NAME = process.env.RECIPIENT_NAME_PARTNER ?? 'Partner';
+
+/** Map participant IDs to display names */
 async function getDesignationMap(): Promise<Map<string, string>> {
   const participants = await db.participant.findMany({
-    where: { role: 'guest' },
-    select: { id: true, designation: true },
+    where: { role: { in: ['guest', 'admin'] } },
+    select: { id: true, designation: true, role: true },
   });
   const map = new Map<string, string>();
   for (const p of participants) {
-    map.set(p.id, p.designation ?? 'Unknown');
+    if (p.role === 'admin') {
+      map.set(p.id, ADMIN_NAME);
+    } else if (p.designation === 'readonly') {
+      map.set(p.id, PARTNER_NAME);
+    } else {
+      map.set(p.id, p.designation ?? 'Unknown');
+    }
   }
   return map;
 }

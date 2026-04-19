@@ -8,18 +8,6 @@ import type { MemoriesDataResponse } from 'shared';
 
 const ADMIN_NAME = process.env.RECIPIENT_NAME_YOU ?? 'Dylan';
 const PARTNER_NAME = process.env.RECIPIENT_NAME_PARTNER ?? 'Partner';
-const STORAGE_ACCOUNT = process.env.AZURE_STORAGE_ACCOUNT ?? 'bwwtstorage';
-const BLOB_PREFIX = `https://${STORAGE_ACCOUNT}.blob.core.windows.net/photos/`;
-
-/**
- * Convert an Azure blob URL to an image proxy URL.
- * The proxy converts non-browser-compatible formats (HEIC) to JPEG.
- */
-function toProxyUrl(blobUrl: string | null): string | null {
-  if (!blobUrl || !blobUrl.startsWith(BLOB_PREFIX)) return blobUrl;
-  const filename = blobUrl.slice(BLOB_PREFIX.length);
-  return `/api/images/${encodeURIComponent(filename)}`;
-}
 
 /** Map participant IDs to display names */
 async function getDesignationMap(): Promise<Map<string, string>> {
@@ -42,9 +30,8 @@ async function getDesignationMap(): Promise<Map<string, string>> {
 
 /**
  * Get all memories data.
- * @param useProxyUrls - true for web API (converts HEIC via proxy), false for export (raw Azure URLs)
  */
-export async function getMemoriesData(closedAt: string, useProxyUrls = true): Promise<MemoriesDataResponse> {
+export async function getMemoriesData(closedAt: string): Promise<MemoriesDataResponse> {
   const designations = await getDesignationMap();
 
   const [
@@ -132,7 +119,7 @@ export async function getMemoriesData(closedAt: string, useProxyUrls = true): Pr
     prompt: letter.prompt.prompt,
     participantDesignation: designations.get(letter.participantId) ?? 'Unknown',
     content: letter.content,
-    photoUrl: useProxyUrls ? toProxyUrl(letter.photoUrl) : letter.photoUrl,
+    photoUrl: letter.photoUrl,
   }));
 
   // --- Map Photo Prompts ---
@@ -141,7 +128,7 @@ export async function getMemoriesData(closedAt: string, useProxyUrls = true): Pr
     prompt: pp.prompt,
     responses: pp.responses.map((r) => ({
       participantDesignation: designations.get(r.participantId) ?? 'Unknown',
-      photoUrl: useProxyUrls ? toProxyUrl(r.photoUrl) : r.photoUrl,
+      photoUrl: r.photoUrl,
       caption: null,
     })),
   }));
@@ -186,13 +173,13 @@ export async function getMemoriesData(closedAt: string, useProxyUrls = true): Pr
     recipient: fl.recipient,
     content: fl.content,
     submittedAt: fl.submittedAt!.toISOString(),
-    mediaUrl: useProxyUrls ? toProxyUrl(fl.mediaUrl) : fl.mediaUrl,
+    mediaUrl: fl.mediaUrl,
     mediaType: fl.mediaType,
   }));
 
   // --- Photos ---
   const photos = photoData.map((p) => ({
-    url: useProxyUrls ? (toProxyUrl(p.blobUrl) ?? p.blobUrl) : p.blobUrl,
+    url: p.blobUrl,
     thumbnailUrl: null,
     caption: null,
     uploadedAt: p.createdAt.toISOString(),

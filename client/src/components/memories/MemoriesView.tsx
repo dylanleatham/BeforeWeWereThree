@@ -5,16 +5,19 @@ import { ExportButton } from './ExportButton';
 import { STRINGS } from '../../constants/strings';
 import './MemoriesView.css';
 
+const BLOB_PREFIX = 'https://bwwtstorage.blob.core.windows.net/photos/';
+
 /**
- * Retry loading an image that failed due to a 206 partial content response.
- * Appending a query parameter bypasses the browser's stale partial cache
- * and forces a fresh full download.
+ * When an image fails to load (HEIC disguised as JPEG, or 206 partial content),
+ * retry through the server-side image proxy which converts to browser-compatible JPEG.
+ * Only retries once — if the proxy also fails, the image is truly unavailable.
  */
 function handleImageError(e: React.SyntheticEvent<HTMLImageElement>) {
   const img = e.currentTarget;
-  if (!img.dataset.retried) {
+  if (!img.dataset.retried && img.src.includes(BLOB_PREFIX)) {
     img.dataset.retried = '1';
-    img.src = `${img.src}${img.src.includes('?') ? '&' : '?'}cb=${Date.now()}`;
+    const filename = img.src.split(BLOB_PREFIX)[1] ?? '';
+    img.src = `/api/images/${encodeURIComponent(filename)}`;
   }
 }
 

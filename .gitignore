@@ -47,3 +47,4 @@ server/.env
 # Every .env variant except the example
 .env.*
 !.env.example
+.claude/launch.json

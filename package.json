@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "description": "Interactive babymoon web application for expectant parents",
+  "license": "MIT",
   "workspaces": [
     "client",
     "server",

@@ -1,0 +1,26 @@
+# Monthly and grouped: one PR per ecosystem rather than one per package, so the lockfile
+# doesn't turn into a stream of PRs. Security updates arrive separately via Dependabot alerts.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions-all:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
+      include: scope

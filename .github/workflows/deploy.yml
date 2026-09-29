@@ -35,6 +35,10 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          VITE_RECIPIENT_NAME_YOU: ${{ vars.RECIPIENT_NAME_YOU }}
+          VITE_RECIPIENT_NAME_PARTNER: ${{ vars.RECIPIENT_NAME_PARTNER }}
+          VITE_RECIPIENT_NAME_BABY: ${{ vars.RECIPIENT_NAME_BABY }}
         run: npm run build
 
       - name: Install production dependencies

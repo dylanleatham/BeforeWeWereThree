@@ -31,7 +31,7 @@ This document captures the current feature thinking and design direction for the
 - **Admin / Host PIN**: Unlocks configuration and secret setup
 
 ### Participants
-- Exactly two participants (e.g., Dylan and partner)
+- Exactly two participants (the expectant couple)
 - Two-device real-time sync is supported so each person can participate independently
 
 ---

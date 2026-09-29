@@ -42,7 +42,7 @@ An interactive babymoon web application for Dylan and partner — a curated coll
 
 ## Context
 
-**Personal project:** This is being built for Dylan and partner's actual babymoon trip. The deadline is the trip itself.
+**Personal project:** This is being built for the couple's actual babymoon trip. The deadline is the trip itself.
 
 **Cultural context for Baby Name Game:** Names should function comfortably across cultures.
 

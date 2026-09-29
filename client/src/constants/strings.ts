@@ -308,10 +308,11 @@ export const STRINGS = {
   // Friend - new letter flow
   FRIEND_NEW_LETTER: 'Write a new letter',
   FRIEND_PICK_RECIPIENT: 'Who is this letter for?',
+  // Set VITE_RECIPIENT_NAME_* at build time to use real names
   RECIPIENT_NAMES: {
-    you: 'Dylan',
-    partner: 'Partner',
-    baby: 'Baby',
+    you: import.meta.env.VITE_RECIPIENT_NAME_YOU || 'Dylan',
+    partner: import.meta.env.VITE_RECIPIENT_NAME_PARTNER || 'Partner',
+    baby: import.meta.env.VITE_RECIPIENT_NAME_BABY || 'Baby',
   } as { readonly you: string; readonly partner: string; readonly baby: string },
 
   // Trivia

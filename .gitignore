@@ -40,3 +40,10 @@ nul
 # Local environment files
 .env
 server/.env
+
+# Claude Code per-machine permissions (records approved shell commands, which can include tokens)
+.claude/settings.local.json
+
+# Every .env variant except the example
+.env.*
+!.env.example

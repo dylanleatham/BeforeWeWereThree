@@ -9,7 +9,8 @@ gender reveal that only unlocks when both of us enter our keys. Friends could lo
 to write letters we'd open on the trip, and at the end the whole thing exports as a keepsake.
 
 It was designed, built and deployed to Azure in about three weeks, against a hard deadline: the
-day we left.
+day we left. The trip is over and the Azure resources have been retired, so today it runs locally
+against [demo data](#with-demo-data).
 
 **TypeScript · React 18 · Vite · Node/Express · PostgreSQL + Prisma · Socket.io / Azure SignalR ·
 Anthropic Claude API · Azure (App Service, Front Door, Key Vault, Blob Storage, Flexible Server) ·
@@ -77,7 +78,7 @@ flowchart LR
     API -- mints SAS --> A
     A -- direct PUT --> BLOB[(Azure Blob Storage)]
     KV[Key Vault] -. references .-> API
-    GH[GitHub Actions] -- OIDC deploy --> API
+    GH[GitHub Actions] -. OIDC deploy, retired .-> API
 ```
 
 The code is a three-package npm workspace:
@@ -101,7 +102,8 @@ shared/   API contracts and Zod schemas imported by both sides
   with Zod schemas; every endpoint returns `{ success, data }` or `{ success, error: { code, message } }`.
 - **Security that fits the threat model.** PIN-gated access with constant-time comparison and
   rate limiting, `httpOnly` / `sameSite=strict` JWT sessions, a strict CSP via helmet, secrets from
-  Key Vault references, and keyless GitHub → Azure deploys via OIDC. See [SECURITY.md](SECURITY.md).
+  Key Vault references, and keyless GitHub → Azure deploys via OIDC (the
+  [deploy workflow](https://github.com/dylanleatham/BeforeWeWereThree/blob/bb8b15b/.github/workflows/deploy.yml) was removed with the Azure resources). See [SECURITY.md](SECURITY.md).
 - **Resettable by design.** An admin "Reset Session" wipes user-generated state in FK-safe order
   inside one transaction while preserving admin-authored content and friends' letters — which
   made rehearsing the whole trip end-to-end possible.

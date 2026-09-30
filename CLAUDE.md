@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Before We Were Three** is an interactive babymoon web application for expectant parents. It features collaborative activities (voting, trivia, letter writing, AI-powered baby name generation, and gender reveal) designed for real-time two-device synchronization.
 
-**Status:** Complete — all seven phases shipped to production. Design and architecture documentation lives in `/docs/`; phase plans and lessons in `/.planning/`.
+**Status:** Complete — all seven phases shipped to production. The Azure resources were deleted in September 2026 and the deploy workflow removed; the app now runs locally (see README "With demo data"). Azure notes below are historical. Design and architecture documentation lives in `/docs/`; phase plans and lessons in `/.planning/`.
 
 ## Technology Stack
 

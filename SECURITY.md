@@ -1,7 +1,8 @@
 # Security policy
 
-Before We Were Three is a personal project built for one couple's trip. There is a single
-deployment and no published releases, so the only supported version is `main`.
+Before We Were Three is a personal project built for one couple's trip. Its Azure deployment has
+been retired and there are no published releases, so the only supported version is `main`, run
+locally.
 
 ## Reporting a vulnerability
 
@@ -23,6 +24,6 @@ rather than in a public issue. I'll acknowledge the report and follow up there.
 - **Photo uploads go straight to Azure Blob Storage** via 10-minute, create/write-only SAS URLs minted
   by the server; the storage key never reaches the browser.
 - **Credentials** (database, storage, Anthropic, JWT secret) come from environment variables —
-  Azure Key Vault references in production, a gitignored `.env` locally. `.env.example` holds
-  placeholders only. CI deploys to Azure with OpenID Connect, so no long-lived cloud credential
-  is stored in GitHub.
+  Azure Key Vault references when it was deployed, a gitignored `.env` locally. `.env.example`
+  holds placeholders only. Deploys used OpenID Connect, so no long-lived cloud credential was
+  stored in GitHub.

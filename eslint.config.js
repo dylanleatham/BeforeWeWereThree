@@ -30,6 +30,10 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      // New in eslint-plugin-react-hooks 7.1's recommended set. It flags our 16 load-on-mount
+      // effects (an effect calls a fetch that sets isLoading first). Kept visible as a warning
+      // until those hooks move to a shared loading hook, rather than blocking dependency updates.
+      'react-hooks/set-state-in-effect': 'warn',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useWouldYouRather } from '../../../hooks/useWouldYouRather';
-import { PartnerPresence } from './PartnerPresence';
+import { ActivityStatusBar } from '../shared/ActivityStatusBar';
 import { VotingPhase } from './VotingPhase';
 import { WaitingPhase } from './WaitingPhase';
 import { RevealPhase } from './RevealPhase';
@@ -139,15 +139,15 @@ export function WouldYouRatherActivity({
 
   return (
     <div className="wyr-activity">
-      {/* Header with partner presence and progress */}
-      <header className="wyr-activity__header">
-        <PartnerPresence partnerName={partnerName} />
-        {totalPrompts > 1 && phase !== 'complete' && phase !== 'summary' && (
-          <span className="wyr-activity__progress">
-            {STRINGS.WYR_PROGRESS(currentIndex + 1, totalPrompts)}
-          </span>
-        )}
-      </header>
+      <ActivityStatusBar
+        envelopeId={envelopeId}
+        partnerName={partnerName}
+        progress={
+          totalPrompts > 1 && phase !== 'complete' && phase !== 'summary'
+            ? STRINGS.WYR_PROGRESS(currentIndex + 1, totalPrompts)
+            : undefined
+        }
+      />
 
       {/* Phase content */}
       <motion.div

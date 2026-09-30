@@ -33,12 +33,17 @@ export interface SignalRNegotiateResponse {
 
 /**
  * Partner presence notification message
- * Sent when a partner connects or disconnects from an activity
+ * Sent when a partner opens or leaves an activity, and once to each client as it joins
+ * the activity (`snapshot: true`) so it knows whether the partner is already there.
+ * Only the Socket.io transport sends it; clients show no presence until one arrives.
  */
 export interface PartnerPresenceMessage {
   type: 'partner_presence';
-  participantId: string;
+  /** The partner the message is about; null in a snapshot when no partner is present */
+  participantId: string | null;
   isOnline: boolean;
+  /** Current state on joining, as opposed to a change the client should announce */
+  snapshot?: boolean;
 }
 
 /**

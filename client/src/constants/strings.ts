@@ -120,11 +120,12 @@ export const STRINGS = {
   ERROR_BOUNDARY_RETRY: 'Try again',
   ERROR_UNKNOWN: 'Unknown error',
 
-  // Would You Rather - PartnerPresence
+  // Partner presence (shared by the two-person activities)
   WYR_PARTNER_JOINED: (name: string) => `${name} joined`,
   WYR_PARTNER_LEFT: (name: string) => `${name} left`,
-  WYR_PARTNER_ONLINE: 'Online',
-  WYR_PARTNER_OFFLINE: 'Offline',
+  PARTNER_DEFAULT_NAME: 'Partner',
+  PRESENCE_HERE: (name: string) => `${name} is here`,
+  PRESENCE_AWAY: (name: string) => `${name} is away`,
 
   // Would You Rather - VotingPhase
   WYR_TITLE: 'Would you rather...',

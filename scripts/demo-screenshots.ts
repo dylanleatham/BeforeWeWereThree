@@ -23,6 +23,9 @@ const JWT_SECRET = process.env.JWT_SECRET ?? 'local-demo-secret-not-used-anywher
 const OUT = 'docs/screenshots';
 const PHONE = { width: 390, height: 844 };
 const SETTLE_MS = 900;
+// Palette PNGs are about half the size of full-colour ones. Below quality 100 the quantizer
+// folds small accents into nearby greys (the sage presence dot came out grey).
+const PNG_OPTIONS = { palette: true, quality: 100, effort: 10, compressionLevel: 9 } as const;
 
 type Who = 'a' | 'b' | 'admin' | 'maya' | 'nobody';
 
@@ -62,9 +65,8 @@ async function open(browser: Browser, who: Who, viewport = PHONE): Promise<Page>
 
 async function shot(page: Page, name: string): Promise<void> {
   await page.waitForTimeout(SETTLE_MS);
-  // Palette PNGs are a third the size and indistinguishable at README scale
   await sharp(await page.screenshot())
-    .png({ palette: true, quality: 90, compressionLevel: 9 })
+    .png(PNG_OPTIONS)
     .toFile(`${OUT}/${name}.png`);
   console.log(`  saved ${name}.png`);
 }
@@ -108,7 +110,8 @@ const scenes: Record<string, (browser: Browser) => Promise<void>> = {
   },
 
   async names(browser) {
-    const page = await open(browser, 'a');
+    const [page, partner] = [await open(browser, 'a'), await open(browser, 'b')];
+    await openEnvelope(partner, 'The Name Game'); // so presence reads "Partner is here"
     await openEnvelope(page, 'The Name Game');
     await frame(page, 'Meaning');
     // Votes are swipes: right = love, left = nope, down = maybe
@@ -145,7 +148,8 @@ const scenes: Record<string, (browser: Browser) => Promise<void>> = {
   },
 
   async letter(browser) {
-    const page = await open(browser, 'a');
+    const [page, partner] = [await open(browser, 'a'), await open(browser, 'b')];
+    await openEnvelope(partner, 'A Letter to Our Baby');
     await openEnvelope(page, 'A Letter to Our Baby');
     await page.getByPlaceholder('Write your letter here...').pressSequentially(
       'Right now we are on a balcony watching the light go gold, ' +
@@ -211,7 +215,7 @@ async function hero(): Promise<void> {
       { input: shadow, left: 0, top: 0 },
       ...phones.map((input, i) => ({ input, left: pad + i * (w + gap), top: pad })),
     ])
-    .png({ palette: true, quality: 90, compressionLevel: 9 })
+    .png(PNG_OPTIONS)
     .toFile(`${OUT}/hero.png`);
   console.log('  saved hero.png');
 }

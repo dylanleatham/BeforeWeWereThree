@@ -11,17 +11,6 @@
   position: relative;
 }
 
-/* Header with presence indicator */
-.ng-activity__header {
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--spacing-sm);
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 10;
-}
-
 /* Content area for phase components */
 .ng-activity__content {
   flex: 1;

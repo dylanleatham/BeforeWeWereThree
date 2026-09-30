@@ -7,13 +7,16 @@
   margin: 0 auto;
   overflow: hidden;
   box-shadow: var(--shadow-elevated);
+  /* Close/reopen buttons, and the clearance content needs below them */
+  --envelope-action-size: 48px;
+  --envelope-action-inset: var(--space-4);
 }
 
 /* Action buttons (close + reopen) */
 .base-envelope__actions {
   position: absolute;
-  top: var(--space-4);
-  right: var(--space-4);
+  top: var(--envelope-action-inset);
+  right: var(--envelope-action-inset);
   z-index: 10;
   display: flex;
   align-items: center;
@@ -25,8 +28,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: var(--envelope-action-size);
+  height: var(--envelope-action-size);
   background: var(--bg-elevated);
   border: none;
   border-radius: 50%;
@@ -71,9 +74,10 @@
   padding-top: calc(var(--space-8) + 40px);
 }
 
-/* Content area — no flap variant (evergreen envelopes) */
+/* Content area — no flap variant (evergreen envelopes). The title is centred and can run
+   the full width, so it starts below the action buttons rather than beside them. */
 .base-envelope__content--no-flap {
-  padding-top: var(--space-8);
+  padding-top: calc(var(--envelope-action-inset) + var(--envelope-action-size) + var(--space-2));
 }
 
 /* Header */

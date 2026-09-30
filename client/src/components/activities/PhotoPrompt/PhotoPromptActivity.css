@@ -45,10 +45,6 @@
   min-width: 44px;
 }
 
-.photo-prompt-activity__header {
-  margin-bottom: var(--space-4);
-}
-
 .photo-prompt-activity__content {
   flex: 1;
 }

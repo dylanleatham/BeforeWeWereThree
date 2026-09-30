@@ -1,0 +1,25 @@
+/**
+ * Activity Status Bar
+ *
+ * Presence on the left, progress on the right. The min-height reserves the row before
+ * presence arrives, so content doesn't shift when it appears.
+ */
+
+.activity-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.activity-status-bar__progress {
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--color-deep-terracotta);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-light-linen);
+}

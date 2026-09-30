@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { useNameGame } from '../../../hooks/useNameGame';
 import { useSession } from '../../../hooks/useSession';
-import { PartnerPresence } from '../WouldYouRather/PartnerPresence';
+import { ActivityStatusBar } from '../shared/ActivityStatusBar';
 import { VotingPhase } from './VotingPhase';
 import { WaitingPhase } from './WaitingPhase';
 import { WaitingForGuidancePhase } from './WaitingForGuidancePhase';
@@ -124,10 +124,7 @@ export function NameGameActivity({ envelopeId }: NameGameActivityProps) {
 
   return (
     <div className="ng-activity">
-      {/* Header with partner presence */}
-      <header className="ng-activity__header">
-        <PartnerPresence />
-      </header>
+      <ActivityStatusBar envelopeId={envelopeId} />
 
       {/* Phase content */}
       <motion.div

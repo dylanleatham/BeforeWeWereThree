@@ -1,10 +1,11 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
 import { SignJWT } from 'jose';
-import type { SignalRMessage, RealtimeTransport } from 'shared';
+import type { SignalRMessage, RealtimeTransport, PartnerPresenceMessage } from 'shared';
 import { logger } from '../utils/logger.js';
 import { verifySession } from './session.js';
 import { getEnvelopeById } from '../db/queries/envelopes.js';
+import { PresenceTracker } from './presence.js';
 
 /**
  * Extract a named cookie value from a raw Cookie header string.
@@ -52,6 +53,7 @@ export interface RealtimeAdapter {
 class SocketIOAdapter implements RealtimeAdapter {
   private io: SocketIOServer;
   private userSockets: Map<string, Set<string>> = new Map(); // userId -> Set<socketId>
+  private presence = new PresenceTracker();
 
   constructor(io: SocketIOServer) {
     this.io = io;
@@ -71,8 +73,9 @@ class SocketIOAdapter implements RealtimeAdapter {
         }
 
         const session = await verifySession(sessionToken);
-        // Store verified userId on socket data so connection handler can trust it
+        // Store verified identity on socket data so connection handler can trust it
         socket.data.userId = session.participantId;
+        socket.data.isPartner = session.designation === 'A' || session.designation === 'B';
         next();
       } catch {
         next(new Error('Invalid or expired session'));
@@ -104,6 +107,7 @@ class SocketIOAdapter implements RealtimeAdapter {
           const envelope = await getEnvelopeById(envelopeId);
           if (envelope) {
             socket.join(groupName);
+            this.onJoinedActivity(socket, groupName);
           }
         });
 
@@ -111,6 +115,23 @@ class SocketIOAdapter implements RealtimeAdapter {
         socket.on('leaveGroup', (groupName: string) => {
           if (/^(activity:[a-z0-9-]+|session:global)$/i.test(groupName)) {
             socket.leave(groupName);
+            this.onLeftActivity(socket, groupName);
+          }
+        });
+
+        // A client that mounts its presence indicator after joining asks for the state again.
+        // Only answered once the join has completed; a query that arrives first is covered by
+        // the snapshot the join itself sends.
+        socket.on('presenceQuery', (groupName: string) => {
+          if (typeof groupName === 'string' && socket.rooms.has(groupName)) {
+            this.sendPresenceSnapshot(socket, groupName);
+          }
+        });
+
+        // Rooms are still populated here, unlike in 'disconnect'
+        socket.on('disconnecting', () => {
+          for (const room of socket.rooms) {
+            if (room.startsWith('activity:')) this.onLeftActivity(socket, room);
           }
         });
 
@@ -126,6 +147,46 @@ class SocketIOAdapter implements RealtimeAdapter {
         });
       }
     });
+  }
+
+  /**
+   * Tell everyone else in the room if this partner just arrived, and tell the joining
+   * socket whether the other partner is already here.
+   */
+  private onJoinedActivity(socket: Socket, room: string): void {
+    const userId = socket.data.userId as string;
+    if (socket.data.isPartner && this.presence.join(room, userId, socket.id).arrived) {
+      this.broadcastPresence(room, userId, true);
+    }
+    this.sendPresenceSnapshot(socket, room);
+  }
+
+  /** Tell one socket whether the other partner is currently in the room */
+  private sendPresenceSnapshot(socket: Socket, room: string): void {
+    const partnerId = this.presence.otherPartner(room, socket.data.userId as string);
+    const snapshot: PartnerPresenceMessage = {
+      type: 'partner_presence',
+      participantId: partnerId,
+      isOnline: partnerId !== null,
+      snapshot: true,
+    };
+    socket.emit('partnerPresence', snapshot);
+  }
+
+  private onLeftActivity(socket: Socket, room: string): void {
+    const userId = socket.data.userId as string;
+    if (socket.data.isPartner && this.presence.leave(room, userId, socket.id).departed) {
+      this.broadcastPresence(room, userId, false);
+    }
+  }
+
+  /** Announce a partner's arrival or departure to the room, but not to their own sockets */
+  private broadcastPresence(room: string, userId: string, isOnline: boolean): void {
+    const message: PartnerPresenceMessage = { type: 'partner_presence', participantId: userId, isOnline };
+    this.io
+      .to(room)
+      .except([...(this.userSockets.get(userId) ?? [])])
+      .emit('partnerPresence', message);
   }
 
   async sendToGroup(groupName: string, message: SignalRMessage): Promise<void> {

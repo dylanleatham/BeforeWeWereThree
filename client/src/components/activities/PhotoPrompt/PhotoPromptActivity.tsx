@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { usePhotoPrompt } from '../../../hooks/usePhotoPrompt';
-import { PartnerPresence } from '../WouldYouRather/PartnerPresence';
+import { ActivityStatusBar } from '../shared/ActivityStatusBar';
 import { CapturingPhase } from './CapturingPhase';
 import { WaitingPhase } from './WaitingPhase';
 import { CompletePhase } from './CompletePhase';
@@ -115,9 +115,7 @@ export function PhotoPromptActivity({ envelopeId, onComplete }: PhotoPromptActiv
 
   return (
     <div className="photo-prompt-activity">
-      <header className="photo-prompt-activity__header">
-        <PartnerPresence partnerName="Partner" />
-      </header>
+      <ActivityStatusBar envelopeId={envelopeId} />
 
       <motion.div
         className="photo-prompt-activity__content"

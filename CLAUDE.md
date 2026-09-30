@@ -216,6 +216,8 @@ On Windows, the running dev server locks `query_engine-windows.dll.node`, making
 - **Vite proxy needs `ws: true`:** For Socket.io to work through Vite's dev proxy, add `ws: true` to the proxy config for the `/socket.io` path.
 - **Negotiate endpoint returns transport type:** The `/api/signalr/negotiate` endpoint returns `{ transport: 'socketio' | 'signalr', url, userId, accessToken? }` so the client knows which library to use.
 - **Testing real-time locally:** Use two different browsers (Chrome + Firefox), not regular + private mode. Browser fingerprinting produces identical IDs for both modes on the same machine.
+- **Partner presence is Socket.io-only and snapshot-based:** `PresenceTracker` (`server/src/services/presence.ts`) is fed by socket join/leave events, which Azure SignalR's REST mode never sees, so `PartnerPresence` renders nothing until a message arrives rather than claiming "away". A client state that depends on a message sent *at join time* is lost if the listening component mounts later (activities show a loading state first); the component must ask again on mount (`queryPresence`).
+- **Socket.io reconnects drop rooms:** a reconnected socket is new on the server. The client connection wrapper remembers joined groups and rejoins on `connect`.
 
 ### Azure Blob Storage (Photo Uploads)
 

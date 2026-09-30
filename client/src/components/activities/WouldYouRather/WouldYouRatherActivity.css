@@ -10,28 +10,6 @@
   position: relative;
 }
 
-/* Header with presence indicator */
-.wyr-activity__header {
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--spacing-sm);
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 10;
-}
-
-/* Progress indicator for multi-prompt */
-.wyr-activity__progress {
-  font-family: var(--font-body);
-  font-size: var(--font-size-xs);
-  color: var(--color-deep-terracotta);
-  opacity: 0.6;
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.04);
-}
-
 /* Content area for phase components */
 .wyr-activity__content {
   flex: 1;

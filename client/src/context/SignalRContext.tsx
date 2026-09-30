@@ -25,6 +25,11 @@ interface RealtimeConnection {
   joinGroup(groupName: string): void;
   /** Leave a group */
   leaveGroup(groupName: string): void;
+  /**
+   * Ask for the partner's presence in a group we've joined; the answer arrives as a
+   * 'partnerPresence' snapshot. A no-op where the transport can't track presence.
+   */
+  queryPresence(groupName: string): void;
 }
 
 /**
@@ -54,6 +59,13 @@ interface SignalRProviderProps {
  * Wrapper for Socket.io to match our unified interface
  */
 function createSocketIOConnection(socket: Socket): RealtimeConnection {
+  // A reconnect is a new socket on the server with no rooms, so rejoin the groups
+  // we're in; otherwise broadcasts (and partner presence) silently stop arriving.
+  const groups = new Set<string>();
+  socket.on('connect', () => {
+    for (const groupName of groups) socket.emit('joinGroup', groupName);
+  });
+
   return {
     on(event: string, callback: (...args: unknown[]) => void): void {
       socket.on(event, callback);
@@ -62,10 +74,15 @@ function createSocketIOConnection(socket: Socket): RealtimeConnection {
       socket.off(event, callback);
     },
     joinGroup(groupName: string): void {
+      groups.add(groupName);
       socket.emit('joinGroup', groupName);
     },
     leaveGroup(groupName: string): void {
+      groups.delete(groupName);
       socket.emit('leaveGroup', groupName);
+    },
+    queryPresence(groupName: string): void {
+      socket.emit('presenceQuery', groupName);
     },
   };
 }
@@ -123,6 +140,9 @@ function createSignalRConnection(
           console.error('Failed to leave group after retries:', error);
           onGroupError(null); // Leave failures are non-critical
         });
+    },
+    queryPresence(): void {
+      // Azure SignalR in REST mode never sees connections, so there is no presence to ask for
     },
   };
 }

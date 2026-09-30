@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { useLetter } from '../../../hooks/useLetter';
-import { PartnerPresence } from '../WouldYouRather/PartnerPresence';
+import { ActivityStatusBar } from '../shared/ActivityStatusBar';
 import { WritingPhase } from './WritingPhase';
 import { WaitingPhase } from './WaitingPhase';
 import { RevealPhase } from './RevealPhase';
@@ -157,10 +157,7 @@ export function LetterActivity({
 
   return (
     <div className="letter-activity">
-      {/* Header with partner presence */}
-      <header className="letter-activity__header">
-        <PartnerPresence partnerName={partnerName} />
-      </header>
+      <ActivityStatusBar envelopeId={envelopeId} partnerName={partnerName} />
 
       {/* Phase content */}
       <motion.div
